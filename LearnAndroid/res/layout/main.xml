@@ -3,11 +3,25 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="#FF004000"
     >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="Hello World, LearnAndroidActivity"
-    />
+  <TextView  
+      android:layout_width="fill_parent" 
+      android:layout_height="wrap_content" 
+      android:text="Hello World, LearnAndroidActivity"
+      />
+  <TextView  
+      android:id="@+id/tv1"
+      android:layout_width="fill_parent" 
+      android:layout_height="wrap_content" 
+      android:text="Hello TextView1"
+      android:background="#80000040"
+      />
+  <TextView
+      android:id="@+id/tv2"
+      android:layout_width="fill_parent" 
+      android:layout_height="wrap_content" 
+      android:text="Hello TextView2"
+      android:background="#80400000"
+      />
 </LinearLayout>
-
