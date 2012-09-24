@@ -1,0 +1,5 @@
+# -*- python -*-
+
+env = Environment()
+
+env.Java('hello', ['hello.java'])
