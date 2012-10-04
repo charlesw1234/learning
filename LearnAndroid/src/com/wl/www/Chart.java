@@ -17,6 +17,7 @@ import android.view.View;
 
 import com.wl.www.ValueList;
 import com.wl.www.ValueTransform;
+import com.wl.www.ChartLine;
 
 public class Chart extends View
 {
@@ -51,18 +52,14 @@ public class Chart extends View
 
     @Override public void onDraw(Canvas canvas)
     {
-	int x0, x1, y0, y1;
 	super.onDraw(canvas);
 	ValueTransform vtrans = new ValueTransform(0, this.getHeight());
 	vtrans.update(vlist);
-	int barw = this.getWidth() / vlist.size();
+	ChartLine cline = new ChartLine(vlist);
 	mPaint.setColor(Color.RED);
-	x0 = barw / 2; y0 = vtrans.transform(vlist.get(0));
-	for (int i = 1; i < vlist.size(); ++i) {
-	    x1 = x0 + barw;
-	    y1 = vtrans.transform(vlist.get(i));
-	    canvas.drawLine(x0, y0, x1, y1, mPaint);
-	    x0 = x1; y0 = y1;
-	}
+	cline.onDraw(canvas, mPaint,
+		     0, vlist.size(),
+		     0, this.getWidth(),
+		     vtrans);
     }
 }

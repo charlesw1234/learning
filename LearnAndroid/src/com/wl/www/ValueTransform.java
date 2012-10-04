@@ -10,6 +10,7 @@ public class ValueTransform
 
     public ValueTransform(int _iMax, int _iMin)
     {
+	trans = 0;
 	iMax = _iMax;
 	iMin = _iMin;
     }
@@ -28,7 +29,7 @@ public class ValueTransform
 
     public void update(ValueList vlist)
     {
-	update(vlist.getVMax(), vlist.getVMin());
+	update(vlist.getMax(), vlist.getMin());
     }
 
     public int transform(double value)
