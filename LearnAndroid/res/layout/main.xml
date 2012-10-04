@@ -24,4 +24,8 @@
       android:text="Hello TextView2"
       android:background="#80400000"
       />
+  <com.wl.www.Chart
+      android:layout_width="fill_parent"
+      android:layout_height="fill_parent"
+      />
 </LinearLayout>
