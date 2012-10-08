@@ -1,4 +1,6 @@
-package www.wangli.com;
+package com.wl.www;
+
+import com.wl.www.ValueList;
 
 public class hello
 {
