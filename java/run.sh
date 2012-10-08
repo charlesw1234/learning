@@ -1,2 +1,2 @@
 #!/bin/bash
-java -classpath hello com.wl.www.hello
+java -classpath classes com.wl.www.hello
