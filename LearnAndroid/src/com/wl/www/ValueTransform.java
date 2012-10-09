@@ -1,6 +1,6 @@
 package com.wl.www;
 
-import com.wl.www.ValueList;
+import com.wl.www.ValueArrayList;
 
 public class ValueTransform
 {
@@ -15,21 +15,21 @@ public class ValueTransform
 	iMin = _iMin;
     }
 
-    public void update(double _vMax, double _vMin)
+    public void update(double value)
     {
 	if (trans == 0) {
-	    vMax = _vMax;
-	    vMin = _vMin;
+	    vMax = vMin = value;
 	} else {
-	    if (vMax < _vMax) vMax = _vMax;
-	    if (vMin > _vMin) vMin = _vMin;
+	    if (vMax < value) vMax = value;
+	    if (vMin > value) vMin = value;
 	}
 	trans = (iMax - iMin) / (vMax - vMin);
     }
 
-    public void update(ValueList vlist)
+    public void update(ValueArrayList valist)
     {
-	update(vlist.getMax(), vlist.getMin());
+	update(valist.getMax());
+	update(valist.getMin());
     }
 
     public int transform(double value)

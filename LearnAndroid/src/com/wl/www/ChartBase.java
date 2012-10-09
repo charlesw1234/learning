@@ -2,17 +2,17 @@ package com.wl.www;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import com.wl.www.ValueList;
+import com.wl.www.ValueArrayList;
 import com.wl.www.ValueTransform;
 
 public class ChartBase
 {
-    protected ValueList vlist;
+    protected ValueArrayList valist;
 
-    public ChartBase(ValueList _vlist)
+    public ChartBase(ValueArrayList _valist)
     {
 	super();
-	vlist = _vlist;
+	valist = _valist;
     }
 
     public void onDraw(Canvas canvas, Paint mPaint,

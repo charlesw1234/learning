@@ -2,15 +2,15 @@ package com.wl.www;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import com.wl.www.ValueList;
+import com.wl.www.ValueArrayList;
 import com.wl.www.ValueTransform;
 import com.wl.www.ChartBase;
 
 public class ChartLine extends ChartBase
 {
-    public ChartLine(ValueList _vlist)
+    public ChartLine(ValueArrayList _valist)
     {
-	super(_vlist);
+	super(_valist);
     }
 
     public void onDraw(Canvas canvas, Paint mPaint,
@@ -25,8 +25,8 @@ public class ChartLine extends ChartBase
 	x0 = 0; y0 = 0;
 	for (int i = iStart; i < iStop; ++i) {
 	    x1 = x0 + w;
-	    if (vlist.in(i)) {
-		y1 = ytrans.transform(vlist.get(i));
+	    if (valist.in(i)) {
+		y1 = ytrans.transform(valist.get(i, 0));
 		if (!first)
 		    canvas.drawLine((x0 + x1) / 2 - w, y0,
 				    (x0 + x1) / 2, y1, mPaint);
