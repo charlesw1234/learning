@@ -18,19 +18,26 @@ import android.view.View;
 import com.wl.www.ValueArrayList;
 import com.wl.www.ValueTransform;
 import com.wl.www.ChartLine;
+import com.wl.www.ChartKLine;
 
 public class Chart extends View
 {
-    private Paint[] mPaints;
+    private Paint[] mPaintsLine;
+    private Paint[] mPaintsKLine;
     private ValueArrayList valist;
+    private ChartLine cline;
+    private ChartKLine ckline;
 
     public Chart(Context context, AttributeSet attrs)
     {
 	super(context, attrs);
-	mPaints = new Paint[]{ new Paint(), new Paint() };
-	mPaints[0].setColor(Color.RED);
-	mPaints[1].setColor(Color.GREEN);
-	valist = new ValueArrayList();
+	mPaintsLine = new Paint[]{ new Paint() };
+	mPaintsLine[0].setColor(Color.WHITE);
+	mPaintsKLine = new Paint[]{ new Paint(), new Paint() };
+	mPaintsKLine[0].setColor(Color.RED);
+	mPaintsKLine[0].setStyle(Paint.Style.STROKE);
+	mPaintsKLine[1].setColor(Color.GREEN);
+	mPaintsKLine[1].setStyle(Paint.Style.FILL);
 
 	try {
 	    InputStream is = context.getAssets().open("data.json");
@@ -42,9 +49,10 @@ public class Chart extends View
 	    String text = new String(arrOS.toByteArray());
 	    text.trim();
 	    try {
-		JSONArray jarr = new JSONArray(text);
-		for (int i = 0; i < jarr.length(); ++i)
-		    valist.append(new double[]{jarr.getDouble(i)});
+		valist = new ValueArrayList();
+		valist.append(new JSONArray(text));
+		cline = new ChartLine(valist, 4, 0);
+		ckline = new ChartKLine(valist, 1, 2, 3, 4);
 	    } catch (JSONException ex) {
 	    }
 	} catch (IOException ex) {
@@ -56,9 +64,14 @@ public class Chart extends View
     {
 	super.onDraw(canvas);
 	ValueTransform vtrans = new ValueTransform(0, this.getHeight());
-	vtrans.update(valist);
-	ChartLine cline = new ChartLine(valist);
-	cline.onDraw(canvas, mPaints,
+	vtrans.update(valist, 1, 2,3, 4);
+	canvas.drawText(String.format("%d, %f, %f", valist.size(), valist.min(1, 2, 3, 4), valist.max(1, 2, 3, 4)),
+			0, 50, mPaintsLine[0]);
+	ckline.onDraw(canvas, mPaintsKLine,
+		      0, valist.size(),
+		      0, this.getWidth(),
+		      vtrans);
+	cline.onDraw(canvas, mPaintsLine,
 		     0, valist.size(),
 		     0, this.getWidth(),
 		     vtrans);

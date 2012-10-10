@@ -26,10 +26,10 @@ public class ValueTransform
 	trans = (iMax - iMin) / (vMax - vMin);
     }
 
-    public void update(ValueArrayList valist)
+    public void update(ValueArrayList valist, int... cols)
     {
-	update(valist.getMax());
-	update(valist.getMin());
+	update(valist.max(cols));
+	update(valist.min(cols));
     }
 
     public int transform(double value)

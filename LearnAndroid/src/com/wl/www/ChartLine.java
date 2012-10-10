@@ -8,9 +8,13 @@ import com.wl.www.ChartBase;
 
 public class ChartLine extends ChartBase
 {
-    public ChartLine(ValueArrayList _valist)
+    private int vcol, pcol;
+
+    public ChartLine(ValueArrayList _valist, int _vcol, int _pcol)
     {
 	super(_valist);
+	vcol = _vcol;
+	pcol = _pcol;
     }
 
     public void onDraw(Canvas canvas, Paint[] mPaints,
@@ -20,16 +24,17 @@ public class ChartLine extends ChartBase
     {
 	boolean first = true;
 	int x0, x1, y0, y1, w;
+
 	super.onDraw(canvas, mPaints, iStart, iStop, xStart, xEnd, ytrans);
 	w = (xEnd - xStart) / (iStop - iStart);
 	x0 = 0; y0 = 0;
 	for (int i = iStart; i < iStop; ++i) {
 	    x1 = x0 + w;
 	    if (valist.in(i)) {
-		y1 = ytrans.transform(valist.get(i, 0));
+		y1 = ytrans.transform(valist.get(i, vcol));
 		if (!first)
 		    canvas.drawLine((x0 + x1) / 2 - w, y0,
-				    (x0 + x1) / 2, y1, mPaints[0]);
+				    (x0 + x1) / 2, y1, mPaints[pcol]);
 		y0 = y1;
 		first = false;
 	    }
