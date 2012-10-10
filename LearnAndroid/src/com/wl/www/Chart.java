@@ -21,13 +21,15 @@ import com.wl.www.ChartLine;
 
 public class Chart extends View
 {
-    private Paint mPaint;
+    private Paint[] mPaints;
     private ValueArrayList valist;
 
     public Chart(Context context, AttributeSet attrs)
     {
 	super(context, attrs);
-	mPaint = new Paint();
+	mPaints = new Paint[]{ new Paint(), new Paint() };
+	mPaints[0].setColor(Color.RED);
+	mPaints[1].setColor(Color.GREEN);
 	valist = new ValueArrayList();
 
 	try {
@@ -56,8 +58,7 @@ public class Chart extends View
 	ValueTransform vtrans = new ValueTransform(0, this.getHeight());
 	vtrans.update(valist);
 	ChartLine cline = new ChartLine(valist);
-	mPaint.setColor(Color.RED);
-	cline.onDraw(canvas, mPaint,
+	cline.onDraw(canvas, mPaints,
 		     0, valist.size(),
 		     0, this.getWidth(),
 		     vtrans);
