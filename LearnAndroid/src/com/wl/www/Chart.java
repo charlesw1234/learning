@@ -15,20 +15,20 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.wl.www.ValueList;
+import com.wl.www.ValueArrayList;
 import com.wl.www.ValueTransform;
 import com.wl.www.ChartLine;
 
 public class Chart extends View
 {
     private Paint mPaint;
-    private ValueList vlist;
+    private ValueArrayList valist;
 
     public Chart(Context context, AttributeSet attrs)
     {
 	super(context, attrs);
 	mPaint = new Paint();
-	vlist = new ValueList();
+	valist = new ValueArrayList();
 
 	try {
 	    InputStream is = context.getAssets().open("data.json");
@@ -42,7 +42,7 @@ public class Chart extends View
 	    try {
 		JSONArray jarr = new JSONArray(text);
 		for (int i = 0; i < jarr.length(); ++i)
-		    vlist.append(jarr.getDouble(i));
+		    valist.append(new double[]{jarr.getDouble(i)});
 	    } catch (JSONException ex) {
 	    }
 	} catch (IOException ex) {
@@ -54,11 +54,11 @@ public class Chart extends View
     {
 	super.onDraw(canvas);
 	ValueTransform vtrans = new ValueTransform(0, this.getHeight());
-	vtrans.update(vlist);
-	ChartLine cline = new ChartLine(vlist);
+	vtrans.update(valist);
+	ChartLine cline = new ChartLine(valist);
 	mPaint.setColor(Color.RED);
 	cline.onDraw(canvas, mPaint,
-		     0, vlist.size(),
+		     0, valist.size(),
 		     0, this.getWidth(),
 		     vtrans);
     }
