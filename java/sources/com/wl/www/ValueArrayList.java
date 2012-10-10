@@ -1,6 +1,7 @@
 package com.wl.www;
 
 import java.util.ArrayList;
+import net.sf.json.JSONArray;
 
 public class ValueArrayList
 {
@@ -36,6 +37,17 @@ public class ValueArrayList
 	    ++idx;
 	}
 	valist.add(varray);
+    }
+
+    public void append(JSONArray jarray)
+    {
+	for (int i = 0; i < jarray.size(); ++i) {
+	    JSONArray jarray0 = jarray.getJSONArray(i);
+	    double[] varray = new double[jarray0.size()];
+	    for (int j = 0; j < jarray0.size(); ++j)
+		varray[j] = jarray0.getDouble(j);
+	    append(varray);
+	}
     }
 
     public boolean in(int index)

@@ -1,7 +1,7 @@
 # -*- python -*-
 import glob, os.path
 
-env = Environment()
+env = Environment(JAVACLASSPATH = '/usr/share/java/json-lib.jar')
 
 dn = os.path.join('com', 'wl', 'www')
 #env.Java(target = 'classes', source = glob.glob(os.path.join(dn, '*.java')))
