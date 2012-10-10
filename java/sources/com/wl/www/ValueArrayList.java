@@ -7,13 +7,13 @@ public class ValueArrayList
     private int offset;
     private double vMax;
     private double vMin;
-    private ArrayList<Double[]> valist;
+    private ArrayList<double[]> valist;
 
     public ValueArrayList()
     {
 	super();
 	offset = 0;
-	valist = new ArrayList<Double[]>();
+	valist = new ArrayList<double[]>();
     }
 
     public void setOffset(int _offset)
@@ -21,7 +21,7 @@ public class ValueArrayList
 	offset = _offset;
     }
 
-    public void append(Double[] varray)
+    public void append(double[] varray)
     {
 	int idx;
 	if (valist.size() > 0) {
