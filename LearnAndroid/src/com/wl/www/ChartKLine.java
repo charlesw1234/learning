@@ -23,7 +23,6 @@ public class ChartKLine extends ChartBase
 		       int xStart, int xEnd,
 		       ValueTransform ytrans)
     {
-	boolean first = true;
 	int x0, x1, w;
 	double vopen, vclose;
 	int yopen, ymax, ymin, yclose;
@@ -51,7 +50,6 @@ public class ChartKLine extends ChartBase
 				    (x0 + x1) / 2, ymin, mPaints[1]);
 		    canvas.drawRect(x0 + 3, yclose, x1 - 3, yopen, mPaints[1]);
 		}
-		first = false;
 	    }
 	    x0 = x1;
 	}
