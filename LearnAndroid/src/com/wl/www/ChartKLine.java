@@ -9,7 +9,8 @@ import com.wl.www.ChartBase;
 public class ChartKLine extends ChartBase
 {
     private int copen, cmax, cmin, cclose;
-    public ChartKLine(ValueArrayList _valist, int _copen, int _cmax, int _cmin, int _cclose)
+    public ChartKLine(ValueArrayList _valist,
+		      int _copen, int _cmax, int _cmin, int _cclose)
     {
 	super(_valist);
 	copen = _copen;
@@ -19,15 +20,13 @@ public class ChartKLine extends ChartBase
     }
 
     public void onDraw(Canvas canvas, Paint[] mPaints,
-		       int iStart, int iStop,
-		       int xStart, int xEnd,
+		       int iStart, int iStop, int xStart, int xEnd,
 		       ValueTransform ytrans)
     {
 	int x0, x1, w;
 	double vopen, vclose;
 	int yopen, ymax, ymin, yclose;
 
-	super.onDraw(canvas, mPaints, iStart, iStop, xStart, xEnd, ytrans);
 	w = (xEnd - xStart) / (iStop - iStart);
 	x0 = 0;
 	for (int i = iStart; i < iStop; ++i) {

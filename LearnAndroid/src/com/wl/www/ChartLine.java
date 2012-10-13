@@ -25,7 +25,6 @@ public class ChartLine extends ChartBase
 	boolean first = true;
 	int x0, x1, y0, y1, w;
 
-	super.onDraw(canvas, mPaints, iStart, iStop, xStart, xEnd, ytrans);
 	w = (xEnd - xStart) / (iStop - iStart);
 	x0 = 0; y0 = 0;
 	for (int i = iStart; i < iStop; ++i) {
