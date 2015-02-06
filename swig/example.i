@@ -1,15 +1,9 @@
+/* File : example.i */
 %module example
+
 %{
-    extern double myvar;
-    extern int fact(int n);
-    extern int my_mod(int x, int y);
-    extern char *get_time(void);
+#include "example.hxx"
 %}
 
-extern double myvar;
-extern int fact(int n);
-extern int my_mod(int x, int y);
-extern char *get_time(void);
-
-%init %{
-%}
+/* Let's just grab the original header file here */
+%include "example.hxx"

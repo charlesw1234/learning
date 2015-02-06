@@ -5,4 +5,9 @@ env = Environment(CCFLAGS = ['-g', '-Wall'],
                   SHLIBPREFIX = '_')
 env.ParseConfig('python-config --includes --libs')
 
-env.SharedLibrary('example', ['example.i', 'example.c'])
+cppenv = env.Clone()
+cppenv.Append(SWIGFLAGS = ['-c++'])
+
+env.SharedLibrary('cexample', ['cexample.i', 'cexample.c'])
+cppenv.SharedLibrary('example', ['example.i', 'example.cxx'])
+cppenv.SharedLibrary('clsexample', ['clsexample.i', 'clsexample.cpp'])

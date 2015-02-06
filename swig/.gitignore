@@ -1,0 +1,4 @@
+*.os
+*.so
+*_wrap.*
+*example.py
