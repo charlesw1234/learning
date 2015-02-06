@@ -18,8 +18,7 @@ public class ChartLine extends ChartBase
     }
 
     public void onDraw(Canvas canvas, Paint[] mPaints,
-		       int iStart, int iStop,
-		       int xStart, int xEnd,
+		       int iStart, int iStop, int xStart, int xEnd,
 		       ValueTransform ytrans)
     {
 	boolean first = true;
