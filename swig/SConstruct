@@ -1,0 +1,8 @@
+# -*- python -*-
+
+env = Environment(CCFLAGS = ['-g', '-Wall'],
+                  SWIGFLAGS = ['-python'],
+                  SHLIBPREFIX = '_')
+env.ParseConfig('python-config --includes --libs')
+
+env.SharedLibrary('example', ['example.i', 'example.c'])
