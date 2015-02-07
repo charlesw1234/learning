@@ -1,0 +1,16 @@
+# -*- python -*-
+from os import environ
+from os.path import abspath, join as pathjoin
+
+localroot = pathjoin(environ['HOME'], 'root')
+env = Environment(CCFLAGS = ['-g', '-Wall'],
+                  CPPPATH = abspath('include'),
+                  SWIG = pathjoin(localroot, 'usr', 'bin', 'swig'),
+                  SWIGFLAGS = ['-c++', '-python', '-new_repr', '-modern'],
+                  SWIGPATH = abspath('srcs'),
+                  SHLIBPREFIX = '_')
+env.ParseConfig('python-config --includes --libs')
+env.ParseConfig('wx-config --cflags --libs')
+Export('env')
+
+SConscript(pathjoin('srcs', 'SConscript'))

@@ -1,0 +1,5 @@
+# -*- python -*-
+from glob import glob
+Import('env')
+
+env.SharedLibrary('core', ['core.i'])
