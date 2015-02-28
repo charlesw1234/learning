@@ -1,0 +1,32 @@
+# -*- python -*-
+
+env = Environment(CFLAGS = ['-g', '-Wall'],
+                  CXXFLAGS = ['-g', '-Wall'],
+                  PROGSUFFIX = '.exe')
+
+env.Program('showsz', 'showsz.cpp')
+env.Program('shtz', 'shtz.c')
+env.Program('tst-iterator', 'tst-iterator.cpp')
+env.Program('tst-bitset', 'tst-bitset.cpp')
+env.Program('tst-stl-list', env.Object('tst-stl-list.o', 'tst-stl.cpp', CPPDEFINES = ['TST_LIST']))
+env.Program('tst-stl-set', env.Object('tst-stl-set.o', 'tst-stl.cpp', CPPDEFINES = ['TST_SET']))
+env.Program('tst-stl-vector', env.Object('tst-stl-vector.o', 'tst-stl.cpp', CPPDEFINES = ['TST_VECTOR']))
+env.Program('tst-strptime', 'tst-strptime.c')
+env.Program('tst-iostream', 'tst-iostream.cpp')
+env.Program('tst-map', 'tst-map.cpp')
+env.Program('tst-vector', 'tst-vector.cpp')
+env.Program('tst-vector-ptr', 'tst-vector-ptr.cpp')
+env.Program('tst-vector-insert', 'tst-vector-insert.cpp')
+env.Program('tst-list', 'tst-list.cpp')
+env.Program('tst-curl', 'tst-curl.c', LIBS = ['curl'])
+env.Program('tst-curlm', 'tst-curlm.c', LIBS = ['curl'])
+env.Program('tst-tickquery', 'tst-tickquery.c', LIBS = ['curl'])
+env.Program('tst-mallocfreevec', 'tst-mallocfreevec.cpp')
+
+wxenv = env.Clone()
+wxenv.ParseConfig('wx-config --cxxflags --libs')
+wxenv.Program('tst-wx-bare', 'tst-wx-bare.cpp')
+wxenv.Program('tst-wx', 'tst-wx.cpp')
+wxcairoenv = wxenv.Clone()
+wxcairoenv.ParseConfig('pkg-config --cflags --libs cairo')
+wxcairoenv.Program('tst-wxcairo', 'tst-wxcairo.cpp')
