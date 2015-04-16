@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<resource>
+  <object class="wxFrame" name="MyFrame0">
+    <title>Hello0</title>
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxButton">
+          <label>first</label>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxButton">
+          <label>second</label>
+        </object>
+      </object>
+    </object>
+  </object>
+  <object class="wxFrame" name="MyFrame1">
+    <title>Hello1</title>
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxButton">
+          <label>third</label>
+        </object>
+      </object>
+    </object>
+  </object>
+</resource>
