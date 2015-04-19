@@ -1,3 +1,6 @@
 <?xml version="1.0"?>
-<resource>{{ val0 }}{{ val1 }}
+<resource>
+{{ agobj.values[0]["b"] }}
+{{ agobj.values[1]["a"] }}
+{{ agobj.upperit("that's right") }}
 </resource>
