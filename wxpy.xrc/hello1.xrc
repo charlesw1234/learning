@@ -23,6 +23,9 @@
       <object class="sizeritem">
         <object class="wxButton">
           <label>third</label>
+          <XRCED>
+            <events>EVT_BUTTON</events>
+          </XRCED>
         </object>
       </object>
     </object>
