@@ -3,4 +3,6 @@
 {{ agobj.values[0]["b"] }}
 {{ agobj.values[1]["a"] }}
 {{ agobj.upperit("that's right") }}
+{{ agobj.lowerit(agobj.values[1]["a"]) }}
+[{{ agobj.sideeffect("xxx") }}]
 </resource>
