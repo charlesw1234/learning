@@ -3,8 +3,10 @@
   <object class="wxFrame" name="TestSashFrame">
     <title>Test of SashLayoutWindow in XRC</title>
     <object class="wxPanel">
-      <object class="wxStaticText">
-        <label>Client Area</label>
+      <object class="SashLayoutWindow">
+        <orientation>wxLAYOUT_VERTICAL</orientation>
+        <alignment>wxLAYOUT_TOP</alignment>
+        <sashvisible>wxSASH_BOTTOM</sashvisible>
       </object>
     </object>
   </object>
