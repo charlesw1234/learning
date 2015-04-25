@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<resource>
+  <object class="wxFrame" name="TestSashFrame">
+    <title>Test of SashLayoutWindow in XRC</title>
+    <object class="wxPanel">
+      <object class="wxStaticText">
+        <label>Client Area</label>
+      </object>
+    </object>
+  </object>
+</resource>
