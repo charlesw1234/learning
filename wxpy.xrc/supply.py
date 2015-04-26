@@ -53,9 +53,12 @@ class SashPanelXmlHandler(xrc.XmlResourceHandler):
         self.SetupWindow(sashpanel)
         self.CreateChildren(sashpanel)
         for subwin in sashpanel.GetChildren():
-            if isinstance(subwin, wx.SashLayoutWindow): continue
-            sashpanel.SetRemainingSpace(subwin)
-        sashpanel.Bind(wx.EVT_SASH_DRAGGED_RANGE, sashpanel.OnSashDrag)
+            if not isinstance(subwin, wx.SashLayoutWindow):
+                sashpanel.SetRemainingSpace(subwin)
+            else:
+                sashpanel.Bind(wx.EVT_SASH_DRAGGED_RANGE,
+                               sashpanel.OnSashDrag,
+                               id = subwin.GetId())
         sashpanel.Bind(wx.EVT_SIZE, sashpanel.OnSize)
         return sashpanel
 
