@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<resource>
+  <object class="wxPanel" name="first">
+    <object class="wxStaticText">
+      <label>wangli03</label>
+    </object>
+  </object>
+</resource>
+
