@@ -2,13 +2,10 @@
 <resource>
   <object class="wxFrame" name="TestSashFrame">
     <title>Test of SashLayoutWindow in XRC</title>
-    <object class="wxBoxSizer">
-      <option>1</option>
-      <orient>wxVERTICAL</orient>
-      <object class="sizeritem">
+
         <object class="SashPanel">
           <object class="wxSashLayoutWindow">
-            <orientation>wxLAYOUT_VERTICAL</orientation>
+            <orientation>wxLAYOUT_HORIZONTAL</orientation>
             <alignment>wxLAYOUT_TOP</alignment>
             <sashvisible>wxSASH_BOTTOM</sashvisible>
             <object class="wxStaticText">
@@ -16,7 +13,7 @@
             </object>
           </object>
           <object class="wxSashLayoutWindow">
-            <orientation>wxLAYOUT_VERTICAL</orientation>
+            <orientation>wxLAYOUT_HORIZONTAL</orientation>
             <alignment>wxLAYOUT_TOP</alignment>
             <sashvisible>wxSASH_BOTTOM</sashvisible>
             <object class="wxStaticText">
@@ -29,8 +26,6 @@
             </object>
           </object>
         </object>
-        <flag>wxALL|wxEXPAND</flag>
-      </object>
-    </object>
+
   </object>
 </resource>
