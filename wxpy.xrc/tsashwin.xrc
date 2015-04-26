@@ -5,17 +5,25 @@
 
         <object class="SashPanel">
           <object class="wxSashLayoutWindow">
+            <flag>wxNO_BORDER|wxSW_BORDER</flag>
             <orientation>wxLAYOUT_HORIZONTAL</orientation>
             <alignment>wxLAYOUT_TOP</alignment>
             <sashvisible>wxSASH_BOTTOM</sashvisible>
+            <background>#FFFF00</background>
+            <defaultsize>320,36</defaultsize>
+            <extrabordersize>4</extrabordersize>
             <object class="wxStaticText">
               <label>First</label>
             </object>
           </object>
           <object class="wxSashLayoutWindow">
+            <flag>wxNO_BORDER|wxSW_BORDER</flag>
             <orientation>wxLAYOUT_HORIZONTAL</orientation>
             <alignment>wxLAYOUT_TOP</alignment>
             <sashvisible>wxSASH_BOTTOM</sashvisible>
+            <background>#00FFFF</background>
+            <defaultsize>320,36</defaultsize>
+            <extrabordersize>4</extrabordersize>
             <object class="wxStaticText">
               <label>second</label>
             </object>

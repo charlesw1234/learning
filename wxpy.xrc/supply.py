@@ -87,23 +87,20 @@ class wxSashLayoutWindowXmlHandler(xrc.XmlResourceHandler):
         return self.IsOfClass(node, "wxSashLayoutWindow")
 
     def DoCreateResource(self):
-        print('DoCreateResource', self.GetSize(), self.GetStyle())
         if self.GetInstance() is None:
             sashwin = wx.SashLayoutWindow(self.GetParentAsWindow(),
                                           self.GetID(),
                                           self.GetPosition(),
-                                          (200, 30),
-                                          #self.GetSize(),
-                                          self.GetStyle(),
+                                          self.GetSize(),
+                                          self.GetStyle("flag"),
                                           self.GetName())
         else:
             sashwin = self.GetInstance()
             sashwin.Create(self.GetParentAsWindow(),
                            self.GetID(),
                            self.GetPosition(),
-                           (200, 30),
-                           #self.GetSize(),
-                           self.GetStyle(),
+                           self.GetSize(),
+                           self.GetStyle("flag"),
                            self.GetName())
         self.SetupWindow(sashwin)
         if self.HasParam("orientation"):
@@ -115,7 +112,14 @@ class wxSashLayoutWindowXmlHandler(xrc.XmlResourceHandler):
         if self.HasParam("sashvisible"):
             sashvisible = self.GetStyle("sashvisible", wx.SASH_NONE)
             sashwin.SetSashVisible(sashvisible, True)
-        sashwin.SetBackgroundColour(wx.Colour(0, 255, 255))
-        sashwin.SetDefaultSize((800, 96))
+        if self.HasParam("background"):
+            background = self.GetColour("background")
+            sashwin.SetBackgroundColour(background)
+        if self.HasParam("defaultsize"):
+            defaultsize = self.GetSize("defaultsize")
+            sashwin.SetDefaultSize(defaultsize)
+        if self.HasParam("extrabordersize"):
+            extrabordersize = self.GetLong("extrabordersize")
+            sashwin.SetExtraBorderSize(extrabordersize)
         self.CreateChildren(sashwin)
         return sashwin
