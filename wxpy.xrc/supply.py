@@ -9,6 +9,12 @@ def DumpWidgetTree(prefix, widget):
 class SashPanel(wx.Panel):
     def __init__(self, *args, **kwargs):
         wx.Panel.__init__(self, *args, **kwargs)
+        self.remainingSpace = None
+
+    def SetRemainingSpace(self, subwin):
+        if self.remainingSpace is not None:
+            print('More then one remaing space is not permitted.')
+        self.remainingSpace = subwin
 
     def OnSashDrag(self, event):
         if event.GetDragStatus() == wx.SASH_STATUS_OUT_OF_RANGE:
@@ -16,8 +22,8 @@ class SashPanel(wx.Panel):
             return
         eobj = event.GetEventObject()
         if isinstance(eobj, wx.SashLayoutWindow):
-            eobj.SetDefaultSize((eobj.GetSize().width,
-                                 event.GetDragRect().height))
+            print('event.GetDragRect()', event.GetDragRect().GetSize())
+            eobj.SetDefaultSize(event.GetDragRect().GetSize())
         wx.LayoutAlgorithm().LayoutWindow(self, self.remainingSpace)
         self.remainingSpace.Refresh()
 
@@ -38,7 +44,6 @@ class SashPanelXmlHandler(xrc.XmlResourceHandler):
                                   self.GetName())
         else:
             sashpanel = self.GetInstance()
-            if sashpanel is None: sashpanel = wx.SashPanel()
             sashpanel.Create(self.GetParentAsWindow(),
                              self.GetID(),
                              self.GetPosition(),
@@ -47,6 +52,11 @@ class SashPanelXmlHandler(xrc.XmlResourceHandler):
                              self.GetName())
         self.SetupWindow(sashpanel)
         self.CreateChildren(sashpanel)
+        for subwin in sashpanel.GetChildren():
+            if isinstance(subwin, wx.SashLayoutWindow): continue
+            sashpanel.SetRemainingSpace(subwin)
+        sashpanel.Bind(wx.EVT_SASH_DRAGGED_RANGE, sashpanel.OnSashDrag)
+        sashpanel.Bind(wx.EVT_SIZE, sashpanel.OnSize)
         return sashpanel
 
 class wxSashLayoutWindowXmlHandler(xrc.XmlResourceHandler):
@@ -85,7 +95,6 @@ class wxSashLayoutWindowXmlHandler(xrc.XmlResourceHandler):
                                           self.GetName())
         else:
             sashwin = self.GetInstance()
-            if sashwin is None: sashwin = wx.PreSashLayoutWindow()
             sashwin.Create(self.GetParentAsWindow(),
                            self.GetID(),
                            self.GetPosition(),
@@ -103,6 +112,7 @@ class wxSashLayoutWindowXmlHandler(xrc.XmlResourceHandler):
         if self.HasParam("sashvisible"):
             sashvisible = self.GetStyle("sashvisible", wx.SASH_NONE)
             sashwin.SetSashVisible(sashvisible, True)
+        sashwin.SetBackgroundColour(wx.Colour(0, 255, 255))
         sashwin.SetDefaultSize((800, 96))
         self.CreateChildren(sashwin)
         return sashwin

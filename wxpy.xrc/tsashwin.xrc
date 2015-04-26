@@ -6,7 +6,7 @@
       <option>1</option>
       <orient>wxVERTICAL</orient>
       <object class="sizeritem">
-        <object class="wxPanel">
+        <object class="SashPanel">
           <object class="wxSashLayoutWindow">
             <orientation>wxLAYOUT_VERTICAL</orientation>
             <alignment>wxLAYOUT_TOP</alignment>
@@ -17,10 +17,15 @@
           </object>
           <object class="wxSashLayoutWindow">
             <orientation>wxLAYOUT_VERTICAL</orientation>
-            <alignment>wxLAYOUT_BOTTOM</alignment>
-            <sashvisible>wxSASH_TOP</sashvisible>
+            <alignment>wxLAYOUT_TOP</alignment>
+            <sashvisible>wxSASH_BOTTOM</sashvisible>
             <object class="wxStaticText">
               <label>second</label>
+            </object>
+          </object>
+          <object class="wxPanel">
+            <object class="wxStaticText">
+              <label>third</label>
             </object>
           </object>
         </object>
