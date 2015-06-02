@@ -4,3 +4,4 @@ env = Environment(CCFLAGS = ['-g', '-Wall'],
                   PROGSUFFIX = '.exe')
 env.Program('sizeof', 'sizeof.c')
 env.Program('printf', 'printf.c')
+env.Program('cdouble', 'cdouble.c')
