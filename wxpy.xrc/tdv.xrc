@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<resource>
+  <object class="wxFrame" name="TestDataViewFrame">
+    <title>Test of DataViewCtrl</title>
+    <object class="wxPanel">
+      <object class="wxDataViewListCtrl" name="dv">
+      </object>
+    </object>
+  </object>
+</resource>

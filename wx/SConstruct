@@ -1,5 +1,0 @@
-# -*- python -*-
-
-env = Environment(CCFLAGS = ['-g', '-Wall'])
-env.ParseConfig('wx-config --cflags --libs')
-env.Object('datavgen.cpp')
