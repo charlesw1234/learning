@@ -13,7 +13,7 @@ umask = None
 
 # if this is a relocatable tac file, get the directory containing the TAC
 if basedir == '.':
-    import os
+    import os.path
     basedir = os.path.abspath(os.path.dirname(__file__))
 
 # note: this line is matched against to check that this is a buildmaster
