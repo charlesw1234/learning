@@ -4,8 +4,5 @@ env = Environment(CCFLAGS = ['-g', '-Wall'],
                   CPPDEFINES = ['HAVE_HIDDEN',
                                 ('_LARGEFILE64_SOURCE', 1)],
                   PROGSUFFIX = '.exe')
-env.Program('gzop', ['main.c', 'gzread.c', 'gzwrite.c', 'gzclose.c', 'gzlib.c',
-                     'deflate.c', 'inflate.c', 'trees.c', 'inftrees.c',
-                     'inffast.c', 'crc32.c', 'zutil.c',
-                     'adler32.c'])
+env.Program('gzop', ['main.c', 'gzlib.c'], LIBS = ['z'])
 
