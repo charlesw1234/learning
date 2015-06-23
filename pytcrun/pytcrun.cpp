@@ -13,16 +13,13 @@ round(const char *fname)
 int
 main(void)
 {
-    PyObject *modules, *mod;
     Py_SetPythonHome("/home/wangli/pyroot/usr");
     Py_Initialize();
     if (PyErr_Occurred()) {
         PyErr_Print();
     }
     printf("GetPythonHome = [%s]\n", Py_GetPythonHome());
-    modules = PyImport_GetModuleDict();
-    mod = mymodule_init();
-    PyDict_SetItemString(modules, "mymodule", mod);
+    mymodule_init();
 
     round("tester0.py");
     round("tester1.py");
