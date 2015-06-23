@@ -3,10 +3,12 @@ from os import environ
 from os.path import join as pathjoin
 
 pybin = pathjoin(environ['HOME'], 'pyroot', 'usr', 'bin')
-env = Environment(CCFLAGS = ['-g', '-Wall'],
+env = Environment(CCFLAGS = ['-g', '-Wall', '-O0'],
                   PROGSUFFIX = '.exe')
 env.ParseConfig('%s --cflags --ldflags' % pathjoin(pybin, 'python-config'))
 try: env['CCFLAGS'].remove('-Wstrict-prototypes')
+except ValueError: pass
+try: env['CCFLAGS'].remove('-O2')
 except ValueError: pass
 
 env.Program('pytcrun', ['pytcrun.cpp', 'mymodule.cpp'])
