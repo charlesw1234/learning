@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -37,8 +38,12 @@ private:
 int
 main(void)
 {
+    uint8_t byte;
+    uint8_t *pbyte0 = &byte, *pbyte1 = NULL;
+    ptrdiff_t val = pbyte0 - pbyte1;
     printf("sizeof(Number0_t) = %u\n", (unsigned)sizeof(Number0_t));
     printf("sizeof(Number1_t) = %u\n", (unsigned)sizeof(Number1_t));
     printf("sizeof(Number2_t) = %u\n", (unsigned)sizeof(Number2_t));
+    printf("val = %lx, %p, %p\n", (unsigned long)val, pbyte0, pbyte1);
     return 0;
 }
