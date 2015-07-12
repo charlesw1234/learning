@@ -8,9 +8,15 @@ env.Program('showsz', 'showsz.cpp')
 env.Program('shtz', 'shtz.c')
 env.Program('tst-iterator', 'tst-iterator.cpp')
 env.Program('tst-bitset', 'tst-bitset.cpp')
-env.Program('tst-stl-list', env.Object('tst-stl-list.o', 'tst-stl.cpp', CPPDEFINES = ['TST_LIST']))
-env.Program('tst-stl-set', env.Object('tst-stl-set.o', 'tst-stl.cpp', CPPDEFINES = ['TST_SET']))
-env.Program('tst-stl-vector', env.Object('tst-stl-vector.o', 'tst-stl.cpp', CPPDEFINES = ['TST_VECTOR']))
+env.Program('tst-stl-list',
+            env.Object('tst-stl-list.o', 'tst-stl.cpp',
+                       CPPDEFINES = ['TST_LIST']))
+env.Program('tst-stl-set',
+            env.Object('tst-stl-set.o', 'tst-stl.cpp',
+                       CPPDEFINES = ['TST_SET']))
+env.Program('tst-stl-vector',
+            env.Object('tst-stl-vector.o', 'tst-stl.cpp',
+                       CPPDEFINES = ['TST_VECTOR']))
 env.Program('tst-strptime', 'tst-strptime.c')
 env.Program('tst-iostream', 'tst-iostream.cpp')
 env.Program('tst-map', 'tst-map.cpp')
@@ -22,6 +28,8 @@ env.Program('tst-curl', 'tst-curl.c', LIBS = ['curl'])
 env.Program('tst-curlm', 'tst-curlm.c', LIBS = ['curl'])
 env.Program('tst-tickquery', 'tst-tickquery.c', LIBS = ['curl'])
 env.Program('tst-mallocfreevec', 'tst-mallocfreevec.cpp')
+env.Program('tst-vbase', 'tst-vbase.cpp')
+env.Program('tst-vbase0', 'tst-vbase0.cpp')
 
 wxenv = env.Clone()
 wxenv.ParseConfig('wx-config --cxxflags --libs')
