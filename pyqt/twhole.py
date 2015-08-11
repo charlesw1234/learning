@@ -52,6 +52,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def makeDock(self, title, located, allowed):
         dock = QtGui.QDockWidget(title, self)
+        dock.setObjectName(title)
         dock.setAllowedAreas(allowed)
         frame = QtGui.QFrame(self)
         frame.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -59,13 +60,22 @@ class MainWindow(QtGui.QMainWindow):
         self.addDockWidget(located, dock)
 
     def saveLayout(self):
-        print('saveLayout')
+        settings = QtCore.QSettings()
+        settings.setValue('geometry', self.saveGeometry())
+        settings.setValue('state', self.saveState())
+        print('saveLayout', settings.fileName())
 
     def loadLayout(self):
-        print('loadLayout')
+        settings = QtCore.QSettings()
+        self.restoreGeometry(settings.value('geometry').toByteArray())
+        self.restoreState(settings.value('state').toByteArray())
+        print('loadLayout', settings.fileName())
 
 def main():
     app = QtGui.QApplication(sys.argv)
+    app.setOrganizationName('twhole')
+    app.setOrganizationDomain('twhole.com')
+    app.setApplicationName('twhole tester')
     mainwin = MainWindow()
     mainwin.show()
     sys.exit(app.exec_())
