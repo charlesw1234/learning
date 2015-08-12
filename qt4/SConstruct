@@ -1,0 +1,11 @@
+# -*- python -*-
+
+env = Environment(tools = ['default', 'qt'],
+                  CCFLAGS = ['-g', '-Wall'],
+                  PROGSUFFIX = '.exe',
+                  QTDIR = '/usr',
+                  QT_LIB = None)
+env.ParseConfig('pkg-config --cflags --libs QtGui QtCore')
+
+#env.Program('addressbook', 'addressbook.cpp')
+env.Program('addressbook', ['main.cpp', 'addressbook.cpp'])

@@ -5,14 +5,18 @@ class GridFrame(QtGui.QFrame):
     def __init__(self, *args, **kwargs):
         super(GridFrame, self).__init__(*args, **kwargs)
         layout = QtGui.QGridLayout()
-        for row in range(3):
-            for col in range(2):
-                title = '(%u,%u)' % (row, col)
-                #frame = QtGui.QFrame(self)
-                #frame.setFrameShape(QtGui.QFrame.StyledPanel)
-                #QtGui.QLabel(title, frame)
-                #layout.addWidget(frame, row, col)
-                layout.addWidget(QtGui.QLabel(title, self), row, col)
+        for row in range(5):
+            if row % 2 == 0:
+                for col in range(2):
+                    title = '(%u,%u)' % (row, col)
+                    #frame = QtGui.QFrame(self)
+                    #frame.setFrameShape(QtGui.QFrame.StyledPanel)
+                    #QtGui.QLabel(title, frame)
+                    #layout.addWidget(frame, row, col)
+                    layout.addWidget(QtGui.QLabel(title, self), row, col)
+            else:
+                shobj = QtGui.QSplitterHandle(QtCore.Qt.Horizontal, self)
+                layout.addWidget(shobj, row, col, 1, 2)
         self.setLayout(layout)
 
 class MainWindow(QtGui.QMainWindow):
