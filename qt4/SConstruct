@@ -5,11 +5,15 @@ env = Environment(CCFLAGS = ['-g', '-Wall', '-m64'],
 qtenv = env.Clone(tools = ['default', 'qt'],
                   CPPDEFINES = ['_REENTRANT',
                                 'QT_NO_DEBUG',
-                                'QT_GUI_LIB',
                                 'QT_CORE_LIB'],
                   QTDIR = '/usr',
                   QT_LIB = None)
-qtenv.ParseConfig('pkg-config --cflags --libs QtGui QtCore')
+qtenv.ParseConfig('pkg-config --cflags --libs QtCore')
 
-#qtenv.Program('addressbook', 'addressbook.cpp')
-qtenv.Program('addressbook', ['main.cpp', 'addressbook.cpp'])
+qtenv.Program('testqdir', ['testqdir.cpp'])
+
+qtenv0 = qtenv.Clone()
+qtenv0.Append(CPPDEFINES = 'QT_GUI_LIB')
+qtenv0.ParseConfig('pkg-config --cflags --libs QtGui')
+
+qtenv0.Program('addressbook', ['main.cpp', 'addressbook.cpp'])
