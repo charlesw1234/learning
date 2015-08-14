@@ -1,11 +1,15 @@
 # -*- python -*-
 
-env = Environment(tools = ['default', 'qt'],
-                  CCFLAGS = ['-g', '-Wall'],
-                  PROGSUFFIX = '.exe',
+env = Environment(CCFLAGS = ['-g', '-Wall', '-m64'],
+                  PROGSUFFIX = '.exe')
+qtenv = env.Clone(tools = ['default', 'qt'],
+                  CPPDEFINES = ['_REENTRANT',
+                                'QT_NO_DEBUG',
+                                'QT_GUI_LIB',
+                                'QT_CORE_LIB'],
                   QTDIR = '/usr',
                   QT_LIB = None)
-env.ParseConfig('pkg-config --cflags --libs QtGui QtCore')
+qtenv.ParseConfig('pkg-config --cflags --libs QtGui QtCore')
 
-#env.Program('addressbook', 'addressbook.cpp')
-env.Program('addressbook', ['main.cpp', 'addressbook.cpp'])
+#qtenv.Program('addressbook', 'addressbook.cpp')
+qtenv.Program('addressbook', ['main.cpp', 'addressbook.cpp'])
