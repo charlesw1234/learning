@@ -44,15 +44,18 @@ main(void)
     printf("sizeof(Number0_t) = %u\n", (unsigned)sizeof(Number0_t));
     printf("sizeof(Number1_t) = %u\n", (unsigned)sizeof(Number1_t));
     printf("sizeof(Number2_t) = %u\n", (unsigned)sizeof(Number2_t));
-    printf("sizeof(short) = %u\n", (unsigned)sizeof(short));
-    printf("sizeof(unsigned short) = %u\n", (unsigned)sizeof(unsigned short));
-    printf("sizeof(int) = %u\n", (unsigned)sizeof(int));
-    printf("sizeof(unsigned) = %u\n", (unsigned)sizeof(unsigned));
-    printf("sizeof(long) = %u\n", (unsigned)sizeof(long));
-    printf("sizeof(unsigned long) = %u\n", (unsigned)sizeof(unsigned long));
-    printf("sizeof(long long) = %u\n", (unsigned)sizeof(long long));
-    printf("sizeof(unsigned long) = %u\n", (unsigned)sizeof(unsigned long long));
-    printf("sizeof(void *) = %u\n", (unsigned)sizeof(void *));
+#define SHOWSZ(TYPE) printf("sizeof(" #TYPE ") = %u\n", (unsigned)sizeof(TYPE))
+    SHOWSZ(short);
+    SHOWSZ(unsigned short);
+    SHOWSZ(int);
+    SHOWSZ(unsigned);
+    SHOWSZ(long);
+    SHOWSZ(unsigned long);
+    SHOWSZ(long long);
+    SHOWSZ(unsigned long long);
+    SHOWSZ(float);
+    SHOWSZ(double);
+    SHOWSZ(void *);
     printf("val = %lx, %p, %p\n", (unsigned long)val, pbyte0, pbyte1);
     return 0;
 }
