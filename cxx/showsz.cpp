@@ -56,6 +56,7 @@ main(void)
     SHOWSZ(float);
     SHOWSZ(double);
     SHOWSZ(void *);
+    SHOWSZ(ptrdiff_t);
     printf("val = %lx, %p, %p\n", (unsigned long)val, pbyte0, pbyte1);
     return 0;
 }
