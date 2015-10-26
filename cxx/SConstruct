@@ -5,6 +5,7 @@ env = Environment(CFLAGS = ['-g', '-Wall'],
                   PROGSUFFIX = '.exe')
 
 env.Program('showsz', 'showsz.cpp')
+env.Program('tryfloat', 'tryfloat.cpp')
 env.Program('shtz', 'shtz.c')
 env.Program('tst-iterator', 'tst-iterator.cpp')
 env.Program('tst-bitset', 'tst-bitset.cpp')
