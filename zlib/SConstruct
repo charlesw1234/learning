@@ -1,0 +1,6 @@
+# -*- python -*-
+
+env = Environment(CCFLAGS = ['-g', '-Wall'],
+                  PROGSUFFIX = '.exe',
+                  LIBS = ['z'])
+env.Program('blkstrm', 'blkstrm.c')
