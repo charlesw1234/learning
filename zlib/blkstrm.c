@@ -1,3 +1,4 @@
+#include <sys/time.h>
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -26,8 +27,9 @@ static void
 process(const char *fname, size_t recsz)
 {
     int rc;
-    unsigned long prompt = prompt_step;
     z_stream strm0, strm1;
+    struct timeval tv0, tv1, tv2;
+    unsigned long prompt = prompt_step;
     uint8_t buf0[BUFSZ], buf1[BUFSZ], buf2[BUFSZ];
     // setup.
     FILE *rfp = fopen(fname, "rb");
@@ -40,6 +42,7 @@ process(const char *fname, size_t recsz)
     rc = inflateInit(&strm1);
     assert(rc == Z_OK);
     // one loop for a record.
+    gettimeofday(&tv0, NULL); tv1 = tv0;
     while ((rc = fread(buf0, 1, recsz, rfp)) > 0) {
         // compress a record.
         assert(rc == recsz);
@@ -58,11 +61,20 @@ process(const char *fname, size_t recsz)
         assert(rc == Z_OK);
         assert(strm1.next_out - buf2 == recsz);
         assert(memcmp(buf0, buf2, recsz) == 0);
+        // report for each prompt step.
         if (strm0.total_in >= prompt) {
-            printf("%lu bytes processed.\n", (unsigned long)strm0.total_in);
+            gettimeofday(&tv2, NULL);
+            printf("%lu bytes processed: %lu.\n", (unsigned long)strm0.total_in,
+                   (tv2.tv_sec - tv1.tv_sec) * 1000 * 1000 +
+                   (tv2.tv_usec - tv1.tv_usec));
+            tv1 = tv2;
             prompt += prompt_step;
         }
     }
+    gettimeofday(&tv2, NULL);
+    printf("%lu bytes processed: %lu.\n", (unsigned long)strm0.total_in,
+           (tv2.tv_sec - tv1.tv_sec) * 1000 * 1000 +
+           (tv2.tv_usec - tv1.tv_usec));
     // terminate the input.
     strm0.next_in = buf0;
     strm0.avail_in = 0;
@@ -81,10 +93,13 @@ process(const char *fname, size_t recsz)
     assert(strm1.next_out == buf2);
     fclose(rfp);
     // dump informations.
-    printf("[%s/%u]: %lu / %lu = %f%%\n", fname, (unsigned)recsz,
+    gettimeofday(&tv2, NULL);
+    printf("[%s/%u]: %lu / %lu = %f%% in %lu\n", fname, (unsigned)recsz,
            (unsigned long)strm0.total_out,
            (unsigned long)strm0.total_in,
-           100 * (double)strm0.total_out / (double)strm0.total_in);
+           100 * (double)strm0.total_out / (double)strm0.total_in,
+           (tv2.tv_sec - tv0.tv_sec) * 1000 * 1000 +
+           (tv2.tv_usec - tv0.tv_usec));
 }
 
 int
