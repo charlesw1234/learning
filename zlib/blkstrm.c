@@ -5,6 +5,7 @@
 #include <zlib.h>
 
 #define BUFSZ 2048
+static const unsigned long prompt_step = 16 * 1024 * 1024;
 
 typedef struct {
     const char *fname;
@@ -25,8 +26,10 @@ static void
 process(const char *fname, size_t recsz)
 {
     int rc;
+    unsigned long prompt = prompt_step;
     z_stream strm0, strm1;
     uint8_t buf0[BUFSZ], buf1[BUFSZ], buf2[BUFSZ];
+    // setup.
     FILE *rfp = fopen(fname, "rb");
     if (rfp == NULL) return;
     memset(&strm0, 0, sizeof(strm0));
@@ -36,7 +39,9 @@ process(const char *fname, size_t recsz)
     assert(rc == Z_OK);
     rc = inflateInit(&strm1);
     assert(rc == Z_OK);
+    // one loop for a record.
     while ((rc = fread(buf0, 1, recsz, rfp)) > 0) {
+        // compress a record.
         assert(rc == recsz);
         strm0.next_in = buf0;
         strm0.avail_in = recsz;
@@ -44,6 +49,7 @@ process(const char *fname, size_t recsz)
         strm0.avail_out = sizeof(buf1);
         rc = deflate(&strm0, Z_SYNC_FLUSH);
         assert(rc == Z_OK);
+        // decompress a record.
         strm1.next_in = buf1;
         strm1.avail_in = strm0.next_out - buf1;
         strm1.next_out = buf2;
@@ -52,22 +58,29 @@ process(const char *fname, size_t recsz)
         assert(rc == Z_OK);
         assert(strm1.next_out - buf2 == recsz);
         assert(memcmp(buf0, buf2, recsz) == 0);
+        if (strm0.total_in >= prompt) {
+            printf("%lu bytes processed.\n", (unsigned long)strm0.total_in);
+            prompt += prompt_step;
+        }
     }
+    // terminate the input.
     strm0.next_in = buf0;
     strm0.avail_in = 0;
     strm0.next_out = buf1;
     strm0.avail_out = sizeof(buf1);
     rc = deflate(&strm0, Z_FINISH);
-    assert(rc == Z_OK);
+    assert(rc == Z_STREAM_END);
     rc = deflateEnd(&strm0);
+    // terminate the output.
     strm1.next_in = buf1;
     strm1.avail_in = strm0.next_in - buf1;
     strm1.next_out = buf2;
     strm1.avail_out = sizeof(buf2);
     rc = inflate(&strm1, Z_FINISH);
-    assert(rc == Z_OK);
+    assert(rc == Z_STREAM_END);
     assert(strm1.next_out == buf2);
     fclose(rfp);
+    // dump informations.
     printf("[%s/%u]: %lu / %lu = %f%%\n", fname, (unsigned)recsz,
            (unsigned long)strm0.total_out,
            (unsigned long)strm0.total_in,
