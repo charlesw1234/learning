@@ -1,0 +1,4 @@
+# -*- python -*-
+
+env = Environment(CXXFLAGS = ['-g', '-Wall'], PROGSUFFIX = '.exe')
+env.Program('main', ['main.cpp', 'value.cpp'])
