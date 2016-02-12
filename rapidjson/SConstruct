@@ -1,0 +1,6 @@
+# -*- python -*-
+
+env = Environment(CCFLAGS = ['-march=native', '-Wall', '-Wextra', '-std=c++11'],
+                  PROGSUFFIX = '.exe')
+
+env.Program('first', 'first.cpp')
