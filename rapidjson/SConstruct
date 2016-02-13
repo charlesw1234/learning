@@ -5,3 +5,5 @@ env = Environment(CCFLAGS = ['-g', '-march=native', '-Wall', '-Wextra', '-std=c+
 
 env.Program('showsz', 'showsz.cpp')
 env.Program('first', 'first.cpp')
+env.Program('mkarray', 'mkarray.cpp')
+env.Program('mkobject', 'mkobject.cpp')
