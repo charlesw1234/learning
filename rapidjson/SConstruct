@@ -4,6 +4,7 @@ env = Environment(CCFLAGS = ['-g', '-march=native', '-Wall', '-Wextra', '-std=c+
                   PROGSUFFIX = '.exe')
 
 env.Program('showsz', 'showsz.cpp')
-env.Program('first', 'first.cpp')
+env.Program('first', ['first.cpp', 'show.cpp'])
 env.Program('mkarray', 'mkarray.cpp')
 env.Program('mkobject', 'mkobject.cpp')
+env.Program('heapstack', 'heapstack.cpp')
