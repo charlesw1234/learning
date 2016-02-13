@@ -1,6 +1,7 @@
 # -*- python -*-
 
-env = Environment(CCFLAGS = ['-march=native', '-Wall', '-Wextra', '-std=c++11'],
+env = Environment(CCFLAGS = ['-g', '-march=native', '-Wall', '-Wextra', '-std=c++11'],
                   PROGSUFFIX = '.exe')
 
+env.Program('showsz', 'showsz.cpp')
 env.Program('first', 'first.cpp')
