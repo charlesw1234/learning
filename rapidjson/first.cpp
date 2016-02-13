@@ -8,7 +8,8 @@ int main(void)
     FILE *rfp = fopen("config.json", "r");
     rapidjson::FileReadStream fstrm(rfp, buffer, sizeof(buffer));
     doc.ParseStream(fstrm);
-    shobject(stdout, 0, doc);
+    printf("%s\n", shvalue(&doc).c_str());
+    shobject(stdout, 4, doc);
     fclose(rfp);
     return 0;
 }
