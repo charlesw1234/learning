@@ -1,0 +1,9 @@
+# -*- python -*-
+from glob import glob
+from os.path import join as pathjoin
+
+env = Environment(CCFLAGS = ['-g', '-Wall', '-std=c++11'],
+                  CPPPATH = ['.'],
+                  PROGSUFFIX = '.exe')
+
+objs = map(lambda src: env.Object(src)[0], glob(pathjoin('densityxx', '*.cpp')))
