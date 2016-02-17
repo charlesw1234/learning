@@ -26,4 +26,26 @@
 #error Unknow endianness
 #endif
 
+#define DENSITY_MEMCPY  __builtin_memcpy
+#define DENSITY_MEMMOVE  __builtin_memmove
+
+#define DENSITY_LIKELY(x)  __builtin_expect(!!(x), 1)
+#define DENSITY_UNLIKELY(x)  __builtin_expect(!!(x), 0)
+
+#define DENSITY_BITSIZEOF(x) (8 * sizeof(x))
+
 #define RESTRICT
+
+namespace density {
+    typedef enum {
+        COMPRESSION_MODE_COPY = 0,
+        COMPRESSION_MODE_CHAMELEON_ALGORITHM = 1,
+        COMPRESSION_MODE_CHEETAH_ALGORITHM = 2,
+        COMPRESSION_MODE_LION_ALGORITHM = 3,
+    } COMPRESSION_MODE;
+
+    typedef enum {
+        BLOCK_TYPE_DEFAULT = 0,                      // Standard, no integrity check
+        BLOCK_TYPE_WITH_HASHSUM_INTEGRITY_CHECK = 1  // Add data integrity check to the stream
+    } BLOCK_TYPE;
+}
