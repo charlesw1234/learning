@@ -32,7 +32,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 
-#include "./density/src/density_api.h"
+#include "density/density_api.h"
 #include "chrono.h"
 #include "header.h"
 #include "globals.h"

@@ -44,8 +44,8 @@
 #include "memory_teleport.h"
 #include "memory_location.h"
 #include "memory_teleport.h"
-#include "spookyhash/src/context.h"
-#include "spookyhash/src/spookyhash.h"
+#include "spookyhash/context.h"
+#include "spookyhash/spookyhash.h"
 
 typedef enum {
     DENSITY_BLOCK_DECODE_STATE_READY = 0,
