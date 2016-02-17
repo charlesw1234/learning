@@ -2,7 +2,9 @@
 from glob import glob
 from os.path import join as pathjoin
 
-env = Environment(CCFLAGS = ['-g', '-Wall', '-std=c++11'],
+env = Environment(CCFLAGS = ['-g', '-Wall', '-flto', '-Ofast',
+                             '-fomit-frame-pointer', '-std=c++11'],
+                  CPPDEFINES = [('_FILE_OFFSET_BITS', 64)],
                   CPPPATH = ['.'],
                   PROGSUFFIX = '.exe')
 
