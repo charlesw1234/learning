@@ -1,0 +1,11 @@
+# -*- python -*-
+from glob import glob
+from os.path import join as pathjoin
+
+env = Environment(CCFLAGS = ['-g', '-Wall', '-std=c99'],
+                  CPPPATH = ['.'],
+                  PROGSUFFIX = '.exe')
+
+objs = map(lambda src: env.Object(src)[0],
+           glob(pathjoin('density', '*.c')) + glob(pathjoin('spookyhash', '*.c')))
+env.Program('first', ['first.c'] + objs)
