@@ -2,9 +2,7 @@
 
 #include "globals.hpp"
 
-namespace spookyhash {
-#define RESTRICT
-    
+namespace density {
 #define SPOOKYHASH_ALLOW_UNALIGNED_READS   1
 #define SPOOKYHASH_ROTATE(x, k) (((x) << (k)) | (((x) >> (64 - (k)))))
 
@@ -391,7 +389,7 @@ namespace spookyhash {
         return (uint32_t) hash1;
     }
 
-    class SpookyHashContext_t {
+    class spookyhash_context_t {
     private:
         uint64_t m_data[2 * SPOOKYHASH_VARIABLES];
         uint64_t m_state[SPOOKYHASH_VARIABLES];

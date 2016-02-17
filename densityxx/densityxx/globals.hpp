@@ -25,3 +25,5 @@
 #else
 #error Unknow endianness
 #endif
+
+#define RESTRICT
