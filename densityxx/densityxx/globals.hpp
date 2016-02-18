@@ -7,6 +7,10 @@
 #include <unistd.h>
 #include <stddef.h>
 
+#define DENSITYXX_MAJOR_VERSION 0
+#define DENSITYXX_MINOR_VERSION 12
+#define DENSITYXX_REVISION      5
+
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #define LITTLE_ENDIAN_64(b)   ((uint64_t)b)
 #define LITTLE_ENDIAN_32(b)   ((uint32_t)b)

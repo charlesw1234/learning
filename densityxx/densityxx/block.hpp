@@ -34,17 +34,6 @@ namespace density {
 
 #pragma pack(push)
 #pragma pack(4)
-    struct block_encode_current_block_data {
-        uint_fast64_t inStart;
-        uint_fast64_t outStart;
-    };
-
-    struct block_encode_integrity_data {
-        bool update;
-        uint8_t *inputPointer;
-        spookyhash_context_t *context;
-    };
-
     class block_encode_state_t {
     public:
         BLOCK_ENCODE_PROCESS process;
@@ -55,8 +44,14 @@ namespace density {
         uint_fast64_t totalRead;
         uint_fast64_t totalWritten;
 
-        block_encode_current_block_data currentBlockData;
-        block_encode_integrity_data integrityData;
+        // current_block_data.
+        uint_fast64_t inStart;
+        uint_fast64_t outStart;
+
+        // integrity_data.
+        bool update;
+        uint8_t *inputPointer;
+        spookyhash_context_t context;
 
         void *kernelEncodeState;
 
@@ -99,17 +94,6 @@ namespace density {
 
 #pragma pack(push)
 #pragma pack(4)
-    struct block_decode_current_block_data {
-        uint_fast64_t inStart;
-        uint_fast64_t outStart;
-    };
-
-    struct block_decode_integrity_data {
-        bool update;
-        uint8_t *outputPointer;
-        spookyhash_context_t *context;
-    };
-
     class block_decode_state_t {
     public:
         BLOCK_DECODE_PROCESS process;
@@ -126,19 +110,25 @@ namespace density {
         mode_marker_t lastModeMarker;
         block_footer_t lastBlockFooter;
 
-        block_decode_current_block_data currentBlockData;
-        block_decode_integrity_data integrityData;
+        // current_block_data.
+        uint_fast64_t inStart;
+        uint_fast64_t outStart;
+
+        // integrity_data.
+        bool update;
+        uint8_t *outputPointer;
+        spookyhash_context_t context;
 
         void *kernelDecodeState;
 
         BLOCK_DECODE_STATE
         init(const COMPRESSION_MODE, const BLOCK_TYPE,
-             const main_header_parameters, const uint_fast8_t, void *);
+             const main_header_parameters_t, const uint_fast8_t, void *);
         BLOCK_DECODE_STATE continue_(memory_teleport_t *, memory_location_t *);
         BLOCK_DECODE_STATE finish(memory_teleport_t *, memory_location_t *);
     protected:
         virtual KERNEL_DECODE_STATE
-        _init(void*, const main_header_parameters, const uint_fast8_t) = 0;
+        _init(void*, const main_header_parameters_t, const uint_fast8_t) = 0;
         virtual KERNEL_DECODE_STATE
         _process(memory_teleport_t *, memory_location_t *, void*) = 0;
         virtual KERNEL_DECODE_STATE

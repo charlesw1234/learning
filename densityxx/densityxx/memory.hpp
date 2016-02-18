@@ -9,6 +9,13 @@ namespace density {
         uint_fast64_t available_bytes;
         uint_fast64_t initial_available_bytes;
 
+        inline void consume(uint_fast64_t sz)
+        {   pointer += sz; available_bytes -= sz; }
+        inline void read(void *data, uint_fast64_t szdata)
+        {   DENSITY_MEMCPY(data, pointer, szdata); consume(szdata); }
+        inline void write(const void *data, uint_fast64_t szdata)
+        {   DENSITY_MEMCPY(pointer, data, szdata); consume(szdata); }
+
         inline void encapsulate(uint8_t *RESTRICT pointer, const uint_fast64_t bytes) {
             this->pointer = pointer;
             available_bytes = bytes;
