@@ -1,12 +1,13 @@
 # -*- python -*-
 
 env = Environment(CFLAGS = ['-g', '-Wall'],
-                  CXXFLAGS = ['-g', '-Wall'],
+                  CXXFLAGS = ['-g', '-Wall', '-std=c++11'],
                   PROGSUFFIX = '.exe')
 
 env.Program('showsz', 'showsz.cpp')
 env.Program('tryfloat', 'tryfloat.cpp')
 env.Program('shtz', 'shtz.c')
+env.Program('tst-chrono', 'tst-chrono.cpp')
 env.Program('tst-iterator', 'tst-iterator.cpp')
 env.Program('tst-bitset', 'tst-bitset.cpp')
 env.Program('tst-stl-list',
