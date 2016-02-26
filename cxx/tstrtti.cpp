@@ -23,24 +23,38 @@ main(void)
 
     tpstart = std::chrono::system_clock::now();
     for (unsigned idx = 0; idx < nidx; ++idx)
+        if ((derived_t *)(baseptr) == NULL);
+    tpend = std::chrono::system_clock::now();
+    duration = tpend - tpstart;
+    printf("duration(%20s) = %f\n", "traditional cast", duration.count());
+
+    tpstart = std::chrono::system_clock::now();
+    for (unsigned idx = 0; idx < nidx; ++idx)
         if (static_cast<derived_t *>(baseptr) == NULL);
     tpend = std::chrono::system_clock::now();
     duration = tpend - tpstart;
-    printf("duration0 = %f\n", duration.count());
+    printf("duration(%20s) = %f\n", "static_cast", duration.count());
 
     tpstart = std::chrono::system_clock::now();
     for (unsigned idx = 0; idx < nidx; ++idx)
         if (dynamic_cast<derived_t *>(baseptr) == NULL);
     tpend = std::chrono::system_clock::now();
     duration = tpend - tpstart;
-    printf("duration0 = %f\n", duration.count());
+    printf("duration(%20s) = %f\n", "dynamic_cast", duration.count());
 
     tpstart = std::chrono::system_clock::now();
     for (unsigned idx = 0; idx < nidx; ++idx)
         if (typeid(baseptr) == typeid(derived_t *));
     tpend = std::chrono::system_clock::now();
     duration = tpend - tpstart;
-    printf("duration0 = %f\n", duration.count());
+    printf("duration(%20s) = %f\n", "typeid(pointer)", duration.count());
+
+    tpstart = std::chrono::system_clock::now();
+    for (unsigned idx = 0; idx < nidx; ++idx)
+        if (typeid(*baseptr) == typeid(derived_t));
+    tpend = std::chrono::system_clock::now();
+    duration = tpend - tpstart;
+    printf("duration(%20s) = %f\n", "typeid(instance)", duration.count());
 
     delete baseptr;
     return 0;
