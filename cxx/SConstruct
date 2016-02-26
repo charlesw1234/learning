@@ -32,6 +32,7 @@ env.Program('tst-tickquery', 'tst-tickquery.c', LIBS = ['curl'])
 env.Program('tst-mallocfreevec', 'tst-mallocfreevec.cpp')
 env.Program('tst-vbase', 'tst-vbase.cpp')
 env.Program('tst-vbase0', 'tst-vbase0.cpp')
+env.Program('tstrtti', 'tstrtti.cpp')
 
 #wxenv = env.Clone()
 #wxenv.ParseConfig('wx-config --cxxflags --libs')
