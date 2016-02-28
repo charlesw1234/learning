@@ -1,12 +1,13 @@
 # -*- python -*-
 
 env = Environment(CFLAGS = ['-g', '-Wall'],
-                  CXXFLAGS = ['-g', '-Wall'],
+                  CXXFLAGS = ['-g', '-Wall', '-std=c++11'],
                   PROGSUFFIX = '.exe')
 
 env.Program('showsz', 'showsz.cpp')
 env.Program('tryfloat', 'tryfloat.cpp')
 env.Program('shtz', 'shtz.c')
+env.Program('tst-chrono', 'tst-chrono.cpp')
 env.Program('tst-iterator', 'tst-iterator.cpp')
 env.Program('tst-bitset', 'tst-bitset.cpp')
 env.Program('tst-stl-list',
@@ -32,6 +33,7 @@ env.Program('tst-mallocfreevec', 'tst-mallocfreevec.cpp')
 env.Program('tst-vbase', 'tst-vbase.cpp')
 env.Program('tst-vbase0', 'tst-vbase0.cpp')
 env.Program('tst-union', 'tst-union.cpp')
+env.Program('tstrtti', 'tstrtti.cpp')
 
 #wxenv = env.Clone()
 #wxenv.ParseConfig('wx-config --cxxflags --libs')
