@@ -34,6 +34,7 @@ env.Program('tst-vbase', 'tst-vbase.cpp')
 env.Program('tst-vbase0', 'tst-vbase0.cpp')
 env.Program('tst-rtti', 'tst-rtti.cpp')
 env.Program('tst-switch', 'tst-switch.cpp')
+env.Program('tst-union', 'tst-union.cpp')
 
 #wxenv = env.Clone()
 #wxenv.ParseConfig('wx-config --cxxflags --libs')
