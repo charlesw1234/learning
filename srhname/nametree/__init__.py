@@ -6,7 +6,9 @@ class Tree(object):
 
     def commit(self, names):
         names.sort()
-        self.top.extend(self.dobranch(u'', names))
+        result = self.dobranch(u'', names)
+        if isinstance(result, list): self.top.extend(result)
+        else: raise RuntimeError, repr(result)
 
     def finish(self):
         node = (u'', len(self.tree), len(self.top))
@@ -20,8 +22,8 @@ class Tree(object):
 
     def dobranch1(self, prefix, name):
         if prefix != u'': return self.dotail(prefix, name)
-        branch = [self.dotail(name[0], name[1:])]
-        result = (name[0], len(self.tree), len(branch))
+        branch = self.dotail(name[0], name[1:])
+        result = [(name[0], len(self.tree), len(branch))]
         self.tree.extend(branch)
         return result
 
@@ -33,12 +35,12 @@ class Tree(object):
             if name == u'': branch.append((u'', 0, 0))
             elif name[0] == curch: subnames.append(name[1:])
             else:
-                if subnames: branch.append(self.dobranch(prefix + curch, subnames))
+                if subnames: branch.extend(self.dobranch(prefix + curch, subnames))
                 curch = name[0]
                 subnames = [name[1:]]
-        if subnames: branch.append(self.dobranch(prefix + curch, subnames))
+        if subnames: branch.extend(self.dobranch(prefix + curch, subnames))
         if prefix == u'': return branch
-        result = (prefix[-1], len(self.tree), len(branch))
+        result = [(prefix[-1], len(self.tree), len(branch))]
         self.tree.extend(branch)
         return result
 
@@ -47,7 +49,7 @@ class Tree(object):
         if start < 0:
             start = len(self.tails)
             self.tails = self.tails + name
-        return (prefix[-1], start, -len(name))
+        return [(prefix[-1], start, -len(name))]
 
 class Iterator(object):
     def __init__(self, treeobj):
@@ -84,4 +86,4 @@ class Iterator(object):
             self.stack.append(idx)
             node = self.treeobj.tree[idx]
             self.prefix = self.prefix + node[0]
-        return False
+        return True
