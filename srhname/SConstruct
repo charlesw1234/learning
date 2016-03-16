@@ -3,4 +3,4 @@
 env = Environment(CCFLAGS = ['-g', '-Wall'],
                   PROGSUFFIX = '.exe')
 
-env.Program('tester', ['tester.cpp', 'nametree.cpp'])
+env.Program('tester', ['tester.cpp', 'nametree.cpp', 'utf.c'])

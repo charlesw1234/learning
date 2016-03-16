@@ -5,6 +5,7 @@ namespace nametree {
     Tree_t::Tree_t(const uint8_t *body)
     {
         uint32_t nnodes = *(const uint32_t *)body; body += sizeof(uint32_t);
+        start = nnodes - 1;
         ntails = *(const uint32_t *)body; body += sizeof(uint32_t);
         starts = (const uint32_t *)body; body = (const uint8_t *)(starts + nnodes);
         chars = (const unichar_t *)body; body = (const uint8_t *)(chars + nnodes);
