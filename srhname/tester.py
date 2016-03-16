@@ -1,10 +1,18 @@
-from maker import TreeMaker
+from nametree import Tree, Iterator
 
-tmobj = TreeMaker()
+treeobj = Tree()
 
-tmobj.commit(['aaxyz', 'aaaxyz', 'aaaadef', 'aabdef', 'aacdef', 'def'])
+treeobj.commit(['aaxyz', 'aaaxyz', 'aaaadef', 'aabdef', 'aacdef', 'def'])
+treeobj.finish()
 
-for idx in range(len(tmobj.tree)):
-    print(idx, tmobj.tree[idx])
-print(repr(tmobj.tails))
-print(tmobj.top)
+for idx in range(len(treeobj.tree)):
+    print(idx, treeobj.tree[idx])
+print(repr(treeobj.tails))
+
+iterator = Iterator(treeobj)
+
+idx = 0
+print(idx, iterator.get())
+while iterator.donext():
+    idx = idx + 1
+    print(idx, iterator.get())
