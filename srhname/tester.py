@@ -4,6 +4,9 @@ treeobj = Tree()
 
 treeobj.commit(['aaxyz', 'aaaxyz', 'aaaadef', 'aabdef', 'aacdef', 'def'])
 treeobj.finish()
+wfp = open('bookinfo.bin', 'wb')
+map(lambda piece: wfp.write(piece), treeobj.dump())
+wfp.close()
 
 for idx in range(len(treeobj.tree)):
     print(idx, treeobj.tree[idx])

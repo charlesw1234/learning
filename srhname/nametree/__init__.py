@@ -74,8 +74,8 @@ class Iterator(object):
 
     def get(self):
         node = self.treeobj.tree[self.stack[-1]]
-        if node[2] == 0: return self.prefix
-        return self.prefix + self.treeobj.tails[node[1]: node[1] - node[2]]
+        if node[2] == 0: return self.prefix[1:]
+        return self.prefix[1:] + self.treeobj.tails[node[1]: node[1] - node[2]]
 
     def donext(self):
         # pop phase.

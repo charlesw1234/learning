@@ -16,16 +16,15 @@ namespace nametree {
     // Iterator_t.
     Iterator_t::Iterator_t(const Tree_t *tree)
     {
-        unsigned idx = tree->start;
         _tree = tree;
         _top = 0;
-        _stack[0] = idx;
-        _prefix[0] = _tree->chars[idx];
+        _stack[_top] = _tree->start;
+        _prefix[_top] = _tree->chars[_tree->start];
         ++_top;
-        while (tree->sizes[idx] > 0 && tree->sizes[idx] < INT16_MAX) {
-            idx = _tree->starts[idx];
-            _stack[_top] = idx;
-            _prefix[_top] = _tree->chars[idx];
+        while (_tree->sizes[_stack[_top - 1]] > 0 &&
+               _tree->sizes[_stack[_top - 1]] <= INT16_MAX) {
+            _stack[_top] = _tree->starts[_stack[_top - 1]];
+            _prefix[_top] = _tree->chars[_stack[_top]];
             ++_top;
         }
     }
@@ -34,11 +33,10 @@ namespace nametree {
     {
         uint32_t idxbuf, idxtail, termtail;
         for (idxbuf = 0; idxbuf < _top - 1; ++idxbuf) buf[idxbuf] = _prefix[idxbuf + 1];
-        if (_tree->sizes[_top - 1] > INT16_MAX) {
-            idxtail = _tree->starts[_top - 1];
-            termtail = idxtail + UINT16_MAX - _tree->sizes[_top - 1];
-            while (idxtail < termtail)
-                buf[idxbuf++] = _tree->tails[idxtail++];
+        if (_tree->sizes[_stack[_top - 1]] > INT16_MAX) {
+            idxtail = _tree->starts[_stack[_top - 1]];
+            termtail = idxtail + UINT16_MAX - _tree->sizes[_stack[_top - 1]] + 1;
+            while (idxtail < termtail) buf[idxbuf++] = _tree->tails[idxtail++];
         }
         buf[idxbuf] = 0;
         return idxbuf;
@@ -55,9 +53,9 @@ namespace nametree {
         // push phase.
         _prefix[_top - 1] = _tree->chars[_stack[_top - 1]];
         while (_tree->sizes[_stack[_top - 1]] > 0 &&
-               _tree->sizes[_stack[_top - 1]] < INT16_MAX) {
+               _tree->sizes[_stack[_top - 1]] <= INT16_MAX) {
             _stack[_top] = _tree->starts[_stack[_top - 1]];
-            _prefix[_top] = _tree->chars[_stack[_top - 1]];
+            _prefix[_top] = _tree->chars[_stack[_top]];
             ++_top;
         }
         return true;
