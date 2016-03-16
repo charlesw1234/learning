@@ -1,3 +1,5 @@
+from struct import pack
+
 class Tree(object):
     def __init__(self):
         self.tree = []
@@ -11,10 +13,17 @@ class Tree(object):
         else: raise RuntimeError, repr(result)
 
     def finish(self):
-        node = (u'', len(self.tree), len(self.top))
+        node = (u'\0', len(self.tree), len(self.top))
         self.tree.extend(self.top)
         self.tree.append(node)
         del(self.top)
+
+    def dump(self):
+        return [pack('I', len(self.tree)) + pack('I', len(self.tails))] +\
+            map(lambda node: pack('I', node[1]), self.tree) +\
+            map(lambda node: pack('H', ord(node[0])), self.tree) +\
+            map(lambda node: pack('h', node[2]), self.tree) +\
+            map(lambda uch: pack('H', ord(uch)), self.tails)
 
     def dobranch(self, prefix, names):
         if len(names) == 1: return self.dobranch1(prefix, names[0])
@@ -32,7 +41,7 @@ class Tree(object):
         curch = None
         subnames = []
         for name in names:
-            if name == u'': branch.append((u'', 0, 0))
+            if name == u'': branch.append((u'\0', 0, 0))
             elif name[0] == curch: subnames.append(name[1:])
             else:
                 if subnames: branch.extend(self.dobranch(prefix + curch, subnames))
