@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "utf.h"
-#include "nametree.hpp"
+#include "scanner.hpp"
 
 static void
 show(nametree::unichar_t *buf, size_t nchars)
