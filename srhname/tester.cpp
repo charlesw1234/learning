@@ -1,8 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include "utf.h"
 #include "scanner.hpp"
 
+#if 0
 static void
 show(nametree::unichar_t *buf, size_t nchars)
 {
@@ -11,22 +10,18 @@ show(nametree::unichar_t *buf, size_t nchars)
     UTF16ToUTF8(buf, buf + nchars + 1, utf8str, utf8str + sizeof(utf8str));
     printf("(%3u): [%s]\n", (unsigned)nchars, utf8str);
 }
+#endif
 
 int
-main(void)
+main(int argc, char *argv[])
 {
-    size_t realsz, maxsz = 2 * 1024 * 1024;
-    FILE *rfp = fopen("bookinfo.bin", "rb");
-    uint8_t *body = (uint8_t *)malloc(maxsz);
-    realsz = fread(body, 1, maxsz, rfp);
-    printf("%u bytes read.\n", (unsigned)realsz);
-    fclose(rfp);
-    nametree::Tree_t treeobj(body);
-    nametree::Iterator_t iterator(&treeobj);
-    nametree::unichar_t buf[nametree::Iterator_t::MAXCHARS + 1];
-    show(buf, iterator.get(buf));
-    while (iterator.next())
-        show(buf, iterator.get(buf));
-    free(body);
+    const char *title;
+    scanner::Scanner_t *sobj;
+    for (int argidx = 1; argidx < argc; ++argidx) {
+        sobj = new scanner::Scanner_t("bookinfo.txt.gz");
+        while ((title = sobj->scan(argv[argidx])) != NULL)
+            printf("[%s]\n", title);
+        delete sobj;
+    }
     return 0;
 }

@@ -7,6 +7,7 @@ namespace scanner {
         status = st_title;
         title0 = title1 = body0 = body1 = used = buffer;
         gzfile = gzopen(fpath, "rb");
+        readmore(0);
     }
     Scanner_t::~Scanner_t()
     {
@@ -76,18 +77,19 @@ namespace scanner {
     void
     Scanner_t::makespace(size_t kept)
     {
-        if (buffer < title0 && title0 < title1) {
-            memmove(buffer, title0, title1 - title0);
+        if (buffer < title0) {
+            if (title0 < title1) memmove(buffer, title0, title1 - title0);
             title1 = buffer + (title1 - title0);
             title0 = buffer;
+            used = title1;
         }
         if (body0 + kept < body1) body0 = body1 - kept;
-        if (title1 < body0 && body0 < body1) {
-            memmove(title1, body0, body1 - body0);
-            body1 = title1 + (body1 - body0);
-            body0 = title1;
+        if (title1 + 1 < body0 && body0 < body1) {
+            title1[0] = 0;
+            memmove(title1 + 1, body0, body1 - body0);
+            body1 = title1 + 1 + (body1 - body0);
+            body0 = title1 + 1;
+            used = body1;
         }
-        used = body1;
-        used[0] = used[1] = 0;
     }
 }
