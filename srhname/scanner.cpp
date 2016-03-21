@@ -4,10 +4,10 @@
 namespace scanner {
     Scanner_t::Scanner_t(const char *fpath)
     {
-        status = st_title;
-        title0 = title1 = body0 = body1 = used = buffer;
+        status = st_id;
+        id0 = id1 = body0 = body1 = used = buffer;
         gzfile = gzopen(fpath, "rb");
-        readmore(0);
+        moreid();
     }
     Scanner_t::~Scanner_t()
     {
@@ -20,76 +20,86 @@ namespace scanner {
         char *term, *backup, termch;
         for (;;) {
             switch (status) {
-            case st_title: goto title;
-            case st_body_reported: goto body_reported;
+            case st_id: goto id;
             case st_body: goto body;
+            case st_body_reported: goto body_reported;
             }
-        title:
-            term = title0 + strcspn(title0, ",\n");
+        id:
+            term = id0 + strcspn(id0, ",");
             termch = *term; *term = 0;
-            title1 = term;
+            id1 = term;
             body0 = body1 = term + 1;
-            if (termch == ',') {
-                if (strstr(title0, keyword) == NULL) goto body;
-                status = st_body_reported;
-                return title0;
-            } else if (termch == '\n') {
-                backup = title0;
-                title0 = title1 = term + 1;
-                if (strstr(backup, keyword) == NULL) goto title;
-                return backup;
-            } else { // termch == 0.
-                if (!readmore(0)) break;
-                goto title;
-            }
-        body_reported:
-            term = body0 + strcspn(body0, "\n");
-            termch = *term; *term = 0;
-            body1 = term;
-            if (termch == '\n') {
-                title0 = title1 = body0 = body1 = term + 1;
-                goto title;
-            } else { // *term == 0.
-                if (!readmore(0)) break;
-                goto body_reported;
+            if (termch == 0) {
+                if (!moreid()) break;
+                goto id;
             }
         body:
             term = body0 + strcspn(body0, "\n");
             termch = *term; *term = 0;
             body1 = term;
             if (strstr(body0, keyword) == NULL) {
-                if (!readmore(kept)) break;
-                goto body;
-            } else if (termch == '\n') {
-                backup = title0;
-                title0 = title1 = body0 = body1 = term + 1;
-                status = st_title;
-                return backup;
-            } else { // termch == 0.
-                backup = title0;
-                title0 = title1 = body0 = body1 = term + 1;
-                status = st_body_reported;
-                return backup;
+                if (termch == '\n') {
+                    id0 = id1 = body0 = body1 = term + 1;
+                    goto id;
+                } else { // termch == 0.
+                    if (!morebody(kept)) break;
+                    goto body;
+                }
+            } else {
+                if (termch == '\n') {
+                    backup = id0;
+                    id0 = id1 = body0 = body1 = term + 1;
+                    status = st_id;
+                    return backup;
+                } else { // termch == 0.
+                    backup = id0;
+                    id0 = id1 = body0 = body1 = term + 1;
+                    status = st_body_reported;
+                    return backup;
+                }
+            }
+        body_reported:
+            term = body0 + strcspn(body0, "\n");
+            termch = *term; *term = 0;
+            body1 = term;
+            if (termch == '\n') {
+                id0 = id1 = body0 = body1 = term + 1;
+                goto id;
+            } else { // *term == 0.
+                if (!morebody(0)) break;
+                goto body_reported;
             }
         }
         return NULL;
     }
-    void
-    Scanner_t::makespace(size_t kept)
+    bool
+    Scanner_t::moreid(void)
     {
-        if (buffer < title0) {
-            if (title0 < title1) memmove(buffer, title0, title1 - title0);
-            title1 = buffer + (title1 - title0);
-            title0 = buffer;
-            used = title1;
+        if (buffer < id0) {
+            if (id0 < id1) memmove(buffer, id0, id1 - id0);
+            id1 = buffer + (id1 - id0);
+            id0 = buffer;
+            used = id1;
+        }
+        body0 = body1 = id1 + 1;
+        return readmore();
+    }
+    bool
+    Scanner_t::morebody(size_t kept)
+    {
+        if (buffer < id0) {
+            assert(*id1 == 0);
+            memmove(buffer, id0, id1 + 1 - id0);
+            id1 = buffer + (id1 - id0);
+            id0 = buffer;
         }
         if (body0 + kept < body1) body0 = body1 - kept;
-        if (title1 + 1 < body0 && body0 < body1) {
-            title1[0] = 0;
-            memmove(title1 + 1, body0, body1 - body0);
-            body1 = title1 + 1 + (body1 - body0);
-            body0 = title1 + 1;
-            used = body1;
+        if (id1 + 1 < body0) {
+            if (body0 < body1) memmove(id1 + 1, body0, body1 - body0);
+            body1 = id1 + 1 + (body1 - body0);
+            body0 = id1 + 1;
         }
+        used = body1;
+        return readmore();
     }
 }
