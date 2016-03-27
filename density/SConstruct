@@ -2,10 +2,19 @@
 from glob import glob
 from os.path import join as pathjoin
 
-if ARGUMENTS.get('debug', 0): ccflags = ['-g', '-Wall', '-std=c99']
-else: ccflags = ['-O3', '-Wall', '-flto', '-Ofast', '-fomit-frame-pointer', '-std=c99']
+linkflags = []
+if ARGUMENTS.get('debug', 0):
+    ccflags = ['-g', '-Wall', '-std=c99']
+else:
+    ccflags = ['-O3', '-Wall', '-flto', '-Ofast', '-fomit-frame-pointer', '-std=c99']
+if ARGUMENTS.get('prof', 0):
+    ccflags.extend(['-pg', '-fprofile-arcs', '-ftest-coverage'])
+    linkflags.extend(['-pg', '-fprofile-arcs', '-ftest-coverage'])
+else:
+    ccflags.append('-fomit-frame-pointer')
 env = Environment(CCFLAGS = ccflags,
                   CPPPATH = ['.'],
+                  LINKFLAGS = linkflags,
                   PROGSUFFIX = '.exe')
 
 objs = map(lambda src: env.Object(src)[0],
