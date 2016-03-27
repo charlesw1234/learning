@@ -3,4 +3,4 @@
 env = Environment(CCFLAGS = ['-g', '-Wall'],
                   PROGSUFFIX = '.exe')
 
-env.Program('tester', ['tester.cpp', 'scanner.cpp', 'utf.c'])
+env.Program('tester', ['tester.cpp', 'scanner.cpp', 'utf.c'], LIBS = ['z'])
