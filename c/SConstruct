@@ -5,3 +5,4 @@ env = Environment(CCFLAGS = ['-g', '-Wall'],
 env.Program('sizeof', 'sizeof.c')
 env.Program('printf', 'printf.c')
 env.Program('cdouble', 'cdouble.c')
+env.Program('rlimit', 'rlimit.c')
