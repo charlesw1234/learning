@@ -1,16 +1,41 @@
 #include "bookfile.hpp"
 
 namespace bookfile {
-    bookfile_t::bookfile_t(const char *fname)
+    bookfile_t::bookfile_t(const char *fname, unsigned num_hashes):
+        std::vector<chapter_hash_t>(num_hashes)
     {
-        fp = fopen(fname, "rb+");
-        fseek(fp, 0, SEEK_END);
-        if (ftell(fp) == 0) {
-            chapter_hash_t hash;
-            memset(&hash, 0, sizeof(hash));
-            hash.magic = magic;
-            hash.next = UINT32_MAX;
-            fwrite(&hash, 1, sizeof(hash), fp);
+        if ((fp = fopen(fname, "wb+"))) {
+            tail = 0;
+            for (unsigned idx = 0; idx < size() - 1; ++idx) {
+                at(idx).next = tail;
+                tail += sizeof(chapter_hash_t) / size_block;
+            }
+        }
+    }
+    bookfile_t::bookfile_t(const char *fname): std::vector<chapter_hash_t>()
+    {
+        if ((fp = fopen(fname, "rb+"))) {
+            for (uint32_t position = 0; position != UINT32_MAX; position = back().next) {
+                push_back(chapter_hash_t());
+                fseek(fp, position * size_block, SEEK_SET);
+                fread(&back(), 1, sizeof(back()), fp);
+            }
+            fseek(fp, 0, SEEK_END);
+            tail = (unsigned)(ftell(fp) / size_block);
+        }
+    }
+    bookfile_t::~bookfile_t()
+    {
+        if (fp) {
+            unsigned idx = 0;
+            for (uint32_t position = 0; position != UINT32_MAX; position = back().next) {
+                if (at(idx).magic == magic_dirty) {
+                    fseek(fp, position * size_block, SEEK_SET);
+                    at(idx).magic = magic_clean;
+                    fwrite(&at(idx), 1, sizeof(at(idx)), fp);
+                }
+                ++idx;
+            }
         }
     }
 
@@ -18,104 +43,72 @@ namespace bookfile {
     bookfile_t::freed_blocks(void)
     {
         uint64_t value = 0;
-        chapter_hash_t hash;
-
-        for (uint32_t position = 0; position != UINT32_MAX; position = hash.next) {
-            fseek(fp, position * size_block, SEEK_SET);
-            fread(&hash, 1, sizeof(hash), fp);
-            value += hash.freed_blocks;
-        }
+        for (unsigned idx = 0; idx < size(); ++idx)
+            value += at(idx).freed_blocks;
         return value;
-    }
-
-    unsigned
-    bookfile_t::next(uint64_t *chapters, uint32_t *position)
-    {
-        chapter_hash_t hash;
-        uint64_t *cur = chapters;
-
-        fseek(fp, *position * size_block, SEEK_SET);
-        fread(&hash, 1, sizeof(hash), fp);
-        for (unsigned idx = 0; idx < num_chapter_hash; ++idx)
-            if (hash.chapters[idx].blocks == 0) continue;
-            else if (hash.chapters[idx].blocks == UINT32_MAX) continue;
-            else *cur++ = hash.chapters[idx].chapterid;
-        *position = hash.next;
-        return (unsigned)(cur - chapters);
     }
 
     bool
     bookfile_t::insert(uint64_t chapterid, uint32_t blocks)
     {
-        uint32_t position, tail;
-        chapter_hash_t hash;
+        unsigned idx;
+        chapter_hash_t *cur;
         unsigned idx0, idx1 = hashfunc(chapterid);
         unsigned idx2 = (idx1 + num_hash_steps) % num_chapter_hash;
 
-        fseek(fp, 0, SEEK_END);
-        tail = ftell(fp) / size_block;
-        for (position = 0; position != UINT32_MAX; position = hash.next) {
-            fseek(fp, position * size_block, SEEK_SET);
-            fread(&hash, 1, sizeof(hash), fp);
+        for (idx = 0; idx < size(); ++idx) {
+            cur = &at(idx);
             for (idx0 = idx1; idx0 != idx2; idx0 = (idx0 + 1) % num_chapter_hash) {
-                if (hash.chapters[idx0].blocks == 0) { // not found.
-                    hash.chapters[idx0].blocks = blocks;
-                    hash.chapters[idx0].position = tail;
-                    hash.chapters[idx0].chapterid = chapterid;
-                    fseek(fp, position * size_block, SEEK_SET);
-                    fwrite(&hash, 1, sizeof(hash), fp);
-                    fseek(fp, hash.chapters[idx0].position * size_block, SEEK_SET);
+                if (cur->chapters[idx0].blank()) { // not found.
+                    cur->chapters[idx0].blocks = blocks;
+                    cur->chapters[idx0].position = tail;
+                    cur->chapters[idx0].chapterid = chapterid;
+                    cur->magic = magic_dirty;
+                    tail += blocks;
                     return true;
-                } else if (hash.chapters[idx0].blocks == UINT32_MAX) { continue;
-                } else if (hash.chapters[idx0].chapterid == chapterid) { // found.
-                    if (hash.chapters[idx0].blocks > blocks) { // in position.
-                        hash.freed_blocks += hash.chapters[idx0].blocks - blocks;
-                        hash.chapters[idx0].blocks = blocks;
-                        fseek(fp, position * size_block, SEEK_SET);
-                        fwrite(&hash, 1, sizeof(hash), fp);
-                    } else if (hash.chapters[idx0].blocks < blocks) { // append.
-                        hash.freed_blocks += hash.chapters[idx0].blocks;
-                        hash.chapters[idx0].blocks = blocks;
-                        hash.chapters[idx0].position = tail;
-                        fseek(fp, position * size_block, SEEK_SET);
-                        fwrite(&hash, 1, sizeof(hash), fp);
+                } else if (cur->chapters[idx0].removed()) { continue;
+                } else if (cur->chapters[idx0].chapterid == chapterid) { // found.
+                    if (cur->chapters[idx0].blocks > blocks) { // in position.
+                        cur->freed_blocks += cur->chapters[idx0].blocks - blocks;
+                        cur->chapters[idx0].blocks = blocks;
+                        cur->magic = magic_dirty;
+                    } else if (cur->chapters[idx0].blocks < blocks) { // append.
+                        cur->freed_blocks += cur->chapters[idx0].blocks;
+                        cur->chapters[idx0].blocks = blocks;
+                        cur->chapters[idx0].position = tail;
+                        cur->magic = magic_dirty;
+                        tail += blocks;
                     }
-                    fseek(fp, hash.chapters[idx0].position * size_block, SEEK_SET);
                     return true;
                 }
             }
         }
-        // update the last hash.
-        hash.next = tail;
-        fseek(fp, position * size_block, SEEK_SET);
-        fwrite(&hash, 1, sizeof(hash), fp);
-        // build a new hash as the last hash.
-        memset(&hash, 0, sizeof(hash));
-        hash.magic = magic;
-        hash.next = UINT32_MAX;
-        hash.chapters[idx1].blocks = blocks;
-        hash.chapters[idx1].position = tail + sizeof(hash) / size_block;
-        hash.chapters[idx1].chapterid = chapterid;
-        position = tail;
-        fseek(fp, position * size_block, SEEK_SET);
-        fwrite(&hash, 1, sizeof(hash), fp);
+        back().next = tail;
+        push_back(chapter_hash_t());
+        tail += sizeof(chapter_hash_t) / size_block;
+        cur = &back();
+        cur->chapters[idx1].blocks = blocks;
+        cur->chapters[idx1].position = tail;
+        cur->chapters[idx1].chapterid = chapterid;
+        tail += blocks;
         return true;
     }
     bool
-    bookfile_t::search(uint64_t chapterid, uint32_t *blocks)
+    bookfile_t::remove(uint64_t chapterid)
     {
-        chapter_hash_t hash;
+        chapter_hash_t *cur;
         unsigned idx0, idx1 = hashfunc(chapterid);
         unsigned idx2 = (idx1 + num_hash_steps) % num_chapter_hash;
 
-        for (uint32_t position = 0; position != UINT32_MAX; position = hash.next) {
-            fseek(fp, position * size_block, SEEK_SET);
-            fread(&hash, 1, sizeof(hash), fp);
+        for (unsigned idx = 0; idx < size(); ++idx) {
+            cur = &at(idx);
             for (idx0 = idx1; idx0 != idx2; idx0 = (idx0 + 1) % num_chapter_hash) {
-                if (hash.chapters[idx0].blocks == 0) return false; // not found.
-                else if (hash.chapters[idx0].blocks == UINT32_MAX) continue;
-                else if (hash.chapters[idx0].chapterid == chapterid) { // found.
-                    fseek(fp, hash.chapters[idx0].position * size_block, SEEK_SET);
+                if (cur->chapters[idx0].blank()) return false; // not found.
+                else if (cur->chapters[idx0].removed()) continue;
+                else if (cur->chapters[idx0].chapterid == chapterid) { // found.
+                    cur->freed_blocks += cur->chapters[idx0].blocks;
+                    cur->chapters[idx0].blocks = UINT32_MAX;
+                    cur->magic = magic_dirty;
                     return true;
                 }
             }
@@ -123,23 +116,20 @@ namespace bookfile {
         return false;
     }
     bool
-    bookfile_t::remove(uint64_t chapterid)
+    bookfile_t::seek(uint64_t chapterid, uint32_t *blocks)
     {
-        chapter_hash_t hash;
+        chapter_hash_t *cur;
         unsigned idx0, idx1 = hashfunc(chapterid);
         unsigned idx2 = (idx1 + num_hash_steps) % num_chapter_hash;
 
-        for (uint32_t position = 0; position != UINT32_MAX; position = hash.next) {
-            fseek(fp, position * size_block, SEEK_SET);
-            fread(&hash, 1, sizeof(hash), fp);
+        for (unsigned idx = 0; idx < size(); ++idx) {
+            cur = &at(idx);
             for (idx0 = idx1; idx0 != idx2; idx0 = (idx0 + 1) % num_chapter_hash) {
-                if (hash.chapters[idx0].blocks == 0) return false; // not found.
-                else if (hash.chapters[idx0].blocks == UINT32_MAX) continue;
-                else if (hash.chapters[idx0].chapterid == chapterid) { // found.
-                    hash.freed_blocks += hash.chapters[idx0].blocks;
-                    hash.chapters[idx0].blocks = UINT32_MAX;
-                    fseek(fp, position * size_block, SEEK_SET);
-                    fwrite(&hash, 1, sizeof(hash), fp);
+                if (cur->chapters[idx0].blank()) return false; // not found.
+                else if (cur->chapters[idx0].removed()) continue;
+                else if (cur->chapters[idx0].chapterid == chapterid) { // found.
+                    *blocks = cur->chapters[idx0].blocks;
+                    fseek(fp, cur->chapters[idx0].position * size_block, SEEK_SET);
                     return true;
                 }
             }
