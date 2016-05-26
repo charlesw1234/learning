@@ -10,6 +10,7 @@ namespace bookfile {
                 tail += sizeof(chapter_hash_t) / size_block;
                 at(idx).next = tail;
             }
+            tail += sizeof(chapter_hash_t) / size_block;
         }
     }
     bookfile_t::bookfile_t(const char *fname): std::vector<chapter_hash_t>()
