@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 
 #define SHSIZEOF(TYPE)  printf("sizeof(%s) = %u\n", #TYPE, (unsigned)sizeof(TYPE))
 
@@ -13,5 +14,6 @@ main(void)
     SHSIZEOF(unsigned long long);
     SHSIZEOF(float);
     SHSIZEOF(double);
+    SHSIZEOF(uint16_t);
     return 0;
 }

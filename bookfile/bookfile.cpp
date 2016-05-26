@@ -7,8 +7,8 @@ namespace bookfile {
         if ((fp = fopen(fname, "wb+"))) {
             tail = 0;
             for (unsigned idx = 0; idx < size() - 1; ++idx) {
-                at(idx).next = tail;
                 tail += sizeof(chapter_hash_t) / size_block;
+                at(idx).next = tail;
             }
         }
     }
@@ -26,15 +26,14 @@ namespace bookfile {
     }
     bookfile_t::~bookfile_t()
     {
+        uint32_t position;
         if (fp) {
-            unsigned idx = 0;
-            for (uint32_t position = 0; position != UINT32_MAX; position = back().next) {
-                if (at(idx).magic == magic_dirty) {
-                    fseek(fp, position * size_block, SEEK_SET);
-                    at(idx).magic = magic_clean;
-                    fwrite(&at(idx), 1, sizeof(at(idx)), fp);
-                }
-                ++idx;
+            for (unsigned idx = 0; idx < size(); ++idx) {
+                if (at(idx).magic == magic_clean) continue;
+                position = idx == 0 ? 0: at(idx - 1).next;
+                fseek(fp, position * size_block, SEEK_SET);
+                at(idx).magic = magic_clean;
+                fwrite(&at(idx), 1, sizeof(at(idx)), fp);
             }
         }
     }
@@ -107,6 +106,7 @@ namespace bookfile {
         for (unsigned idx = 0; idx < size(); ++idx) {
             cur = &at(idx);
             for (idx0 = idx1; idx0 != idx2; idx0 = (idx0 + 1) % num_chapter_hash) {
+                cur0 = cur->chapters + idx0;
                 if (cur0->blank()) return false; // not found.
                 else if (cur0->removed()) continue;
                 else if (cur0->chapterid == chapterid) { // found.

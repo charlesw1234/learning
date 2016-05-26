@@ -27,7 +27,7 @@ namespace bookfile {
         uint32_t magic;
         uint32_t next;
         uint64_t freed_blocks;
-        chapter_t chapters[size_block];
+        chapter_t chapters[num_chapter_hash];
 
         inline chapter_hash_t(bool dirty = true)
         {   magic = dirty ? magic_dirty: magic_clean;

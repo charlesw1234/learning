@@ -1,5 +1,6 @@
 # -*- python -*-
 
-env = Environment(CCFLAGS = ['-g', '-Wall'])
+env = Environment(CCFLAGS = ['-g', '-Wall'],
+                  PROGSUFFIX = '.exe')
 
-env.Object('bookfile.cpp')
+env.Program('test0', ['test0.cpp', 'bookfile.cpp'])
