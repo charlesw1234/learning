@@ -4,3 +4,4 @@ env = Environment(CCFLAGS = ['-g', '-Wall'],
                   PROGSUFFIX = '.exe')
 
 env.Program('test0', ['test0.cpp', 'bookfile.cpp'])
+env.Program('test1', ['test1.cpp', 'bookfile.cpp'])

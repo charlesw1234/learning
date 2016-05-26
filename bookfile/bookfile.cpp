@@ -38,15 +38,6 @@ namespace bookfile {
         }
     }
 
-    uint64_t
-    bookfile_t::freed_blocks(void)
-    {
-        uint64_t value = 0;
-        for (unsigned idx = 0; idx < size(); ++idx)
-            value += at(idx).freed_blocks;
-        return value;
-    }
-
     bool
     bookfile_t::insert(uint64_t chapterid, uint32_t blocks)
     {
@@ -64,6 +55,7 @@ namespace bookfile {
                     cur0->blocks = blocks;
                     cur0->position = tail;
                     cur0->chapterid = chapterid;
+                    ++cur->num_chapters;
                     cur->magic = magic_dirty;
                     tail += blocks;
                     return true;
@@ -92,6 +84,7 @@ namespace bookfile {
         cur0->blocks = blocks;
         cur0->position = tail;
         cur0->chapterid = chapterid;
+        ++cur->num_chapters;
         tail += blocks;
         return true;
     }
@@ -110,6 +103,7 @@ namespace bookfile {
                 if (cur0->blank()) return false; // not found.
                 else if (cur0->removed()) continue;
                 else if (cur0->chapterid == chapterid) { // found.
+                    --cur->num_chapters;
                     cur->freed_blocks += cur0->blocks;
                     cur0->blocks = UINT32_MAX;
                     cur->magic = magic_dirty;

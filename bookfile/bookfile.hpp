@@ -9,8 +9,8 @@ namespace bookfile {
     const uint32_t magic_clean = 0xA9C7A7C9;
     const uint32_t magic_dirty = 0xA9C7A7C8;
     const unsigned size_block = 16;
-    const unsigned num_chapter_hash = 31;
-    const unsigned num_hash_steps = 3;
+    const unsigned num_chapter_hash = 127;
+    const unsigned num_hash_steps = 5;
 
     class chapter_t { // 16 bytes.
     public:
@@ -22,16 +22,17 @@ namespace bookfile {
         inline bool removed(void) const { return blocks == UINT32_MAX; }
         inline bool used(void) const { return blocks != 0 && blocks != UINT32_MAX; }
     };
-    class chapter_hash_t { // 512 bytes.
+    class chapter_hash_t { // 2048 bytes.
     public:
         uint32_t magic;
         uint32_t next;
-        uint64_t freed_blocks;
+        uint32_t num_chapters;
+        uint32_t freed_blocks;
         chapter_t chapters[num_chapter_hash];
 
         inline chapter_hash_t(bool dirty = true)
-        {   magic = dirty ? magic_dirty: magic_clean;
-            next = UINT32_MAX; freed_blocks = 0;
+        {   magic = magic_dirty; next = UINT32_MAX;
+            num_chapters = 0; freed_blocks = 0;
             memset(chapters, 0, sizeof(chapters)); }
     };
 
@@ -43,7 +44,14 @@ namespace bookfile {
 
         inline bool usable(void) const { return fp != NULL; }
 
-        uint64_t freed_blocks(void);
+        inline uint32_t num_chapters(void) const
+        {   uint32_t value = 0;
+            for (unsigned idx = 0; idx < size(); ++idx) value += at(idx).num_chapters;
+            return value; }
+        inline uint32_t freed_blocks(void) const
+        {   uint32_t value = 0;
+            for (unsigned idx = 0; idx < size(); ++idx) value += at(idx).freed_blocks;
+            return value; }
 
         bool insert(uint64_t chapterid, uint32_t blocks);
         bool remove(uint64_t chapterid);
