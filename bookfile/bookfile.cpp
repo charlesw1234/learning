@@ -151,7 +151,8 @@ namespace bookfile {
             cur = &at(idx);
             for (idx0 = idx1; idx0 != idx2; idx0 = (idx0 + 1) % num_chapter_hash) {
                 cur0 = cur->chapters + idx0;
-                if (cur0->removed() && value < cur0->removed_blocks())
+                if (cur0->blank()) return value;
+                else if (cur0->removed() && value < cur0->removed_blocks())
                     value = cur0->removed_blocks();
             }
         }

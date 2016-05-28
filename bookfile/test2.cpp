@@ -17,30 +17,39 @@ private:
     std::vector<bookfile::chapter_t> used;
     std::vector<bookfile::chapter_t> removed;
     bookfile::bookfile_t book;
+    inline uint64_t new_chapterid(void) const
+    {   unsigned idx0, idx1; uint64_t chapterid;
+        do {
+            chapterid = (uint64_t)random();
+            for (idx0 = 0; idx0 < used.size(); ++idx0)
+                if (used[idx0].chapterid == chapterid) break;
+            for (idx1 = 0; idx1 < removed.size(); ++idx1)
+                if (removed[idx1].chapterid == chapterid) break;
+        } while (idx0 < used.size() || idx1 < removed.size());
+        return chapterid; }
 };
 
 void
 tester_t::add(void)
 {
-    unsigned idx0, idx1;
     bookfile::chapter_t chapter;
     chapter.blocks = random() % (max_blocks - 1) + 1;
+    chapter.chapterid = new_chapterid();
     chapter.md5part0 = (uint64_t)random();
     chapter.md5part1 = (uint64_t)random();
-    do {
-        chapter.chapterid = (uint64_t)random();
-        for (idx0 = 0; idx0 < used.size(); ++idx0)
-            if (used[idx0].chapterid == chapter.chapterid) break;
-        for (idx1 = 0; idx1 < removed.size(); ++idx1)
-            if (removed[idx1].chapterid == chapter.chapterid) break;
-    } while (idx0 < used.size() || idx1 < removed.size());
     uint32_t freed_blocks = book.freed_blocks();
+    uint32_t max_removed_blocks = book.max_removed_blocks(chapter.chapterid);
+
     if (!book.insert(&chapter)) {
         fprintf(stderr, "%u: it should be a new chapter.\n", __LINE__);
     } else if (book.num_chapters() != used.size() + 1) {
         fprintf(stderr, "%u: num_chapters(%u != %u)\n", __LINE__,
                 (unsigned)book.num_chapters(), (unsigned)used.size());
-    } else if (book.freed_blocks() != freed_blocks) {
+    } else if (max_removed_blocks >= chapter.blocks &&
+               book.freed_blocks() != freed_blocks - chapter.blocks) {
+        fprintf(stderr, "%u: freed_blocks(%u != %u)\n", __LINE__,
+                (unsigned)book.freed_blocks(), freed_blocks - chapter.blocks);
+    } else if (max_removed_blocks < chapter.blocks && book.freed_blocks() != freed_blocks) {
         fprintf(stderr, "%u: freed_blocks(%u != %u)\n", __LINE__,
                 (unsigned)book.freed_blocks(), freed_blocks);
     } else if (!book.sanity()) {
