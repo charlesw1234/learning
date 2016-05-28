@@ -20,6 +20,13 @@ namespace bookfile {
         uint64_t md5part0;
         uint64_t md5part1;
 
+        inline bool operator == (const chapter_t &other) const
+        { return position == other.position; }
+        inline bool operator < (const chapter_t &other) const
+        { return position < other.position; }
+        inline bool operator > (const chapter_t &other) const
+        { return position > other.position; }
+
         inline bool blank(void) const { return blocks == 0; }
         inline bool removed(void) const { return blocks > (uint32_t)INT32_MAX; }
         inline bool used(void) const { return blocks != 0 && blocks <= (uint32_t)INT32_MAX; }
@@ -94,6 +101,9 @@ namespace bookfile {
         {   return fread(data, size_block, blocks, fp); }
         inline uint32_t write(const uint8_t *data, uint32_t blocks)
         {   return fwrite(data, size_block, blocks, fp); }
+
+        uint32_t max_removed_blocks(void) const; // for debug only.
+        bool sanity(void) const; // for debug only.
     private:
         FILE *fp;
         uint32_t tail;

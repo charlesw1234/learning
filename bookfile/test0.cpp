@@ -7,7 +7,7 @@ int
 main(void)
 {
     unsigned idx, idx0;
-    bookfile::bookfile_t bfobj("test.book", 4);
+    bookfile::bookfile_t bfobj("test.book", num_chapters);
     bookfile::chapter_t chapters[num_chapters];
     const bookfile::chapter_t *seekout;
     uint8_t data[bookfile::size_block * max_blocks];
@@ -23,6 +23,7 @@ main(void)
         printf("%u: %s, %lu, %u\n", idx, bfobj.insert(chapters + idx) ? "true": "false",
                (unsigned long)chapters[idx].chapterid, (unsigned)chapters[idx].blocks);
     }
+    printf("sanity: %s\n", bfobj.sanity() ? "true": "false");
     for (idx = 0; idx < num_chapters; ++idx) {
         seekout = bfobj.seek(chapters[idx].chapterid);
         if (seekout == NULL) {
@@ -36,5 +37,6 @@ main(void)
             bfobj.write(data, seekout->blocks);
         }
     }
+    printf("sanity: %s\n", bfobj.sanity() ? "true": "false");
     return 0;
 }

@@ -11,6 +11,7 @@ main(void)
     bookfile::bookfile_t bfobj("test.book");
     uint8_t data[bookfile::size_block * max_blocks];
 
+    printf("sanity: %s\n", bfobj.sanity() ? "true": "false");
     for (unsigned idx = 0; idx < bfobj.size(); ++idx) {
         cur = &bfobj[idx];
         for (unsigned idx0 = 0; idx0 < bookfile::num_chapter_hash; ++idx0) {

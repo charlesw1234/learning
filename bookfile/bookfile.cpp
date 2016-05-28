@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "bookfile.hpp"
 
 namespace bookfile {
@@ -131,5 +132,76 @@ namespace bookfile {
             }
         }
         return NULL;
+    }
+
+    uint32_t
+    bookfile_t::max_removed_blocks(void) const
+    {
+        uint32_t value = 0;
+        const chapter_t *cur0;
+        const chapter_hash_t *cur;
+
+        for (unsigned idx = 0; idx < size(); ++idx) {
+            cur = &at(idx);
+            for (unsigned idx0 = 0; idx0 < num_chapter_hash; ++idx0) {
+                cur0 = cur->chapters + idx0;
+                if (cur0->removed()) value += cur0->removed_blocks();
+            }
+        }
+        return value;
+    }
+    bool
+    bookfile_t::sanity(void) const
+    {
+        bool succ = true;
+        const chapter_t *cur0;
+        const chapter_hash_t *cur;
+        uint32_t num_chapters, freed_blocks;
+        uint32_t tail = sizeof(chapter_hash_t) / size_block * size();
+        std::vector<chapter_t> chapters;
+
+        for (unsigned idx = 0; idx < size(); ++idx) {
+            cur = &at(idx);
+            num_chapters = freed_blocks = 0;
+            for (unsigned idx0 = 0; idx0 < num_chapter_hash; ++idx0) {
+                cur0 = cur->chapters + idx0;
+                if (cur0->blank()) {
+                } else if (cur0->removed()) {
+                    tail += cur0->removed_blocks();
+                    freed_blocks += cur0->removed_blocks();
+                    chapters.push_back(*cur0);
+                    chapters.back().blocks = chapters.back().removed_blocks();
+                } else {
+                    tail += cur0->blocks;
+                    ++num_chapters;
+                    chapters.push_back(*cur0);
+                }
+            }
+            if (num_chapters != cur->num_chapters || freed_blocks != cur->freed_blocks) {
+                fprintf(stderr, "MISMATCHED(%u): num_chapters(%u, %u), freed_blocks(%u, %u)\n",
+                        idx, (unsigned)num_chapters, (unsigned)cur->num_chapters,
+                        (unsigned)freed_blocks, (unsigned)cur->freed_blocks);
+                succ = false;
+            }
+        }
+        if (chapters.size() > 1) {
+            std::sort(chapters.begin(), chapters.end());
+            for (unsigned idx = 0; idx < chapters.size() - 1; ++idx) {
+                if (chapters[idx].position + chapters[idx].blocks <= chapters[idx + 1].position)
+                    continue;
+                fprintf(stderr, "CONFLICTED: %u(%u, %u), %u(%u, %u)\n",
+                        (unsigned)chapters[idx].chapterid,
+                        (unsigned)chapters[idx].position,
+                        (unsigned)chapters[idx].blocks,
+                        (unsigned)chapters[idx + 1].chapterid,
+                        (unsigned)chapters[idx + 1].position,
+                        (unsigned)chapters[idx + 1].blocks);
+            }
+        }
+        if (tail != this->tail) {
+            fprintf(stderr, "MISMATCHED: tail(%u, %u)\n", (unsigned)tail, (unsigned)this->tail);
+            succ = false;
+        }
+        return succ;
     }
 }
