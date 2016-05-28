@@ -43,12 +43,12 @@ namespace bookfile {
     }
 
     bool
-    bookfile_t::insert(uint64_t chapterid, uint32_t blocks)
+    bookfile_t::insert(const chapter_t *chapter)
     {
         unsigned idx;
         chapter_t *cur0;
         chapter_hash_t *cur;
-        unsigned idx0, idx1 = hashfunc(chapterid);
+        unsigned idx0, idx1 = hashfunc(chapter->chapterid);
         unsigned idx2 = (idx1 + num_hash_steps) % num_chapter_hash;
 
         for (idx = 0; idx < size(); ++idx) {
@@ -56,25 +56,24 @@ namespace bookfile {
             for (idx0 = idx1; idx0 != idx2; idx0 = (idx0 + 1) % num_chapter_hash) {
                 cur0 = cur->chapters + idx0;
                 if (cur0->blank()) { // not found.
-                    cur0->blocks = blocks;
-                    cur0->position = tail;
-                    cur0->chapterid = chapterid;
+                    tail = cur0->update(chapter, tail);
                     ++cur->num_chapters;
                     cur->magic = magic_dirty;
-                    tail += blocks;
                     return true;
                 } else if (cur0->removed()) { continue;
-                } else if (cur0->chapterid == chapterid) { // found.
-                    if (cur0->blocks > blocks) { // in position.
-                        cur->freed_blocks += cur0->blocks - blocks;
-                        cur0->blocks = blocks;
+                } else if (cur0->chapterid == chapter->chapterid) { // found.
+                    if (cur0->blocks > chapter->blocks) { // in position.
+                        cur->freed_blocks += cur0->blocks - chapter->blocks;
+                        cur0->update(chapter);
                         cur->magic = magic_dirty;
-                    } else if (cur0->blocks < blocks) { // append.
+                    } else if (cur0->blocks < chapter->blocks) { // append.
                         cur->freed_blocks += cur0->blocks;
-                        cur0->blocks = blocks;
-                        cur0->position = tail;
+                        tail = cur0->update(chapter, tail);
                         cur->magic = magic_dirty;
-                        tail += blocks;
+                    } else if (cur0->md5part0 != chapter->md5part0 ||
+                               cur0->md5part1 != chapter->md5part1) { // update.
+                        cur0->update(chapter);
+                        cur->magic = magic_dirty;
                     }
                     return true;
                 }
@@ -83,13 +82,8 @@ namespace bookfile {
         back().next = tail;
         push_back(chapter_hash_t());
         tail += sizeof(chapter_hash_t) / size_block;
-        cur = &back();
-        cur0 = cur->chapters + idx1;
-        cur0->blocks = blocks;
-        cur0->position = tail;
-        cur0->chapterid = chapterid;
-        ++cur->num_chapters;
-        tail += blocks;
+        tail = back().chapters[idx1].update(chapter, tail);
+        ++back().num_chapters;
         return true;
     }
     bool
@@ -117,8 +111,8 @@ namespace bookfile {
         }
         return false;
     }
-    bool
-    bookfile_t::seek(uint64_t chapterid, uint32_t *blocks)
+    const chapter_t *
+    bookfile_t::seek(uint64_t chapterid)
     {
         chapter_t *cur0;
         chapter_hash_t *cur;
@@ -129,15 +123,14 @@ namespace bookfile {
             cur = &at(idx);
             for (idx0 = idx1; idx0 != idx2; idx0 = (idx0 + 1) % num_chapter_hash) {
                 cur0 = cur->chapters + idx0;
-                if (cur0->blank()) return false; // not found.
+                if (cur0->blank()) return NULL; // not found.
                 else if (cur0->removed()) continue;
                 else if (cur0->chapterid == chapterid) { // found.
-                    *blocks = cur0->blocks;
                     fseek(fp, cur0->position * size_block, SEEK_SET);
-                    return true;
+                    return cur0;
                 }
             }
         }
-        return false;
+        return NULL;
     }
 }
