@@ -1,8 +1,9 @@
 #include "bookfile.hpp"
 
 namespace bookfile {
-    bookfile_t::bookfile_t(const char *fname, unsigned num_hashes):
-        std::vector<chapter_hash_t>(num_hashes)
+    bookfile_t::bookfile_t(const char *fname, unsigned num_chapters):
+        std::vector<chapter_hash_t>
+        ((num_chapters * 3 + num_chapter_hash - 1) / num_chapter_hash)
     {
         if ((fp = fopen(fname, "wb+"))) {
             tail = 0;
@@ -25,7 +26,9 @@ namespace bookfile {
             tail = (unsigned)(ftell(fp) / size_block);
         }
     }
-    bookfile_t::~bookfile_t()
+
+    void
+    bookfile_t::flush(void)
     {
         uint32_t position;
         if (fp) {

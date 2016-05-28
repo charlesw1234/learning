@@ -38,10 +38,11 @@ namespace bookfile {
 
     class bookfile_t: public std::vector<chapter_hash_t> {
     public:
-        bookfile_t(const char *fname, unsigned num_hashes); // for the first file creation.
+        bookfile_t(const char *fname, unsigned num_chapters); // for the first file creation.
         bookfile_t(const char *fname); // to open an exists file.
-        ~bookfile_t();
+        inline ~bookfile_t() { flush(); }
 
+        void flush(void);
         inline bool usable(void) const { return fp != NULL; }
 
         inline uint32_t num_chapters(void) const
