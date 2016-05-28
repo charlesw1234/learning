@@ -66,15 +66,19 @@ namespace bookfile {
                     cur0->remove();
                 }
                 // check the removed space.
-                if (cur0->blocks < chapter->blocks) continue; // skip the smaller removed.
-                if (curfit == NULL) { curfit = cur; cur0fit = cur0; }
-                else if (cur0fit->blocks < cur0->blocks) { curfit = cur; cur0fit = cur0; }
+                if (cur0->removed_blocks() < chapter->blocks) continue;
+                if (curfit == NULL) {
+                    curfit = cur; cur0fit = cur0;
+                } else if (cur0->removed_blocks() < cur0fit->removed_blocks()) {
+                    // use the smallest.
+                    curfit = cur; cur0fit = cur0;
+                }
             }
         }
     done:
         if (curfit != NULL) { // an available removed space found.
+            curfit->add(cur0fit->removed_blocks(), chapter->blocks);
             cur0fit->update(chapter);
-            curfit->add(chapter->blocks);
         } else if (cur != NULL && cur0->blank()) { // a free hash cell found.
             tail = cur0->update(chapter, tail);
             cur->add();
@@ -135,17 +139,20 @@ namespace bookfile {
     }
 
     uint32_t
-    bookfile_t::max_removed_blocks(void) const
+    bookfile_t::max_removed_blocks(uint64_t chapterid) const
     {
         uint32_t value = 0;
         const chapter_t *cur0;
         const chapter_hash_t *cur;
+        unsigned idx0, idx1 = hashfunc(chapterid);
+        unsigned idx2 = (idx1 + num_hash_steps) % num_chapter_hash;
 
         for (unsigned idx = 0; idx < size(); ++idx) {
             cur = &at(idx);
-            for (unsigned idx0 = 0; idx0 < num_chapter_hash; ++idx0) {
+            for (idx0 = idx1; idx0 != idx2; idx0 = (idx0 + 1) % num_chapter_hash) {
                 cur0 = cur->chapters + idx0;
-                if (cur0->removed()) value += cur0->removed_blocks();
+                if (cur0->removed() && value < cur0->removed_blocks())
+                    value = cur0->removed_blocks();
             }
         }
         return value;
@@ -156,19 +163,19 @@ namespace bookfile {
         bool succ = true;
         const chapter_t *cur0;
         const chapter_hash_t *cur;
-        uint32_t num_chapters, freed_blocks;
+        uint32_t num_chapters, removed_blocks;
         uint32_t tail = sizeof(chapter_hash_t) / size_block * size();
         std::vector<chapter_t> chapters;
 
         for (unsigned idx = 0; idx < size(); ++idx) {
             cur = &at(idx);
-            num_chapters = freed_blocks = 0;
+            num_chapters = removed_blocks = 0;
             for (unsigned idx0 = 0; idx0 < num_chapter_hash; ++idx0) {
                 cur0 = cur->chapters + idx0;
                 if (cur0->blank()) {
                 } else if (cur0->removed()) {
                     tail += cur0->removed_blocks();
-                    freed_blocks += cur0->removed_blocks();
+                    removed_blocks += cur0->removed_blocks();
                     chapters.push_back(*cur0);
                     chapters.back().blocks = chapters.back().removed_blocks();
                 } else {
@@ -177,12 +184,14 @@ namespace bookfile {
                     chapters.push_back(*cur0);
                 }
             }
-            if (num_chapters != cur->num_chapters || freed_blocks != cur->freed_blocks) {
-                fprintf(stderr, "MISMATCHED(%u): num_chapters(%u, %u), freed_blocks(%u, %u)\n",
+            if (num_chapters != cur->num_chapters || removed_blocks != cur->removed_blocks) {
+                fprintf(stderr,
+                        "MISMATCHED(%u): num_chapters(%u, %u), removed_blocks(%u, %u)\n",
                         idx, (unsigned)num_chapters, (unsigned)cur->num_chapters,
-                        (unsigned)freed_blocks, (unsigned)cur->freed_blocks);
+                        (unsigned)removed_blocks, (unsigned)cur->removed_blocks);
                 succ = false;
             }
+            tail += cur->lost_blocks;
         }
         if (chapters.size() > 1) {
             std::sort(chapters.begin(), chapters.end());

@@ -87,7 +87,6 @@ tester_t::update0(void)
                 (unsigned)book.freed_blocks(), (unsigned)freed_blocks);
     } else if (!book.sanity()) {
         fprintf(stderr, "%u: insantiy detected.\n", __LINE__);
-    } else {
     }
 }
 void
@@ -108,42 +107,39 @@ tester_t::update1(void)
                 (unsigned)book.freed_blocks(), (unsigned)freed_blocks);
     } else if (!book.sanity()) {
         fprintf(stderr, "%u: insantiy detected.\n", __LINE__);
-    } else {
     }
 }
 void
 tester_t::shrink(void)
 {
-    uint32_t blocks;
     unsigned idx1 = random() % used.size();
+    uint32_t blocks = used[idx1].blocks;
     uint32_t freed_blocks = book.freed_blocks();
 
-    if (used[idx1].blocks < 2) return;
-    blocks = used[idx1].blocks;
-    used[idx1].blocks -= random() %(used[idx1].blocks - 1);
+    if (blocks < 2) return;
+    used[idx1].blocks -= 1 + random() % (blocks - 1);
     if (book.insert(&used[idx1]) == false) {
         fprintf(stderr, "%u: update the changed chapter should return true.\n", __LINE__);
     } else if (book.num_chapters() != used.size()) {
         fprintf(stderr, "%u: num_chapters(%u != %u)\n", __LINE__,
                 (unsigned)book.num_chapters(), (unsigned)used.size());
-    } else if (book.freed_blocks() != freed_blocks + used[idx1].blocks - blocks) {
+    } else if (book.freed_blocks() != freed_blocks + blocks - used[idx1].blocks) {
         fprintf(stderr, "%u: freed_blocks(%u != %u)\n", __LINE__,
                 (unsigned)book.freed_blocks(),
-                freed_blocks + used[idx1].blocks - blocks);
+                (unsigned)(freed_blocks + blocks - used[idx1].blocks));
     } else if (!book.sanity()) {
         fprintf(stderr, "%u: insantiy detected.\n", __LINE__);
-    } else {
     }
 }
 void
 tester_t::enlarge(void)
 {
-    uint32_t blocks;
+
     unsigned idx1 = random() % used.size();
     uint32_t freed_blocks = book.freed_blocks();
-    uint32_t max_removed_blocks = book.max_removed_blocks();
+    uint32_t blocks = used[idx1].blocks;
+    uint32_t max_removed_blocks = book.max_removed_blocks(used[idx1].chapterid);
 
-    blocks = used[idx1].blocks;
     used[idx1].blocks += random() % (max_blocks - 1) + 1;
     if (book.insert(&used[idx1]) == false) {
         fprintf(stderr, "%u: update the changed chapter should return true.\n", __LINE__);
@@ -151,17 +147,16 @@ tester_t::enlarge(void)
         fprintf(stderr, "%u: num_chapters(%u != %u)\n", __LINE__,
                 (unsigned)book.num_chapters(), (unsigned)used.size());
     } else if (max_removed_blocks >= used[idx1].blocks &&
-               book.freed_blocks() != freed_blocks + used[idx1].blocks - blocks) {
+               book.freed_blocks() != freed_blocks + blocks - used[idx1].blocks) {
         fprintf(stderr, "%u: freed_blocks(%u != %u)\n", __LINE__,
                 (unsigned)book.freed_blocks(),
-                (unsigned)(freed_blocks + used[idx1].blocks - blocks));
+                (unsigned)(freed_blocks + blocks - used[idx1].blocks));
     } else if (max_removed_blocks < used[idx1].blocks &&
-               book.freed_blocks() != freed_blocks) {
+               book.freed_blocks() != freed_blocks + blocks) {
         fprintf(stderr, "%u: freed_blocks(%u != %u)\n", __LINE__,
-                (unsigned)book.freed_blocks(), (unsigned)freed_blocks);
+                (unsigned)book.freed_blocks(), (unsigned)(freed_blocks + blocks));
     } else if (!book.sanity()) {
         fprintf(stderr, "%u: insantiy detected.\n", __LINE__);
-    } else {
     }
 }
 

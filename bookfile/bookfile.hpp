@@ -49,22 +49,26 @@ namespace bookfile {
         uint32_t magic;
         uint32_t next;
         uint32_t num_chapters;
-        uint32_t freed_blocks;
-        uint64_t unused0;
+        uint32_t removed_blocks;
+        uint32_t lost_blocks;
+        uint32_t unused0;
         uint64_t unused1;
         chapter_t chapters[num_chapter_hash];
 
         inline chapter_hash_t(bool dirty = true)
         {   magic = magic_dirty; next = UINT32_MAX;
-            num_chapters = 0; freed_blocks = 0;
-            unused0 = unused1 = 0;
+            num_chapters = 0; removed_blocks = 0; lost_blocks = 0;
+            unused0 = 0; unused1 = 0;
             memset(chapters, 0, sizeof(chapters)); }
 
         inline void add(void) { ++num_chapters; magic = magic_dirty; }
-        inline void add(uint32_t freed_blocks)
-        {   ++num_chapters; this->freed_blocks -= freed_blocks; magic = magic_dirty; }
-        inline void remove(uint32_t freed_blocks)
-        {   --num_chapters; this->freed_blocks += freed_blocks; magic = magic_dirty; }
+        inline void add(uint32_t removed_blocks, uint32_t used_blocks)
+        {   ++num_chapters;
+            this->removed_blocks -= removed_blocks;
+            lost_blocks += removed_blocks - used_blocks;
+            magic = magic_dirty; }
+        inline void remove(uint32_t removed_blocks)
+        {   --num_chapters; this->removed_blocks += removed_blocks; magic = magic_dirty; }
     };
 
     class bookfile_t: public std::vector<chapter_hash_t> {
@@ -81,9 +85,18 @@ namespace bookfile {
         {   uint32_t value = 0;
             for (unsigned idx = 0; idx < size(); ++idx) value += at(idx).num_chapters;
             return value; }
+        inline uint32_t removed_blocks(void) const
+        {   uint32_t value = 0;
+            for (unsigned idx = 0; idx < size(); ++idx) value += at(idx).removed_blocks;
+            return value; }
+        inline uint32_t lost_blocks(void) const
+        {   uint32_t value = 0;
+            for (unsigned idx = 0; idx < size(); ++idx) value += at(idx).lost_blocks;
+            return value; }
         inline uint32_t freed_blocks(void) const
         {   uint32_t value = 0;
-            for (unsigned idx = 0; idx < size(); ++idx) value += at(idx).freed_blocks;
+            for (unsigned idx = 0; idx < size(); ++idx)
+                value += at(idx).removed_blocks + at(idx).lost_blocks;
             return value; }
 
         // return true when the chapter has to be written in future.
@@ -102,12 +115,12 @@ namespace bookfile {
         inline uint32_t write(const uint8_t *data, uint32_t blocks)
         {   return fwrite(data, size_block, blocks, fp); }
 
-        uint32_t max_removed_blocks(void) const; // for debug only.
+        uint32_t max_removed_blocks(uint64_t chapterid) const; // for debug only.
         bool sanity(void) const; // for debug only.
     private:
         FILE *fp;
         uint32_t tail;
-        inline unsigned hashfunc(uint64_t chapterid)
+        inline unsigned hashfunc(uint64_t chapterid) const
         {   return (unsigned)(chapterid % num_chapter_hash); }
     };
 }
