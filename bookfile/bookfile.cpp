@@ -21,7 +21,11 @@ namespace bookfile {
             for (uint32_t position = 0; position != UINT32_MAX; position = back().next) {
                 push_back(chapter_hash_t());
                 fseek(fp, position * size_block, SEEK_SET);
-                fread(&back(), 1, sizeof(back()), fp);
+                if (fread(&back(), 1, sizeof(back()), fp) < sizeof(back())) { // failed.
+                    fclose(fp);
+                    fp = NULL;
+                    return;
+                }
             }
             fseek(fp, 0, SEEK_END);
             tail = (unsigned)(ftell(fp) / size_block);
