@@ -44,7 +44,7 @@ tester_t::add(void)
         fprintf(stderr, "%u: freed_blocks(%u != %u)\n", __LINE__,
                 (unsigned)book.freed_blocks(), freed_blocks);
     } else if (!book.sanity()) {
-        fprintf(stderr, "%u: insantiy detected", __LINE__);
+        fprintf(stderr, "%u: insantiy detected.\n", __LINE__);
     } else {
         used.push_back(chapter);
     }
@@ -65,7 +65,7 @@ tester_t::remove(void)
                 (unsigned)book.freed_blocks(),
                 (unsigned)(freed_blocks + used[idx1].blocks));
     } else if (!book.sanity()) {
-        fprintf(stderr, "%u: insantiy detected", __LINE__);
+        fprintf(stderr, "%u: insantiy detected.\n", __LINE__);
     } else {
         removed.push_back(used[idx1]);
         used.erase(used.begin() + idx1);
@@ -78,7 +78,7 @@ tester_t::update0(void)
     uint32_t freed_blocks = book.freed_blocks();
 
     if (book.insert(&used[idx1]) == true) {
-        fprintf(stderr, "%u: update the unchanged chapter should return false\n", __LINE__);
+        fprintf(stderr, "%u: update the unchanged chapter should return false.\n", __LINE__);
     } else if (book.num_chapters() != used.size()) {
         fprintf(stderr, "%u: num_chapters(%u != %u)\n", __LINE__,
                 (unsigned)book.num_chapters(), (unsigned)used.size());
@@ -86,7 +86,7 @@ tester_t::update0(void)
         fprintf(stderr, "%u: freed_blocks(%u != %u)\n", __LINE__,
                 (unsigned)book.freed_blocks(), (unsigned)freed_blocks);
     } else if (!book.sanity()) {
-        fprintf(stderr, "%u: insantiy detected", __LINE__);
+        fprintf(stderr, "%u: insantiy detected.\n", __LINE__);
     } else {
     }
 }
@@ -107,7 +107,7 @@ tester_t::update1(void)
         fprintf(stderr, "%u: freed_blocks(%u != %u)\n", __LINE__,
                 (unsigned)book.freed_blocks(), (unsigned)freed_blocks);
     } else if (!book.sanity()) {
-        fprintf(stderr, "%u: insantiy detected", __LINE__);
+        fprintf(stderr, "%u: insantiy detected.\n", __LINE__);
     } else {
     }
 }
@@ -131,7 +131,7 @@ tester_t::shrink(void)
                 (unsigned)book.freed_blocks(),
                 freed_blocks + used[idx1].blocks - blocks);
     } else if (!book.sanity()) {
-        fprintf(stderr, "%u: insantiy detected", __LINE__);
+        fprintf(stderr, "%u: insantiy detected.\n", __LINE__);
     } else {
     }
 }
@@ -160,7 +160,7 @@ tester_t::enlarge(void)
         fprintf(stderr, "%u: freed_blocks(%u != %u)\n", __LINE__,
                 (unsigned)book.freed_blocks(), (unsigned)freed_blocks);
     } else if (!book.sanity()) {
-        fprintf(stderr, "%u: insantiy detected", __LINE__);
+        fprintf(stderr, "%u: insantiy detected.\n", __LINE__);
     } else {
     }
 }
@@ -168,6 +168,18 @@ tester_t::enlarge(void)
 int
 main(void)
 {
+    unsigned idx;
     tester_t tester;
+    for (idx = 0; idx < 512; ++idx) tester.add();
+    for (idx = 0; idx < 128; ++idx) tester.remove();
+    for (idx = 0; idx < 256; ++idx)
+        switch (random() % 4) {
+        case 0: tester.update0(); break;
+        case 1: tester.update1(); break;
+        case 2: tester.shrink(); break;
+        case 3: tester.enlarge(); break;
+        }
+    for (idx = 0; idx < 128; ++idx) tester.add();
+    for (idx = 0; idx < 512; ++idx) tester.remove();
     return 0;
 }
