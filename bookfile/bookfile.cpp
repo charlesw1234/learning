@@ -46,44 +46,45 @@ namespace bookfile {
     bookfile_t::insert(const chapter_t *chapter)
     {
         unsigned idx;
-        chapter_t *cur0;
-        chapter_hash_t *cur;
+        chapter_t *cur0, *cur0fit;
+        chapter_hash_t *cur, *curfit;
         unsigned idx0, idx1 = hashfunc(chapter->chapterid);
         unsigned idx2 = (idx1 + num_hash_steps) % num_chapter_hash;
 
+        cur = curfit = NULL;  cur0 = cur0fit = NULL;
         for (idx = 0; idx < size(); ++idx) {
             cur = &at(idx);
             for (idx0 = idx1; idx0 != idx2; idx0 = (idx0 + 1) % num_chapter_hash) {
                 cur0 = cur->chapters + idx0;
-                if (cur0->blank()) { // not found.
-                    tail = cur0->update(chapter, tail);
-                    ++cur->num_chapters;
-                    cur->magic = magic_dirty;
-                    return true;
-                } else if (cur0->removed()) { continue;
-                } else if (cur0->chapterid == chapter->chapterid) { // found.
-                    if (cur0->blocks > chapter->blocks) { // in position.
-                        cur->freed_blocks += cur0->blocks - chapter->blocks;
-                        cur0->update(chapter);
-                        cur->magic = magic_dirty;
-                    } else if (cur0->blocks < chapter->blocks) { // append.
-                        cur->freed_blocks += cur0->blocks;
-                        tail = cur0->update(chapter, tail);
-                        cur->magic = magic_dirty;
-                    } else if (cur0->md5part0 != chapter->md5part0 ||
-                               cur0->md5part1 != chapter->md5part1) { // update.
-                        cur0->update(chapter);
-                        cur->magic = magic_dirty;
-                    }
-                    return true;
+                if (cur0->blank()) goto done; // not found.
+                else if (cur0->removed()) {} // do nothing is ok here.
+                else if (cur0->chapterid != chapter->chapterid) continue; // do not touch it.
+                else if (cur0->compare(chapter)) return false; // unchanged chapter found.
+                else { // remove the updated chapterid firstly.
+                    cur->remove(cur0->blocks);
+                    cur0->remove();
                 }
+                // check the removed space.
+                if (cur0->blocks < chapter->blocks) continue; // skip the smaller removed.
+                if (curfit == NULL) { curfit = cur; cur0fit = cur0; }
+                else if (cur0fit->blocks < cur0->blocks) { curfit = cur; cur0fit = cur0; }
             }
         }
-        back().next = tail;
-        push_back(chapter_hash_t());
-        tail += sizeof(chapter_hash_t) / size_block;
-        tail = back().chapters[idx1].update(chapter, tail);
-        ++back().num_chapters;
+    done:
+        if (curfit != NULL) { // an available removed space found.
+            cur0fit->update(chapter);
+            curfit->add(chapter->blocks);
+        } else if (cur != NULL && cur0->blank()) { // a free hash cell found.
+            tail = cur0->update(chapter, tail);
+            cur->add();
+        } else { // setup a new chapter_hash_t.
+            back().next = tail;
+            back().magic = magic_dirty;
+            push_back(chapter_hash_t());
+            tail += sizeof(chapter_hash_t) / size_block;
+            tail = back().chapters[idx1].update(chapter, tail);
+            back().add();
+        }
         return true;
     }
     bool
@@ -101,10 +102,8 @@ namespace bookfile {
                 if (cur0->blank()) return false; // not found.
                 else if (cur0->removed()) continue;
                 else if (cur0->chapterid == chapterid) { // found.
-                    --cur->num_chapters;
-                    cur->freed_blocks += cur0->blocks;
-                    cur0->blocks = UINT32_MAX;
-                    cur->magic = magic_dirty;
+                    cur->remove(cur0->blocks);
+                    cur0->remove();
                     return true;
                 }
             }
@@ -124,7 +123,7 @@ namespace bookfile {
             for (idx0 = idx1; idx0 != idx2; idx0 = (idx0 + 1) % num_chapter_hash) {
                 cur0 = cur->chapters + idx0;
                 if (cur0->blank()) return NULL; // not found.
-                else if (cur0->removed()) continue;
+                else if (cur0->removed()) continue; // skip it.
                 else if (cur0->chapterid == chapterid) { // found.
                     fseek(fp, cur0->position * size_block, SEEK_SET);
                     return cur0;

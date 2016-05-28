@@ -6,31 +6,35 @@ const unsigned max_blocks = 256;
 int
 main(void)
 {
-    bool succ;
     unsigned idx, idx0;
     bookfile::bookfile_t bfobj("test.book", 4);
-    uint64_t chapterid_list[num_chapters];
-    uint32_t blocks_list[num_chapters], blocks;
+    bookfile::chapter_t chapters[num_chapters];
+    const bookfile::chapter_t *seekout;
     uint8_t data[bookfile::size_block * max_blocks];
 
     for (idx = 0; idx < num_chapters; ++idx) {
         do {
-            chapterid_list[idx] = (uint64_t)random();
+            chapters[idx].chapterid = (uint64_t)random();
             for (idx0 = 0; idx0 < idx; ++idx0)
-                if (chapterid_list[idx0] == chapterid_list[idx]) break;
+                if (chapters[idx0].chapterid == chapters[idx].chapterid) break;
         } while (idx0 < idx);
-        blocks_list[idx] = (uint32_t)(random() % (max_blocks - 1) + 1);
-        printf("%u: %s, %lu, %u\n", idx,
-               bfobj.insert(chapterid_list[idx], blocks_list[idx]) ? "true": "false",
-               (unsigned long)chapterid_list[idx], (unsigned)blocks_list[idx]);
+        chapters[idx].blocks = (uint32_t)(random() % (max_blocks - 1) + 1);
+        chapters[idx].md5part0 = chapters[idx].md5part1 = 0xA0A1A2A3A4A5A6A7UL;
+        printf("%u: %s, %lu, %u\n", idx, bfobj.insert(chapters + idx) ? "true": "false",
+               (unsigned long)chapters[idx].chapterid, (unsigned)chapters[idx].blocks);
     }
     for (idx = 0; idx < num_chapters; ++idx) {
-        succ = bfobj.seek(chapterid_list[idx], &blocks);
-        if (!succ || blocks != blocks_list[idx])
-            printf("%u: %s, %u, %u\n", idx, succ ? "true": "false",
-                   (unsigned)blocks, (unsigned)(blocks_list[idx]));
-        for (unsigned idx0 = 0; idx0 < bookfile::size_block * blocks; ++idx0) data[idx0] = idx;
-        bfobj.write(data, blocks);
+        seekout = bfobj.seek(chapters[idx].chapterid);
+        if (seekout == NULL) {
+            printf("%u: false, %u\n", idx, (unsigned)chapters[idx].blocks);
+        } else if (seekout->blocks != chapters[idx].blocks) {
+            printf("%u: true, %u, %u\n", idx,
+                   (unsigned)seekout->blocks, (unsigned)chapters[idx].blocks);
+        } else {
+            for (unsigned idx0 = 0; idx0 < bookfile::size_block * seekout->blocks; ++idx0)
+                data[idx0] = idx;
+            bfobj.write(data, seekout->blocks);
+        }
     }
     return 0;
 }

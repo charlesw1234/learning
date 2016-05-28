@@ -5,10 +5,9 @@ const unsigned max_blocks = 256;
 int
 main(void)
 {
-    bool succ;
-    uint32_t blocks;
     bookfile::chapter_t *cur0;
     bookfile::chapter_hash_t *cur;
+    const bookfile::chapter_t *seekout;
     bookfile::bookfile_t bfobj("test.book");
     uint8_t data[bookfile::size_block * max_blocks];
 
@@ -20,10 +19,11 @@ main(void)
             else if (cur0->removed()) continue;
             printf("chapter: %lu, %u blocks at %u\n", (unsigned long)cur0->chapterid,
                    (unsigned)cur0->blocks, (unsigned)cur0->position);
-            succ = bfobj.seek(cur0->chapterid, &blocks);
-            if (succ && blocks == cur0->blocks) {
-                if (bfobj.read(data, blocks) == blocks &&
-                    !memcmp(data, data + 1, bookfile::size_block * blocks - 1)) continue;
+            seekout = bfobj.seek(cur0->chapterid);
+            if (seekout && seekout->blocks == cur0->blocks) {
+                if (bfobj.read(data, seekout->blocks) == seekout->blocks &&
+                    !memcmp(data, data + 1, bookfile::size_block * seekout->blocks - 1))
+                    continue;
             }
             printf("data check failed\n");
         }
