@@ -1,12 +1,14 @@
 # -*- python -*-
 
 env = Environment(CCFLAGS = ['-g', '-Wall'],
-                  PROGSUFFIX = '.exe')
+                  PROGSUFFIX = '.exe', LIBS = ['bz2'])
+env.ParseConfig('pkg-config --cflags --libs openssl')
 
 env.Program('test0', ['test0.cpp', 'bookfile.cpp'])
 env.Program('test1', ['test1.cpp', 'bookfile.cpp'])
 env.Program('test2', ['test2.cpp', 'bookfile.cpp'])
 
 pyenv = env.Clone()
+pyenv['SHLIBPREFIX'] = ''
 pyenv.ParseConfig('python-config --cflags --libs')
-pyenv.SharedLibrary('bookfile', ['pybookfile.cpp', 'bookfile.cpp'], SHLIBPREFIX = '')
+pyenv.SharedLibrary('bookfile', ['pybookfile.cpp', 'bookfile.cpp', 'accessor.cpp'])

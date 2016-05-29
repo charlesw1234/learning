@@ -1,5 +1,6 @@
 #include <Python.h>
 #include "bookfile.hpp"
+#include "accessor.hpp"
 
 typedef PyObject PyObject_t;
 typedef PyTypeObject PyTypeObject_t;
@@ -181,13 +182,51 @@ static PyMethodDef_t PyBookFile_Methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
+static PyObject_t *
+PyEncode(PyObject_t *self, PyObject_t *args)
+{
+    const char *secret; PyObject_t *pysecret;
+    const char *plain; unsigned szplain;
+    if (!PyArg_ParseTuple(args, "Os#", &pysecret, &plain, &szplain)) return NULL;
+    if (pysecret == Py_None) secret = NULL;
+    else if (PyString_Check(pysecret)) {
+        if (PyString_Size(pysecret) != 48) {
+            PyErr_Format(PyExc_ValueError, "secret must be 48 bytes string.");
+            return NULL;
+        }
+        secret = PyString_AsString(pysecret);
+    } else {
+        PyErr_Format(PyExc_TypeError, "secret must None or 48 bytes string.");
+        return NULL;
+    }
+    bookfile::encoder_t encoder((const uint8_t *)secret, (const uint8_t *)plain, szplain);
+    PyObject_t *pyresult = PyTuple_New(4);
+    PyTuple_SetItem(pyresult, 0, PyInt_FromLong(encoder.get_rc()));
+    PyTuple_SetItem(pyresult, 1, PyInt_FromLong(encoder.get_bytes()));
+    PyTuple_SetItem(pyresult, 2, PyInt_FromLong(encoder.get_cbytes()));
+    Py_ssize_t szcipher = encoder.get_blocks() * AES_BLOCK_SIZE;
+    PyTuple_SetItem(pyresult, 3,
+                    PyString_FromStringAndSize((const char *)encoder.get(), szcipher));
+    return pyresult;
+}
+
+static PyMethodDef_t methods[] = {
+    { "encode", (PyCFunction_t)PyEncode, METH_VARARGS, NULL },
+    { NULL, NULL, 0, NULL }
+};
+
 extern "C" PyMODINIT_FUNC
 initbookfile(void)
 {
     PyObject_t *mod;
     PyTypeObject_t *pytypeobject = &PyBookFileType;
 
-    if ((mod = Py_InitModule("bookfile", NULL)) == NULL) return;
+    if (bookfile::size_block != AES_BLOCK_SIZE) {
+        PyErr_Format(PyExc_SystemError, "Assert(%u == %u) FAILED!",
+                     (unsigned)bookfile::size_block, AES_BLOCK_SIZE);
+        return;
+    }
+    if ((mod = Py_InitModule("bookfile", methods)) == NULL) return;
     memset(pytypeobject, 0, sizeof(*pytypeobject));
     pytypeobject->tp_name = "bookfile.bookfile";
     pytypeobject->tp_basicsize = sizeof(PyBookFile_t);
