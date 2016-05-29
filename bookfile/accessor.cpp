@@ -21,18 +21,41 @@ namespace bookfile {
             break;
         default: return;
         }
-        if (secret == NULL) {
-            memset(cipher + cbytes, 0, blocks * AES_BLOCK_SIZE - cbytes);
-            return;
+        if (secret == NULL) memset(cipher + cbytes, 0, blocks * AES_BLOCK_SIZE - cbytes);
+        else {
+            // fill the tail by random to protect the secret.
+            for (unsigned pos = cbytes; pos < blocks * AES_BLOCK_SIZE; ++pos)
+                cipher[pos] = (uint8_t)random();
+            // do the encryption.
+            AES_KEY key;
+            uint8_t ivec[AES_BLOCK_SIZE];
+            AES_set_encrypt_key(secret, 256, &key);
+            memcpy(ivec, secret + 256 / 8, AES_BLOCK_SIZE);
+            AES_cbc_encrypt(cipher, cipher, blocks * AES_BLOCK_SIZE, &key, ivec, AES_ENCRYPT);
         }
-        // fill the tail by random to protect the secret.
-        for (unsigned cipherpos = cbytes; cipherpos < blocks * AES_BLOCK_SIZE; ++cipherpos)
-            cipher[cipherpos] = (uint8_t)random();
-        // do the encryption.
-        AES_KEY key;
-        uint8_t ivec[AES_BLOCK_SIZE];
-        AES_set_encrypt_key(secret, 256, &key);
-        memcpy(ivec, secret + 256 / 8, AES_BLOCK_SIZE);
-        AES_cbc_encrypt(cipher, cipher, blocks * AES_BLOCK_SIZE, &key, ivec, AES_ENCRYPT);
+    }
+
+    uint8_t *
+    decode(const uint8_t *secret, uint8_t *cipher, unsigned long szcipher,
+           unsigned long bytes, unsigned long cbytes)
+    {
+        uint8_t *plain = (uint8_t *)malloc(bytes);
+        uint32_t blocks = (uint32_t)((cbytes + AES_BLOCK_SIZE - 1) / AES_BLOCK_SIZE);
+        if (szcipher != blocks * AES_BLOCK_SIZE) { free(plain); return NULL; }
+        if (secret != NULL) {
+            AES_KEY key;
+            uint8_t ivec[AES_BLOCK_SIZE];
+            AES_set_decrypt_key(secret, 256, &key);
+            memcpy(ivec, secret + 256 / 8, AES_BLOCK_SIZE);
+            AES_cbc_encrypt(cipher, cipher, blocks * AES_BLOCK_SIZE, &key, ivec, AES_DECRYPT);
+        }
+        if (bytes == cbytes) memcpy(plain, cipher, bytes);
+        else {
+            unsigned destlen = bytes;
+            int rc = BZ2_bzBuffToBuffDecompress((char *)plain, &destlen,
+                                                (char *)cipher, cbytes, 0, 0);
+            if (rc != BZ_OK || destlen != bytes) { free(plain); return NULL; }
+        }
+        return plain;
     }
 }

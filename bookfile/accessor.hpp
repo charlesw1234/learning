@@ -7,9 +7,7 @@
 #include <openssl/aes.h>
 
 namespace bookfile {
-    // all enoder operations are done in server, provide one pass API only.
     class encoder_t {
-
     public:
         encoder_t(const uint8_t *secret, const uint8_t *plain, unsigned long bytes);
         ~encoder_t() { free(cipher); }
@@ -26,12 +24,6 @@ namespace bookfile {
         uint8_t *cipher;
     };
 
-    class decoder_t {
-    public:
-        decoder_t(const uint8_t *secret, unsigned long bytes, unsigned long cbytes);
-        ~decoder_t();
-    private:
-        const uint8_t *secret;
-        unsigned long bytes, cbytes;
-    };
+    uint8_t *decode(const uint8_t *secret, uint8_t *cipher, unsigned long szcipher,
+                    unsigned long bytes, unsigned long cbytes);
 }

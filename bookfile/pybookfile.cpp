@@ -186,7 +186,7 @@ static PyObject_t *
 PyEncode(PyObject_t *self, PyObject_t *args)
 {
     const char *secret; PyObject_t *pysecret;
-    const char *plain; unsigned szplain;
+    const char *plain; int szplain;
     if (!PyArg_ParseTuple(args, "Os#", &pysecret, &plain, &szplain)) return NULL;
     if (pysecret == Py_None) secret = NULL;
     else if (PyString_Check(pysecret)) {
@@ -199,7 +199,8 @@ PyEncode(PyObject_t *self, PyObject_t *args)
         PyErr_Format(PyExc_TypeError, "secret must None or 48 bytes string.");
         return NULL;
     }
-    bookfile::encoder_t encoder((const uint8_t *)secret, (const uint8_t *)plain, szplain);
+    bookfile::encoder_t encoder((const uint8_t *)secret,
+                                (const uint8_t *)plain, (unsigned)szplain);
     PyObject_t *pyresult = PyTuple_New(4);
     PyTuple_SetItem(pyresult, 0, PyInt_FromLong(encoder.get_rc()));
     PyTuple_SetItem(pyresult, 1, PyInt_FromLong(encoder.get_bytes()));
@@ -209,9 +210,43 @@ PyEncode(PyObject_t *self, PyObject_t *args)
                     PyString_FromStringAndSize((const char *)encoder.get(), szcipher));
     return pyresult;
 }
+static PyObject_t *
+PyDecode(PyObject_t *self, PyObject_t *args)
+{
+    const char *secret; PyObject_t *pysecret;
+    const char *cipher; int szcipher; uint8_t *cipherdup;
+    unsigned bytes, cbytes;
+    uint8_t *plain;
+    if (!PyArg_ParseTuple(args, "Os#II", &pysecret, &cipher, &szcipher, &bytes, &cbytes))
+        return NULL;
+    if (pysecret == Py_None) secret = NULL;
+    else if (PyString_Check(pysecret)) {
+        if (PyString_Size(pysecret) != 48) {
+            PyErr_Format(PyExc_ValueError, "secret must be 48 bytes string.");
+            return NULL;
+        }
+        secret = PyString_AsString(pysecret);
+    } else {
+        PyErr_Format(PyExc_TypeError, "secret must None or 48 bytes string.");
+        return NULL;
+    }
+    cipherdup = (uint8_t *)malloc(szcipher);
+    memcpy(cipherdup, cipher, szcipher);
+    plain = bookfile::decode((const uint8_t *)secret, cipherdup,
+                             (unsigned long)szcipher, bytes, cbytes);
+    free(cipherdup);
+    if (plain == NULL) {
+        PyErr_Format(PyExc_ValueError, "decode failed.");
+        return NULL;
+    }
+    PyObject_t *pyresult = PyString_FromStringAndSize((const char *)plain, bytes);
+    free(plain);
+    return pyresult;
+}
 
 static PyMethodDef_t methods[] = {
     { "encode", (PyCFunction_t)PyEncode, METH_VARARGS, NULL },
+    { "decode", (PyCFunction_t)PyDecode, METH_VARARGS, NULL },
     { NULL, NULL, 0, NULL }
 };
 
