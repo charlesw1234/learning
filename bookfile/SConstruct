@@ -4,9 +4,9 @@ env = Environment(CCFLAGS = ['-g', '-Wall'],
                   PROGSUFFIX = '.exe', LIBS = ['bz2'])
 env.ParseConfig('pkg-config --cflags --libs openssl')
 
-env.Program('test0', ['test0.cpp', 'bookfile.cpp'])
-env.Program('test1', ['test1.cpp', 'bookfile.cpp'])
-env.Program('test2', ['test2.cpp', 'bookfile.cpp'])
+env.Program('bftest0', ['bftest0.cpp', 'bookfile.cpp'])
+env.Program('bftest1', ['bftest1.cpp', 'bookfile.cpp'])
+env.Program('bftest2', ['bftest2.cpp', 'bookfile.cpp'])
 
 pyenv = env.Clone()
 pyenv['SHLIBPREFIX'] = ''
