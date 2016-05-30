@@ -1,6 +1,17 @@
 #include "accessor.hpp"
 
+
 namespace bookfile {
+    static const unsigned aesbits = 256;
+    static const unsigned secret_bytes = aesbits / 8 + AES_BLOCK_SIZE;
+#include "conv.c"
+
+    static inline void
+    secret_conv(uint8_t *secret0, const uint8_t *secret)
+    {
+        for (unsigned idx = 0; idx < secret_bytes; ++idx)
+            secret0[idx] = secret[conv[idx + idx]] ^ conv[idx + idx + 1];
+    }
     encoder_t::encoder_t(const uint8_t *secret, const uint8_t *plain, unsigned long bytes)
     {
         this->bytes = bytes;
@@ -27,11 +38,11 @@ namespace bookfile {
             for (unsigned pos = cbytes; pos < blocks * AES_BLOCK_SIZE; ++pos)
                 cipher[pos] = (uint8_t)random();
             // do the encryption.
-            AES_KEY key;
-            uint8_t ivec[AES_BLOCK_SIZE];
-            AES_set_encrypt_key(secret, 256, &key);
-            memcpy(ivec, secret + 256 / 8, AES_BLOCK_SIZE);
-            AES_cbc_encrypt(cipher, cipher, blocks * AES_BLOCK_SIZE, &key, ivec, AES_ENCRYPT);
+            AES_KEY key;  uint8_t secret0[secret_bytes];
+            secret_conv(secret0, secret);
+            AES_set_encrypt_key(secret0 + AES_BLOCK_SIZE, aesbits, &key);
+            AES_cbc_encrypt(cipher, cipher, blocks * AES_BLOCK_SIZE,
+                            &key, secret0, AES_ENCRYPT);
         }
     }
 
@@ -43,11 +54,11 @@ namespace bookfile {
         uint32_t blocks = (uint32_t)((cbytes + AES_BLOCK_SIZE - 1) / AES_BLOCK_SIZE);
         if (szcipher != blocks * AES_BLOCK_SIZE) { free(plain); return NULL; }
         if (secret != NULL) {
-            AES_KEY key;
-            uint8_t ivec[AES_BLOCK_SIZE];
-            AES_set_decrypt_key(secret, 256, &key);
-            memcpy(ivec, secret + 256 / 8, AES_BLOCK_SIZE);
-            AES_cbc_encrypt(cipher, cipher, blocks * AES_BLOCK_SIZE, &key, ivec, AES_DECRYPT);
+            AES_KEY key; uint8_t secret0[secret_bytes];
+            secret_conv(secret0, secret);
+            AES_set_decrypt_key(secret0 + AES_BLOCK_SIZE, aesbits, &key);
+            AES_cbc_encrypt(cipher, cipher, blocks * AES_BLOCK_SIZE,
+                            &key, secret0, AES_DECRYPT);
         }
         if (bytes == cbytes) memcpy(plain, cipher, bytes);
         else {

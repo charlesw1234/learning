@@ -10,7 +10,7 @@ namespace bookfile {
     class encoder_t {
     public:
         encoder_t(const uint8_t *secret, const uint8_t *plain, unsigned long bytes);
-        ~encoder_t() { free(cipher); }
+        inline ~encoder_t() { free(cipher); }
 
         inline int get_rc(void) const { return rc; }
         inline unsigned long get_bytes(void) const { return bytes; }
