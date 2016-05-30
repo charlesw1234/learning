@@ -48,6 +48,29 @@ PyBookFile_Usable(PyObject_t *self)
     return pyresult;
 }
 static PyObject_t *
+PyBookFile_MaxIndex(PyObject_t *self)
+{
+    PyBookFile_t *pyself = (PyBookFile_t *)self;
+    return PyInt_FromLong(pyself->bookfile->size() * bookfile::num_chapter_hash);
+}
+static PyObject_t *
+PyBookFile_At(PyObject_t *self, PyObject_t *args)
+{
+    unsigned idx;
+    bookfile::chapter_hash_t *cur;
+    bookfile::chapter_t *cur0;
+    PyBookFile_t *pyself = (PyBookFile_t *)self;
+    if (!PyArg_ParseTuple(args, "I", &idx)) return NULL;
+    if (idx >= pyself->bookfile->size() * bookfile::num_chapter_hash) goto none_quit;
+    cur = &pyself->bookfile->at(idx / bookfile::num_chapter_hash);
+    cur0 = cur->chapters + idx % bookfile::num_chapter_hash;
+    if (cur0->blank() || cur0->removed()) goto none_quit;
+    return PyInt_FromLong(cur0->chapterid);
+ none_quit:
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+static PyObject_t *
 PyBookFile_NumChapters(PyObject_t *self)
 {
     PyBookFile_t *pyself = (PyBookFile_t *)self;
@@ -168,6 +191,8 @@ PyBookFile_Sanity(PyObject_t *self)
 static PyMethodDef_t PyBookFile_Methods[] = {
     { "flush", (PyCFunction_t)PyBookFile_Flush, METH_NOARGS, NULL },
     { "usable", (PyCFunction_t)PyBookFile_Usable, METH_NOARGS, NULL },
+    { "max_index", (PyCFunction_t)PyBookFile_MaxIndex, METH_NOARGS, NULL },
+    { "at", (PyCFunction_t)PyBookFile_At, METH_VARARGS, NULL },
     { "num_chapters", (PyCFunction_t)PyBookFile_NumChapters, METH_NOARGS, NULL },
     { "removed_blocks", (PyCFunction_t)PyBookFile_RemovedBlocks, METH_NOARGS, NULL },
     { "lost_blocks", (PyCFunction_t)PyBookFile_LostBlocks, METH_NOARGS, NULL },
