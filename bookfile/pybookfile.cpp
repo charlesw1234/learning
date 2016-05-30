@@ -65,7 +65,7 @@ PyBookFile_At(PyObject_t *self, PyObject_t *args)
     cur = &pyself->bookfile->at(idx / bookfile::num_chapter_hash);
     cur0 = cur->chapters + idx % bookfile::num_chapter_hash;
     if (cur0->blank() || cur0->removed()) goto none_quit;
-    return PyInt_FromLong(cur0->chapterid);
+    return PyLong_FromUnsignedLong((unsigned long)cur0->chapterid);
  none_quit:
     Py_INCREF(Py_None);
     return Py_None;
@@ -100,8 +100,9 @@ PyBookFile_Insert(PyObject_t *self, PyObject_t *args)
     PyObject_t *pyresult;
     bookfile::chapter_t chapter;
     PyBookFile_t *pyself = (PyBookFile_t *)self;
-    unsigned blocks, position, chapterid, md5part0, md5part1;
-    if (!PyArg_ParseTuple(args, "IIIII", &blocks, &position, &chapterid, &md5part0, &md5part1))
+    unsigned blocks, position;
+    unsigned long chapterid, md5part0, md5part1;
+    if (!PyArg_ParseTuple(args, "IIkkk", &blocks, &position, &chapterid, &md5part0, &md5part1))
         return NULL;
     chapter.blocks = (uint32_t)blocks;
     chapter.position = (uint32_t)position;
@@ -115,32 +116,35 @@ PyBookFile_Insert(PyObject_t *self, PyObject_t *args)
 static PyObject_t *
 PyBookFile_Remove(PyObject_t *self, PyObject_t *args)
 {
-    unsigned chapterid;
+    unsigned long chapterid;
     PyObject_t *pyresult;
     PyBookFile_t *pyself = (PyBookFile_t *)self;
-    if (!PyArg_ParseTuple(args, "I", &chapterid)) return NULL;
-    pyresult = pyself->bookfile->remove(chapterid) ? Py_True: Py_False;
+    if (!PyArg_ParseTuple(args, "k", &chapterid)) return NULL;
+    pyresult = pyself->bookfile->remove((uint64_t)chapterid) ? Py_True: Py_False;
     Py_INCREF(pyresult);
     return pyresult;
 }
 static PyObject_t *
 PyBookFile_Seek(PyObject_t *self, PyObject_t *args)
 {
-    unsigned chapterid;
+    unsigned long chapterid;
     PyObject_t *pyresult;
     const bookfile::chapter_t *seekout;
     PyBookFile_t *pyself = (PyBookFile_t *)self;
-    if (!PyArg_ParseTuple(args, "I", &chapterid)) return NULL;
-    if ((seekout = pyself->bookfile->seek(chapterid)) == NULL) {
+    if (!PyArg_ParseTuple(args, "k", &chapterid)) return NULL;
+    if ((seekout = pyself->bookfile->seek((uint64_t)chapterid)) == NULL) {
         pyresult = Py_None;
         Py_INCREF(pyresult);
     } else {
         pyresult = PyTuple_New(5);
         PyTuple_SetItem(pyresult, 0, PyInt_FromLong((long)seekout->blocks));
         PyTuple_SetItem(pyresult, 1, PyInt_FromLong((long)seekout->position));
-        PyTuple_SetItem(pyresult, 2, PyInt_FromLong((long)seekout->chapterid));
-        PyTuple_SetItem(pyresult, 3, PyInt_FromLong((long)seekout->md5part0));
-        PyTuple_SetItem(pyresult, 4, PyInt_FromLong((long)seekout->md5part1));
+        PyTuple_SetItem(pyresult, 2,
+                        PyLong_FromUnsignedLong((unsigned long)seekout->chapterid));
+        PyTuple_SetItem(pyresult, 3,
+                        PyLong_FromUnsignedLong((unsigned long)seekout->md5part0));
+        PyTuple_SetItem(pyresult, 4,
+                        PyLong_FromUnsignedLong((unsigned long)seekout->md5part1));
     }
     return pyresult;
 }
@@ -174,10 +178,10 @@ PyBookFile_Write(PyObject_t *self, PyObject_t *args)
 static PyObject_t *
 PyBookFile_MaxRemovedBlocks(PyObject_t *self, PyObject_t *args)
 {
-    unsigned chapterid;
+    unsigned long chapterid;
     PyBookFile_t *pyself = (PyBookFile_t *)self;
-    if (!PyArg_ParseTuple(args, "I", &chapterid)) return NULL;
-    return PyInt_FromLong((long)pyself->bookfile->max_removed_blocks(chapterid));
+    if (!PyArg_ParseTuple(args, "k", &chapterid)) return NULL;
+    return PyInt_FromLong((long)pyself->bookfile->max_removed_blocks((uint64_t)chapterid));
 }
 static PyObject_t *
 PyBookFile_Sanity(PyObject_t *self)
