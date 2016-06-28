@@ -1,0 +1,6 @@
+# -*- python -*-
+
+env = Environment(CCFLAGS = ['-g', '-Wall'])
+
+env.Object('aes.c')
+env.Object('sha384.c')
