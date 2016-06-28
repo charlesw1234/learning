@@ -1,7 +1,0 @@
-# -*- python -*-
-
-env = Environment(CCFLAGS = ['-g', '-Wall'],
-                  CPPDEFINES = ['HAVE_CONFIG_H'],
-                  PROGSUFFIX = '.exe')
-
-env.Program('main', ['main.c', 'aes.c', 'sha384.c', 'mp.c', 'sha2k64.c'])
