@@ -37,7 +37,7 @@
 # include <mmintrin.h>
 #endif
 
-#include "beecrypt/aes.h"
+#include "aes.h"
 
 #if defined(BYTE_ORDER) && defined(BIG_ENDIAN) && defined(LITTLE_ENDIAN)
 # if (BYTE_ORDER != BIG_ENDIAN) && (BYTE_ORDER != LITTLE_ENDIAN)
@@ -46,9 +46,9 @@
 #endif
 
 #if WORDS_BIGENDIAN
-# include "beecrypt/aes_be.h"
+# include "aes_be.h"
 #else
-#  include "beecrypt/aes_le.h"
+#  include "aes_le.h"
 #endif
 
 #ifdef ASM_AESENCRYPTECB

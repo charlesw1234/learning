@@ -36,9 +36,9 @@
 # include <endian.h>
 #endif
 
-#include "beecrypt/sha384.h"
-#include "beecrypt/sha2k64.h"
-#include "beecrypt/endianness.h"
+#include "sha384.h"
+#include "sha2k64.h"
+#include "endianness.h"
 
 /*!\addtogroup HASH_sha384_m
  * \{

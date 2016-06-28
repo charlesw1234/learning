@@ -1,6 +1,7 @@
 # -*- python -*-
 
-env = Environment(CCFLAGS = ['-g', '-Wall'])
+env = Environment(CCFLAGS = ['-g', '-Wall'],
+                  CPPDEFINES = ['HAVE_CONFIG_H'])
 
 env.Object('aes.c')
 env.Object('sha384.c')
