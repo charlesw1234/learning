@@ -9,3 +9,6 @@ env = Environment(CCFLAGS = ['-g', '-Wall'],
 
 lib = env.Library('libbeecrypt', glob(pathjoin('srcs', '*.c')))
 env.Program('main', ['main.c'] + lib)
+env.Program('dosha384', ['dosha384.c'] + lib)
+env.Program('doencrypt', ['doencrypt.c'] + lib)
+env.Program('dodecrypt', ['dodecrypt.c'] + lib)

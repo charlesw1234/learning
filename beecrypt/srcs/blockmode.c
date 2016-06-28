@@ -30,6 +30,7 @@
 #endif
 
 #include "beecrypt/blockmode.h"
+#include "beecrypt/endianness.h"
 
 int blockEncryptECB(const blockCipher* bc, blockCipherParam* bp, uint32_t* dst, const uint32_t* src, unsigned int nblocks)
 {
