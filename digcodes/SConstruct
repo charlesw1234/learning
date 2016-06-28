@@ -1,7 +1,7 @@
 # -*- python -*-
 
 env = Environment(CCFLAGS = ['-g', '-Wall'],
-                  CPPDEFINES = ['HAVE_CONFIG_H'])
+                  CPPDEFINES = ['HAVE_CONFIG_H'],
+                  PROGSUFFIX = '.exe')
 
-env.Object('aes.c')
-env.Object('sha384.c')
+env.Program('main', ['main.c', 'aes.c', 'sha384.c', 'mp.c', 'sha2k64.c'])
