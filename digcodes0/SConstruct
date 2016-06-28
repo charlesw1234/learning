@@ -1,0 +1,11 @@
+# -*- python -*-
+from glob import glob
+from os.path import abspath, join as pathjoin
+
+env = Environment(CCFLAGS = ['-g', '-Wall'],
+                  CPPPATH = [abspath('includes')],
+                  CPPDEFINES = ['HAVE_CONFIG_H'],
+                  PROGSUFFIX = '.exe')
+
+lib = env.Library('libbeecrypt', glob(pathjoin('srcs', '*.c')))
+env.Program('main', ['main.c'] + lib)
