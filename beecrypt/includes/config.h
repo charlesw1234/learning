@@ -59,7 +59,11 @@
 #define HAVE_DLFCN_H 1
 
 /* Define to 1 if you have the <endian.h> header file. */
-#define HAVE_ENDIAN_H 1
+#if defined(_WIN32)
+# define HAVE_ENDIAN_H 0
+#else
+# define HAVE_ENDIAN_H 1
+#endif
 
 /* Define to 1 if you have the <errno.h> header file. */
 #define HAVE_ERRNO_H 1

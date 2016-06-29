@@ -1,10 +1,17 @@
 # -*- python -*-
 from glob import glob
 from os.path import abspath, join as pathjoin
+from sys import platform
 
-env = Environment(CCFLAGS = ['-g', '-Wall'],
+if platform == 'win32':
+    ccflags = ['/W3', '/Od', '/MDd']
+else:
+    ccflags = ['-g', '-Wall']
+
+env = Environment(CCFLAGS = ccflags,
                   CPPPATH = [abspath('includes')],
-                  CPPDEFINES = ['HAVE_CONFIG_H'],
+                  CPPDEFINES = ['HAVE_CONFIG_H'] +  \
+                    ['BEECRYPT_DLL_EXPORT', 'BEECRYPT_CXX_DLL_EXPORT'], # for windows dll link
                   PROGSUFFIX = '.exe')
 
 lib = env.Library('libbeecrypt', glob(pathjoin('srcs', '*.c')))

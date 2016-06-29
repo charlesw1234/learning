@@ -27,7 +27,7 @@
  * \ingroup BC_aes_m BC_m
  */
 
-#define BEECRYPT_DLL_EXPORT
+//#define BEECRYPT_DLL_EXPORT
 
 #if HAVE_CONFIG_H
 # include "config.h"

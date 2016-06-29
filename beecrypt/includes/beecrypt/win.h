@@ -42,12 +42,12 @@
 #  error Unknown CPU type in MetroWerks CodeWarrior
 # endif
 #elif defined(_MSC_VER)
-# if defined(_M_IX86)
+//# if defined(_M_IX86)
 #  define ROTL32(x, s) _rotl(x, s)
 #  define ROTR32(x, s) _rotr(x, s)
-# else
-#  error Unknown CPU type in Microsoft Visual C
-# endif
+//# else
+//#  error Unknown CPU type in Microsoft Visual C
+//# endif
 #else
 # error Unknown compiler for WIN32
 #endif

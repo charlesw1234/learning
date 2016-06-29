@@ -26,7 +26,7 @@
 #ifndef _MPOPT_H
 #define _MPOPT_H
 
-#if WIN32
+#if defined(WIN32)
 # if __MWERKS__ && __INTEL__
 # elif defined(_MSC_VER) && defined(_M_IX86)
 #  define ASM_MPZERO

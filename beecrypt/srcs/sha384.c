@@ -23,7 +23,7 @@
  * \ingroup HASH_m HASH_sha384_m
  */
  
-#define BEECRYPT_DLL_EXPORT
+//#define BEECRYPT_DLL_EXPORT
 
 #if HAVE_CONFIG_H
 # include "config.h"
