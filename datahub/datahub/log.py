@@ -36,6 +36,7 @@ class Log(object):
             return subpid
         osclose(wfd)
         self.rfds[subpid] = rfd
+        return subpid
 
     def waitpid(self):
         subpid, status = waitpid(-1, WNOHANG)
