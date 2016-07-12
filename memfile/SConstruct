@@ -1,6 +1,6 @@
 # -*- python -*-
 
 env = Environment(CCFLAGS = ['-g', '-Wall'],
-                  PROGSUFFX = '.exe')
+                  PROGSUFFIX = '.exe')
 
 env.Program('try0', 'try0.c')
