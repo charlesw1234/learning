@@ -1,83 +1,77 @@
 #define _GNU_SOURCE
-#include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef struct {
-    void **body;
-    size_t *bodysize;
-    size_t cur, space;
-}  memcreate_cookie_t;
+#include "memcreate.h"
 
 static const size_t pagesize = 4096;
 static int
-memcreate_extend(memcreate_cookie_t *self, size_t newsize, int clean_ornot)
+memcreate_size_ensure(memcreate_t *self, size_t newsize, int clean_ornot)
 {
-    void *newbody = *self->body;
+    char *newbody = self->body;
     size_t newspace = self->space;
-    if (newsize <= *self->bodysize) return 0;
-    if (newsize > newspace) {
+    if (newsize <= self->size) return 0;
+    if (newsize > newspace) { // enlarge the allocated space if required.
         newspace += pagesize - newspace % pagesize;
-        while (newsize > newspace) newspace += pagesize;
-        newbody = realloc(newbody, newspace);
+        while (newsize > newspace) newspace += newspace;
+        newbody = (char *)realloc(newbody, newspace);
         if (newbody == NULL) return -1;
-        *self->body = newbody;
+        self->body = newbody;
         self->space = newspace;
     }
-    if (*self->bodysize < newsize && clean_ornot)
-        memset((char *)*self->body + *self->bodysize, 0, newsize - *self->bodysize);
-    *self->bodysize = newsize;
+    if (self->size < newsize && clean_ornot)
+        memset(self->body + self->size, 0, newsize - self->size);
+    self->size = newsize;
     return 0;
 }
 
 ssize_t
-memcreate_read(void *self, char *buf, size_t size)
+memcreate_read(void *vself, char *buf, size_t size)
 {
-    memcreate_cookie_t *theself = (memcreate_cookie_t *)self;
-    size_t read_size = *theself->bodysize - theself->cur;
+    memcreate_t *self = (memcreate_t *)vself;
+    size_t read_size = self->size - self->cur;
     if (read_size > size) read_size = size;
-    memcpy(buf, (const char *)*theself->body + theself->cur, read_size);
-    theself->cur += read_size;
+    memcpy(buf, self->body + self->cur, read_size);
+    self->cur += read_size;
     return (ssize_t)read_size;
 }
 
 ssize_t
-memcreate_write(void *self, const char *buf, size_t size)
+memcreate_write(void *vself, const char *buf, size_t size)
 {
-    memcreate_cookie_t *theself = (memcreate_cookie_t *)self;
-    size_t end = theself->cur + size;
-    if (end > *theself->bodysize) memcreate_extend(theself, end, 0);
-    memcpy((char *)*theself->body + theself->cur, buf, size);
-    theself->cur += size;
+    memcreate_t *self = (memcreate_t *)vself;
+    size_t end = self->cur + size;
+    if (memcreate_size_ensure(self, end, 0) < 0) return -1;
+    memcpy(self->body + self->cur, buf, size);
+    self->cur = end;
     return (ssize_t)size;
 }
 
 int
-memcreate_seek(void *self, off64_t *offset, int whence)
+memcreate_seek(void *vself, off64_t *offset, int whence)
 {
-    memcreate_cookie_t *theself = (memcreate_cookie_t *)self;
+    memcreate_t *self = (memcreate_t *)vself;
     switch (whence) {
     case SEEK_SET: break;
-    case SEEK_CUR: *offset += theself->cur; break;
-    case SEEK_END: *offset += *theself->bodysize; break;
+    case SEEK_CUR: *offset += self->cur; break;
+    case SEEK_END: *offset += self->size; break;
     default: return -1;
     }
     if (*offset < 0) return -1;
-    if (*offset > *theself->bodysize)
-        if (memcreate_extend(theself, (size_t)*offset, 0) < 0) return -1;
-    theself->cur = (size_t)*offset;
+    if (memcreate_size_ensure(self, (size_t)*offset, 1) < 0) return -1;
+    self->cur = (size_t)*offset;
     return 0;
 }
 
-int memcreate_close(void *self) { free(self); return 0; }
+int memcreate_close(void *vself) { return 0; }
 
 static const cookie_io_functions_t memcreate_io_functions = {
     memcreate_read, memcreate_write, memcreate_seek, memcreate_close
 };
 
+void init_memcreate(memcreate_t *self) { memset(self, 0, sizeof(*self)); }
+
 FILE *
-fopen_memcreate(void **body, size_t *bodysize)
+fopen_memcreate(memcreate_t *self)
 {
     cookie_io_functions_t memcreate_io_functions = {
         .read = memcreate_read,
@@ -85,10 +79,12 @@ fopen_memcreate(void **body, size_t *bodysize)
         .seek = memcreate_seek,
         .close = memcreate_close
     };
-    memcreate_cookie_t *self = (memcreate_cookie_t *)malloc(sizeof(memcreate_cookie_t));
-    self->body = body;
-    self->bodysize = bodysize;
-    self->cur = 0;
-    self->space = *bodysize;
     return fopencookie(self, "wb+", memcreate_io_functions);
+}
+
+void
+free_memcreate(memcreate_t *self)
+{
+    if (self->body) free(self->body);
+    memset(self, 0, sizeof(*self));
 }
