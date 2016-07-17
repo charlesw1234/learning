@@ -14,6 +14,6 @@ main(void)
     SHSIZEOF(unsigned long long);
     SHSIZEOF(float);
     SHSIZEOF(double);
-    SHSIZEOF(uint16_t);
+    SHSIZEOF(size_t);
     return 0;
 }
