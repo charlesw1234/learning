@@ -164,7 +164,7 @@ namespace fjson {
                 pos = GetArray(pos, idx);
             } else {
                 if (!IsObject(pos)) return UINT32_MAX;
-                if ((pos = SearchObject(pos, cur)) == UINT32_MAX) return pos;
+                if ((pos = SearchObject(pos, cur)) == UINT32_MAX) return UINT32_MAX;
             }
         }
         return pos;
