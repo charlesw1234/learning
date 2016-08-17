@@ -54,5 +54,6 @@ int main(void)
     doc.ParseStream(fstrm);
     fclose(rfp);
     fjson::Document_t fdoc(&doc);
+    printf("cmp = %s\n", recur_cmp(&doc, &fdoc, 0) ? "true": "false");
     return 0;
 }

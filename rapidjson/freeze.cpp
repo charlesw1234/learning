@@ -12,7 +12,7 @@ namespace fjson {
         body = (uint8_t *)malloc(total_size);
         if (body == NULL) return;
         *(uint32_t *)body = nnodes; _setup();
-        uint32_t curused = 0, curoffset = 0;
+        uint32_t curused = 1, curoffset = 0;
         _recur_fill(root, 0, &curused, &curoffset);
     }
     void
@@ -35,6 +35,7 @@ namespace fjson {
             for (iter = cur->Begin(); iter != cur->End(); ++iter)
                 _recur_count(&*iter, total_strings);
         } else if (cur->IsObject()) {
+            nnodes += cur->MemberCount();
             rapidjson::Value::ConstMemberIterator iter;
             for (iter = cur->MemberBegin(); iter != cur->MemberEnd(); ++iter) {
                 *total_strings += iter->name.GetStringLength() + 1;
@@ -86,36 +87,52 @@ namespace fjson {
                 *curoffset += iter->name.GetStringLength() + 1;
                 _recur_fill(&iter->value, subpos++, curused, curoffset);
             }
-            _sort_object(values[curpos].object.start, values[curpos].object.size);
+            if (values[curpos].object.size > 1)
+                _sort_object(values[curpos].object.start, 0,
+                             (int64_t)(values[curpos].object.size - 1));
         }
     }
     void
-    Document_t::_sort_object(uint32_t start, uint32_t num)
+    Document_t::_sort_object(uint32_t start, int64_t iidx, int64_t jidx)
     {
-        uint32_t midx, nidx, kidx;
+        int64_t midx, nidx, kidx;
         uint8_t temp0; value_t temp1;
         const char *mkey, *nkey, *kkey;
-        midx = 0; nidx = num; kidx = num / 2;
+        midx = iidx; nidx = jidx; kidx = (iidx + jidx) / 2;
+        kkey = strings + values[start + kidx + kidx].string_offset;
         do {
-            kkey = strings + values[start + kidx + kidx].string_offset;
-            while (midx < num) {
+            while (midx < jidx) {
                 mkey = strings + values[start + midx + midx].string_offset;
                 if (strcmp(mkey, kkey) >= 0) break;
                 ++midx;
             }
-            while (nidx > 0) {
+            while (nidx > iidx) {
                 nkey = strings + values[start + nidx + nidx].string_offset;
                 if (strcmp(nkey, kkey) <= 0) break;
                 --nidx;
             }
-            if (midx < nidx) {
-                temp0 = types[midx]; types[midx] = types[nidx]; types[nidx] = temp0;
-                temp1 = values[midx]; values[midx] = values[nidx]; values[nidx] = temp1;
+            if (midx <= nidx) {
+                if (midx < nidx) {
+                    // swap key.
+                    temp0 = types[start + midx + midx];
+                    types[start + midx + midx] = types[start + nidx + nidx];
+                    types[start + nidx + nidx] = temp0;
+                    temp1 = values[start + midx + midx];
+                    values[start + midx + midx] = values[start + nidx + nidx];
+                    values[start + nidx + nidx] = temp1;
+                    // swap value.
+                    temp0 = types[start + midx + midx + 1];
+                    types[start + midx + midx + 1] = types[start + nidx + nidx + 1];
+                    types[start + nidx + nidx + 1] = temp0;
+                    temp1 = values[start + midx + midx + 1];
+                    values[start + midx + midx + 1] = values[start + nidx + nidx + 1];
+                    values[start + nidx + nidx + 1] = temp1;
+                }
                 ++midx; --nidx;
             }
         } while (midx <= nidx);
-        if (midx < num) _sort_object(start + midx + midx, num - midx);
-        if (nidx > 0) _sort_object(start, nidx);
+        if (midx < jidx) _sort_object(start, midx, jidx);
+        if (iidx < nidx) _sort_object(start, iidx, nidx);
     }
 
     uint32_t

@@ -27,7 +27,7 @@ namespace fjson {
         void _recur_count(const rapidjson::Value *cur, uint32_t *total_strings);
         void _recur_fill(const rapidjson::Value *cur, uint32_t curpos,
                          uint32_t *curused, uint32_t *curoffset);
-        void _sort_object(uint32_t start, uint32_t num);
+        void _sort_object(uint32_t start, int64_t iidx, int64_t jidx);
     public:
         Document_t(const rapidjson::Value *root);
         inline Document_t(uint8_t *body)
