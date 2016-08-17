@@ -150,4 +150,23 @@ namespace fjson {
         }
         return UINT32_MAX;
     }
+
+    uint32_t
+    Document_t::Locate(uint32_t pos, const char *path) const
+    {
+        char *cur, *next, *_path = strdupa(path);
+        for (cur = _path; cur != NULL; cur = next) {
+            if ((next = strchr(cur, '.')) != NULL) *next++ = 0;
+            if (strlen(cur) == strspn(cur, "0123456789")) {
+                if (!IsArray(pos)) return UINT32_MAX;
+                uint32_t idx = atol(cur);
+                if (idx >= GetArraySize(pos)) return UINT32_MAX;
+                pos = GetArray(pos, idx);
+            } else {
+                if (!IsObject(pos)) return UINT32_MAX;
+                if ((pos = SearchObject(pos, cur)) == UINT32_MAX) return pos;
+            }
+        }
+        return pos;
+    }
 }

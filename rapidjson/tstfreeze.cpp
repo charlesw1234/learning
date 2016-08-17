@@ -27,7 +27,7 @@ recur_cmp(const rapidjson::Value *cur0, const fjson::Document_t *doc, uint32_t c
         if (cur0->Size() != doc->GetArraySize(cur1)) return false;
         uint32_t idx; rapidjson::Value::ConstValueIterator iter;
         for (idx = 0, iter = cur0->Begin(); idx < doc->GetArraySize(cur1); ++idx, ++iter)
-            if (!recur_cmp(&*iter, doc, doc->GetArrayAt(cur1, idx))) return false;
+            if (!recur_cmp(&*iter, doc, doc->GetArray(cur1, idx))) return false;
         return true;
     } else if (cur0->IsObject()) {
         if (!doc->IsObject(cur1)) return false;

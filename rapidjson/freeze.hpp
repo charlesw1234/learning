@@ -52,7 +52,7 @@ namespace fjson {
         {   return strings + values[pos].string_offset; }
 
         inline uint32_t GetArraySize(uint32_t pos) const { return values[pos].array.size; }
-        inline uint32_t GetArrayAt(uint32_t pos, uint32_t idx) const
+        inline uint32_t GetArray(uint32_t pos, uint32_t idx) const
         {   return values[pos].array.start + idx; }
 
         inline uint32_t GetObjectSize(uint32_t pos) const { return values[pos].object.size; }
@@ -61,5 +61,7 @@ namespace fjson {
         inline uint32_t GetObject(uint32_t pos, uint32_t idx) const
         {   return values[pos].object.start + idx + idx + 1; }
         uint32_t SearchObject(uint32_t pos, const char *key) const;
+
+        uint32_t Locate(uint32_t pos, const char *path) const;
     };
 }
