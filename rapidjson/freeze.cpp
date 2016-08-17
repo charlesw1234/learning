@@ -3,12 +3,11 @@
 namespace fjson {
     Document_t::Document_t(const rapidjson::Value *root)
     {
-        uint32_t total_strings = 0;
-        nnodes = 0;
-        _recur_count(root, &total_strings);
+        nnodes = szstrings = 0;
+        _recur_count(root);
         uint32_t total_size = sizeof(uint32_t) + nnodes;
         if (total_size % 8 > 0) total_size += 8 - (total_size % 8);
-        total_size += nnodes * sizeof(value_t) + total_strings;
+        total_size += nnodes * sizeof(value_t) + szstrings;
         body = (uint8_t *)malloc(total_size);
         if (body == NULL) return;
         *(uint32_t *)body = nnodes; _setup();
@@ -25,21 +24,21 @@ namespace fjson {
         strings = (char *)cur;
     }
     void
-    Document_t::_recur_count(const rapidjson::Value *cur, uint32_t *total_strings)
+    Document_t::_recur_count(const rapidjson::Value *cur)
     {
         ++nnodes;
         if (cur->IsString()) {
-            *total_strings += cur->GetStringLength() + 1;
+            szstrings += cur->GetStringLength() + 1;
         } else if (cur->IsArray()) {
             rapidjson::Value::ConstValueIterator iter;
             for (iter = cur->Begin(); iter != cur->End(); ++iter)
-                _recur_count(&*iter, total_strings);
+                _recur_count(&*iter);
         } else if (cur->IsObject()) {
             nnodes += cur->MemberCount();
             rapidjson::Value::ConstMemberIterator iter;
             for (iter = cur->MemberBegin(); iter != cur->MemberEnd(); ++iter) {
-                *total_strings += iter->name.GetStringLength() + 1;
-                _recur_count(&iter->value, total_strings);
+                szstrings += iter->name.GetStringLength() + 1;
+                _recur_count(&iter->value);
             }
         }
     }

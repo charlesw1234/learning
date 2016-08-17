@@ -19,20 +19,27 @@ namespace fjson {
             struct { uint32_t start, size; } object;
         };
         uint8_t *body;
-        uint32_t nnodes;
+        uint32_t nnodes, szstrings;
         uint8_t *types;
         value_t *values;
         char *strings;
         void _setup(void);
-        void _recur_count(const rapidjson::Value *cur, uint32_t *total_strings);
+        void _recur_count(const rapidjson::Value *cur);
         void _recur_fill(const rapidjson::Value *cur, uint32_t curpos,
                          uint32_t *curused, uint32_t *curoffset);
         void _sort_object(uint32_t start, int64_t iidx, int64_t jidx);
     public:
         Document_t(const rapidjson::Value *root);
-        inline Document_t(uint8_t *body)
-        {   this->body = body; nnodes = *(uint32_t *)body; _setup(); }
+        inline Document_t(uint8_t *body, uint32_t body_size)
+        {   this->body = body; nnodes = *(uint32_t *)body; _setup();
+            szstrings = body + body_size - (uint8_t *)strings; }
         inline ~Document_t() { if (body) free(body); }
+
+        inline const uint8_t *Body(uint32_t *size) const
+        {   *size = sizeof(uint32_t) + nnodes;
+            if (*size % 8 > 0) *size += 8 - *size % 8;
+            *size += nnodes * sizeof(value_t) + szstrings;
+            return body; }
 
         inline bool IsNull(uint32_t pos) const { return types[pos] == fjnull; }
         inline bool IsFalse(uint32_t pos) const { return types[pos] == fjfalse; }
