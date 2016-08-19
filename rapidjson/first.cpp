@@ -11,5 +11,6 @@ int main(void)
     printf("%s\n", shvalue(&doc).c_str());
     shobject(stdout, 4, doc);
     fclose(rfp);
+    printf("sizeof(rapidjson::Value) = %u\n", (unsigned)sizeof(rapidjson::Value));
     return 0;
 }
