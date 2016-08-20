@@ -15,6 +15,7 @@ public class Test {
         Persons persons = new Persons();
         persons.set_age0(18);
         persons.set_age1(19);
+        FreezeDocument fdoc = new FreezeDocument();
 
         ObjectOutputStream oo0 = new ObjectOutputStream
             (new FileOutputStream(new File("test0.txt")));

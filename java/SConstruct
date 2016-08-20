@@ -1,8 +1,15 @@
 # -*- python -*-
 import glob, os.path
 
-env = Environment(JAVACLASSPATH = '/usr/share/java/json-lib.jar')
+env = Environment(JAVACLASSPATH = '/usr/share/java/json-lib.jar',
+                  SHLIBPREFIX = '',
+                  CPPPATH = ['/usr/lib/jvm/java-8-openjdk-amd64/include',
+                             '/usr/lib/jvm/java-8-openjdk-amd64/include/linux'])
 
 dn = os.path.join('com', 'wl', 'www')
-#env.Java(target = 'classes', source = glob.glob(os.path.join(dn, '*.java')))
 env.Java(target = 'classes', source = 'sources')
+env.JavaH(target = 'jni', source =
+          map(lambda classname: os.path.join('classes', 'com', 'wl', 'www', classname),
+              ['FreezeDocument']))
+env.SharedLibrary(os.path.join('jni', 'FreezeDocument'),
+                  os.path.join('jni', 'FreezeDocument.cpp'))
