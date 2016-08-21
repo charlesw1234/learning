@@ -2,7 +2,6 @@
 import glob, os.path
 
 env = Environment(JAVACLASSPATH = '/usr/share/java/json-lib.jar',
-                  SHLIBPREFIX = '',
                   CPPPATH = ['/usr/lib/jvm/java-8-openjdk-amd64/include',
                              '/usr/lib/jvm/java-8-openjdk-amd64/include/linux'])
 
