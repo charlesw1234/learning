@@ -9,6 +9,6 @@ dn = os.path.join('com', 'wl', 'www')
 env.Java(target = 'classes', source = 'sources')
 env.JavaH(target = 'jni', source =
           map(lambda classname: os.path.join('classes', 'com', 'wl', 'www', classname),
-              ['FreezeDocument']))
-env.SharedLibrary(os.path.join('jni', 'FreezeDocument'),
-                  os.path.join('jni', 'FreezeDocument.cpp'))
+              ['FreezeJson4Holder', 'FreezeJson4Refer',
+               'FreezeJson8Holder', 'FreezeJson8Refer']))
+env.SharedLibrary(os.path.join('jni', 'freeze'), os.path.join('jni', 'freeze-jni.cpp'))
