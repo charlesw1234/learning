@@ -26,9 +26,9 @@ JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeJson4Holder__1Init__Lcom_wl_www_Fr
 /*
  * Class:     com_wl_www_FreezeJson4Holder
  * Method:    _Free
- * Signature: (J)J
+ * Signature: (J)V
  */
-JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeJson4Holder__1Free
+JNIEXPORT void JNICALL Java_com_wl_www_FreezeJson4Holder__1Free
   (JNIEnv *, jobject, jlong);
 
 /*
@@ -42,10 +42,10 @@ JNIEXPORT void JNICALL Java_com_wl_www_FreezeJson4Holder__1writeObject
 /*
  * Class:     com_wl_www_FreezeJson4Holder
  * Method:    _readObject
- * Signature: (JLjava/io/ObjectInputStream;)V
+ * Signature: (Ljava/io/ObjectInputStream;)J
  */
-JNIEXPORT void JNICALL Java_com_wl_www_FreezeJson4Holder__1readObject
-  (JNIEnv *, jobject, jlong, jobject);
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeJson4Holder__1readObject
+  (JNIEnv *, jobject, jobject);
 
 #ifdef __cplusplus
 }

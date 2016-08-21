@@ -11,9 +11,9 @@ public class FreezeJson8Holder implements Serializable {
     private long self;
     private native long _Init(String docstr);
     private native long _Init(FreezeJson4Holder other, int pos);
-    private native long _Free(long self);
+    private native void _Free(long self);
     private native void _writeObject(long self, ObjectOutputStream stream);
-    private native void _readObject(long self, ObjectInputStream stream);
+    private native long _readObject(ObjectInputStream stream);
 
     public FreezeJson8Holder() { self = 0; }
     public FreezeJson8Holder(String docstr) { self = _Init(docstr); }
@@ -22,5 +22,5 @@ public class FreezeJson8Holder implements Serializable {
     public void writeObject(ObjectOutputStream stream) throws IOException
     {   _writeObject(self, stream); }
     public void readObject(ObjectInputStream stream) throws IOException
-    {   _readObject(self, stream); }
+    {   if (self != 0) _Free(self); self = _readObject(stream); }
 }
