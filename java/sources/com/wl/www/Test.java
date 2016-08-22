@@ -20,6 +20,10 @@ public class Test {
         oos.writeObject(holder0);
         oos.close();
 
+        FreezeJson4Refer refer0 = new FreezeJson4Refer();
+        refer0.setHolder(holder0);
+        System.out.printf("Root Object Size = %d\n", refer0.GetObjectSize(0));
+
         ObjectInputStream ois = new ObjectInputStream
             (new FileInputStream(new File("test.bin")));
         FreezeJson4Holder holder1 = (FreezeJson4Holder)ois.readObject();

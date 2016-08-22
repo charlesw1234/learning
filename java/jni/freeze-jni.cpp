@@ -9,12 +9,12 @@ extern "C" {
 #define JNI_8H_FUNC(RET, FUNC) JNIEXPORT RET JNICALL Java_com_wl_www_FreezeJson8Holder__##FUNC
 #define JNI_4R_FUNC(RET, FUNC) JNIEXPORT RET JNICALL Java_com_wl_www_FreezeJson4Refer__##FUNC
 #define JNI_8R_FUNC(RET, FUNC) JNIEXPORT RET JNICALL Java_com_wl_www_FreezeJson8Refer__##FUNC
-#define JHOLDER2SELF4(JENV, JOTHER)                                     \
-    jfieldID fieldid = (JENV)->GetFieldID((JENV)->GetObjectClass(JOTHER), "self", "L"); \
-    fjson::Document4_t *self = (fjson::Document4_t *)(JENV)->GetLongField((JOTHER), fieldid)
-#define JHOLDER2SELF8(JENV, JOTHER)                                     \
-    jfieldID fieldid = (JENV)->GetFieldID((JENV)->GetObjectClass(JOTHER), "self", "L"); \
-    fjson::Document8_t *self = (fjson::Document8_t *)(JENV)->GetLongField((JOTHER), fieldid)
+#define JHOLDER2SELF4(JENV, JHOLDER)                                    \
+    jfieldID fieldid = (JENV)->GetFieldID((JENV)->GetObjectClass(JHOLDER), "self", "J"); \
+    fjson::Document4_t *self = (fjson::Document4_t *)(JENV)->GetLongField((JHOLDER), fieldid)
+#define JHOLDER2SELF8(JENV, JHOLDER)                                    \
+    jfieldID fieldid = (JENV)->GetFieldID((JENV)->GetObjectClass(JHOLDER), "self", "J"); \
+    fjson::Document8_t *self = (fjson::Document8_t *)(JENV)->GetLongField((JHOLDER), fieldid)
 
     // Holder members.
     JNI_4H_FUNC(jlong, 1Init__Ljava_lang_String_2)

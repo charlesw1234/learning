@@ -8,7 +8,7 @@ import java.io.ObjectOutputStream;
 public class FreezeJson8Holder implements Serializable {
     static { System.loadLibrary("freeze"); }
 
-    private long self;
+    public long self;
     private native long _Init(String docstr);
     private native long _Init(FreezeJson4Holder other, int pos);
     private native void _Free(long self);
