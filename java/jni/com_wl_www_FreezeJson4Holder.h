@@ -47,6 +47,14 @@ JNIEXPORT void JNICALL Java_com_wl_www_FreezeJson4Holder__1writeObject
 JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeJson4Holder__1readObject
   (JNIEnv *, jobject, jobject);
 
+/*
+ * Class:     com_wl_www_FreezeJson4Holder
+ * Method:    _BodySize
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_wl_www_FreezeJson4Holder__1BodySize
+  (JNIEnv *, jobject, jlong);
+
 #ifdef __cplusplus
 }
 #endif

@@ -8,28 +8,24 @@ import java.io.ObjectOutputStream;
 
 public class Test {
     public static void main(String args[]) throws Exception {
-        Person0 person0 = new Person0();
-        person0.set_age(16);
-        Person1 person1 = new Person1();
-        person1.set_age(17);
-        Persons persons = new Persons();
-        persons.set_age0(18);
-        persons.set_age1(19);
-        //FreezeDocument fdoc = new FreezeDocument();
+        FileInputStream fis = new FileInputStream(new File("test.json"));
+        byte[] fbody = new byte[4096];
+        int fbodylen = fis.read(fbody);
+        fis.close();
 
-        ObjectOutputStream oo0 = new ObjectOutputStream
-            (new FileOutputStream(new File("test0.txt")));
-        oo0.writeObject(person0);
-        oo0.close();
-
-        ObjectOutputStream oo1 = new ObjectOutputStream
-            (new FileOutputStream(new File("test1.txt")));
-        oo1.writeObject(person1);
-        oo1.close();
-
+        String docstr = new String(fbody, 0, fbodylen, "UTF-8");
+        FreezeJson4Holder holder0 = new FreezeJson4Holder(docstr);
         ObjectOutputStream oos = new ObjectOutputStream
-            (new FileOutputStream(new File("tests.txt")));
-        oos.writeObject(persons);
+            (new FileOutputStream(new File("test.bin")));
+        oos.writeObject(holder0);
         oos.close();
+
+        ObjectInputStream ois = new ObjectInputStream
+            (new FileInputStream(new File("test.bin")));
+        FreezeJson4Holder holder1 = (FreezeJson4Holder)ois.readObject();
+        ois.close();
+
+        System.out.printf("BodySize1 = %u, BodySize2 = %u",
+                          holder0.BodySize(), holder1.BodySize());
     }
 }

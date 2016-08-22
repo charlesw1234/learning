@@ -105,6 +105,12 @@ extern "C" {
         fjson::Document8_t *self = new fjson::Document8_t(body, size);
         return (jlong)self;
     }
+    JNI_4H_FUNC(jint, 1BodySize)(JNIEnv *jenv, jobject jclazz, jlong jself)
+    {   fjson::Document4_t *self = (fjson::Document4_t *)jself;
+        return (jint)self->BodySize(); }
+    JNI_8H_FUNC(jint, 1BodySize)(JNIEnv *jenv, jobject jclazz, jlong jself)
+    {   fjson::Document8_t *self = (fjson::Document8_t *)jself;
+        return (jint)self->BodySize(); }
 
     // Refer members.
     JNI_4R_FUNC(jboolean, 1IsNull)(JNIEnv *jenv, jobject jclazz, jobject jholder, jint jpos)
