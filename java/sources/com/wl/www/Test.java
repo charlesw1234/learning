@@ -25,7 +25,7 @@ public class Test {
         FreezeJson4Holder holder1 = (FreezeJson4Holder)ois.readObject();
         ois.close();
 
-        System.out.printf("BodySize1 = %u, BodySize2 = %u",
+        System.out.printf("BodySize1 = %d, BodySize2 = %d\n",
                           holder0.BodySize(), holder1.BodySize());
     }
 }
