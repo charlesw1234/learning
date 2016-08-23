@@ -1,0 +1,9 @@
+{
+    "name": "unknown",
+    "list": [{ "driver": "mysql", "database": "test01", "host": "localhost",
+               "username": "person.x", "password": "xxx" },
+             { "driver": "mysql", "database": "test02", "host": "localhost",
+               "username": "person.y", "password": "yyy" },
+             { "driver": "mysql", "database": "test03", "host": "localhost",
+               "username": "person.z", "password": "zzz" }]
+}

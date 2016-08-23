@@ -1,0 +1,2 @@
+{ "driver": "mysql", "database": "test01", "host": "localhost",
+  "username": "person.x", "password": "xxx" }
