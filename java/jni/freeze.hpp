@@ -10,22 +10,22 @@ namespace fjson {
         uint64_t uint_v;
         double double_v;
         struct { uint32_t offset, len; } string;
-        struct { uint32_t start, size; } array;
-        struct { uint32_t start, size; } object;
+        struct { uint32_t start, space; } array;
+        struct { uint32_t start, space; } object;
     };
     union value4_t {
         int32_t int_v;
         uint32_t uint_v;
         float double_v;
         struct { uint16_t offset, len; } string;
-        struct { uint16_t start, size; } array;
-        struct { uint16_t start, size; } object;
+        struct { uint16_t start, space; } array;
+        struct { uint16_t start, space; } object;
     };
 
     template<typename VALUE_T>
     class Document_t {
     public:
-        enum type_t { fjnull, fjfalse, fjtrue, fjint, fjuint, fjdouble,
+        enum type_t { fjremoved, fjnull, fjfalse, fjtrue, fjint, fjuint, fjdouble,
                       fjstring, fjarray, fjobject };
     private:
         uint8_t *body;
@@ -55,6 +55,7 @@ namespace fjson {
             return size + nnodes * sizeof(VALUE_T) + szstrings; }
         inline const uint8_t *Body(void) const { return body; }
 
+        inline bool IsRemoved(uint32_t pos) const { return types[pos] == fjremoved; }
         inline bool IsNull(uint32_t pos) const { return types[pos] == fjnull; }
         inline bool IsFalse(uint32_t pos) const { return types[pos] == fjfalse; }
         inline bool IsTrue(uint32_t pos) const { return types[pos] == fjtrue; }
@@ -73,11 +74,13 @@ namespace fjson {
         {   return strings + values[pos].string.offset; }
         inline uint32_t GetStringLen(uint32_t pos) const { return values[pos].string.len; }
 
-        inline uint32_t GetArraySize(uint32_t pos) const { return values[pos].array.size; }
+        inline uint32_t GetArraySpace(uint32_t pos) const { return values[pos].array.space; }
+        inline uint32_t GetArraySize(uint32_t pos) const;
         inline uint32_t GetArray(uint32_t pos, uint32_t idx) const
         {   return values[pos].array.start + idx; }
 
-        inline uint32_t GetObjectSize(uint32_t pos) const { return values[pos].object.size; }
+        inline uint32_t GetObjectSpace(uint32_t pos) const { return values[pos].object.space; }
+        inline uint32_t GetObjectSize(uint32_t pos) const;
         inline const char *GetObjectKey(uint32_t pos, uint32_t idx) const
         {   return strings + values[values[pos].object.start + idx + idx].string.offset; }
         inline uint32_t GetObjectKeyLen(uint32_t pos, uint32_t idx) const
@@ -87,5 +90,17 @@ namespace fjson {
         uint32_t SearchObject(uint32_t pos, const char *key) const;
 
         uint32_t Locate(uint32_t pos, const char *path) const;
+
+        inline void SetType(uint32_t pos, type_t type) { types[pos] = (uint8_t)type; }
+        inline void Remove(uint32_t pos) { SetType(pos, fjremoved); }
+        inline void SetNull(uint32_t pos) { SetType(pos, fjnull); }
+        inline void SetFalse(uint32_t pos) { SetType(pos, fjfalse); }
+        inline void SetTrue(uint32_t pos) { SetType(pos, fjtrue); }
+        inline void SetInt(uint32_t pos, int64_t value)
+        {   types[pos] = fjint; values[pos].int_v = value; }
+        inline void SetUint(uint32_t pos, uint64_t value)
+        {   types[pos] = fjuint; values[pos].uint_v = value; }
+        inline void SetDouble(uint32_t pos, double value)
+        {   types[pos] = fjdouble; values[pos].double_v = value; }
     };
 }

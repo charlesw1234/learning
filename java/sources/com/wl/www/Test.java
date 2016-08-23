@@ -14,22 +14,19 @@ public class Test {
         fis.close();
 
         String docstr = new String(fbody, 0, fbodylen, "UTF-8");
-        FreezeJson4Holder holder0 = new FreezeJson4Holder(docstr);
+        FreezeJson4 doc0 = new FreezeJson4(docstr);
         ObjectOutputStream oos = new ObjectOutputStream
             (new FileOutputStream(new File("test.bin")));
-        oos.writeObject(holder0);
+        oos.writeObject(doc0);
         oos.close();
 
-        FreezeJson4Refer refer0 = new FreezeJson4Refer();
-        refer0.setHolder(holder0);
-        System.out.printf("Root Object Size = %d\n", refer0.GetObjectSize(0));
+        System.out.printf("Root Object Size = %d\n", doc0.GetObjectSize(0));
 
         ObjectInputStream ois = new ObjectInputStream
             (new FileInputStream(new File("test.bin")));
-        FreezeJson4Holder holder1 = (FreezeJson4Holder)ois.readObject();
+        FreezeJson4 doc1 = (FreezeJson4)ois.readObject();
         ois.close();
 
-        System.out.printf("BodySize1 = %d, BodySize2 = %d\n",
-                          holder0.BodySize(), holder1.BodySize());
+        System.out.printf("BodySize1 = %d, BodySize2 = %d\n", doc0.BodySize(), doc1.BodySize());
     }
 }

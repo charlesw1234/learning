@@ -19,15 +19,18 @@ namespace fjson {
     Document_t<VALUE_T>::Document_t(const Document_t<VALUE_T> *doc, uint32_t pos)
     {
         nnodes = szstrings = 0;
-        _recur_count1(doc, pos);
-        uint32_t total_size = sizeof(uint32_t) + nnodes;
-        if (total_size % 8 > 0) total_size += 8 - total_size % 8;
-        total_size += nnodes * sizeof(VALUE_T) + szstrings;
-        body = (uint8_t *)malloc(total_size);
-        if (body == NULL) return;
-        *(uint32_t *)body = nnodes; _setup();
-        uint32_t curused = 1, curoffset = 0;
-        _recur_fill1(doc, pos, 0, &curused, &curoffset);
+        if (doc->IsRemoved(pos)) { body = NULL; types = NULL; values = NULL; strings = NULL; }
+        else {
+            _recur_count1(doc, pos);
+            uint32_t total_size = sizeof(uint32_t) + nnodes;
+            if (total_size % 8 > 0) total_size += 8 - total_size % 8;
+            total_size += nnodes * sizeof(VALUE_T) + szstrings;
+            body = (uint8_t *)malloc(total_size);
+            if (body == NULL) return;
+            *(uint32_t *)body = nnodes; _setup();
+            uint32_t curused = 1, curoffset = 0;
+            _recur_fill1(doc, pos, 0, &curused, &curoffset);
+        }
     }
     template<typename VALUE_T>void
     Document_t<VALUE_T>::_setup(void)
@@ -87,15 +90,15 @@ namespace fjson {
         } else if (cur->IsArray()) {
             types[curpos] = fjarray;
             uint32_t subpos = values[curpos].array.start = *curused;
-            *curused += values[curpos].array.size = cur->Size();
+            *curused += values[curpos].array.space = cur->Size();
             rapidjson::Value::ConstValueIterator iter;
             for (iter = cur->Begin(); iter != cur->End(); ++iter)
                 _recur_fill0(&*iter, subpos++, curused, curoffset);
         } else if (cur->IsObject()) {
             types[curpos] = fjobject;
             uint32_t subpos = values[curpos].object.start = *curused;
-            values[curpos].object.size = cur->MemberCount();
-            *curused += values[curpos].object.size + values[curpos].object.size;
+            values[curpos].object.space = cur->MemberCount();
+            *curused += values[curpos].object.space + values[curpos].object.space;
             rapidjson::Value::ConstMemberIterator iter;
             for (iter = cur->MemberBegin(); iter != cur->MemberEnd(); ++iter) {
                 uint32_t len = iter->name.GetStringLength();
@@ -106,9 +109,9 @@ namespace fjson {
                 *curoffset += len + 1;
                 _recur_fill0(&iter->value, subpos++, curused, curoffset);
             }
-            if (values[curpos].object.size > 1)
+            if (values[curpos].object.space > 1)
                 _sort_object(values[curpos].object.start, 0,
-                             (int64_t)(values[curpos].object.size - 1));
+                             (int64_t)(values[curpos].object.space - 1));
         }
     }
     template<typename VALUE_T>void
@@ -118,13 +121,18 @@ namespace fjson {
         if (doc->IsString(docpos)) {
             szstrings += doc->GetStringLen(docpos) + 1;
         } else if (doc->IsArray(docpos)) {
-            uint32_t size = doc->GetArraySize(docpos);
-            for (uint32_t idx = 0; idx < size; ++idx)
-                _recur_count1(doc, doc->GetArray(docpos, idx));
+            uint32_t space = doc->GetArraySpace(docpos);
+            for (uint32_t idx = 0; idx < space; ++idx) {
+                uint32_t subpos = doc->GetArray(docpos, idx);
+                if (doc->IsRemoved(subpos)) continue;
+                _recur_count1(doc, subpos);
+            }
         } else if (doc->IsObject(docpos)) {
-            uint32_t size = doc->GetObjectSize(docpos);
-            nnodes += size;
-            for (uint32_t idx = 0; idx < size; ++idx) {
+            uint32_t space = doc->GetObjectSpace(docpos);
+            for (uint32_t idx = 0; idx < space; ++idx) {
+                uint32_t subpos = doc->GetObject(docpos, idx);
+                if (doc->IsRemoved(subpos)) continue;
+                ++nnodes;
                 szstrings += doc->GetObjectKeyLen(docpos, idx) + 1;
                 _recur_count1(doc, doc->GetObject(docpos, idx));
             }
@@ -155,23 +163,30 @@ namespace fjson {
         } else if (doc->IsArray(docpos)) {
             types[curpos] = fjarray;
             uint32_t subpos = values[curpos].array.start = *curused;
+            uint32_t space = doc->GetArraySpace(docpos);
             uint32_t size = doc->GetArraySize(docpos);
-            *curused += values[curpos].array.size = size;
-            for (uint32_t idx = 0; idx < size; ++idx)
+            *curused += values[curpos].array.space = size;
+            for (uint32_t idx = 0; idx < space; ++idx) {
+                uint32_t docsubpos = doc->GetArray(docpos, idx);
+                if (doc->IsRemoved(docsubpos)) continue;
                 _recur_fill1(doc, doc->GetArray(docpos, idx), subpos++, curused, curoffset);
+            }
         } else if (doc->IsObject(docpos)) {
             types[curpos] = fjobject;
             uint32_t subpos = values[curpos].object.start = *curused;
+            uint32_t space = doc->GetObjectSpace(docpos);
             uint32_t size = doc->GetObjectSize(docpos);
-            values[curpos].object.size = size;
+            values[curpos].object.space = size;
             *curused += size + size;
-            for (uint32_t idx = 0; idx < size; ++idx) {
+            for (uint32_t idx = 0; idx < space; ++idx) {
+                uint32_t docsubpos = doc->GetObject(docpos, idx);
+                if (doc->IsRemoved(docsubpos)) continue;
                 types[subpos] = fjstring;
                 values[subpos].string.offset = *curoffset;
                 values[subpos++].string.len = doc->GetObjectKeyLen(docpos, idx);
                 strcpy(strings + *curoffset, doc->GetObjectKey(docpos, idx));
                 *curoffset += doc->GetObjectKeyLen(docpos, idx) + 1;
-                _recur_fill1(doc, doc->GetObject(docpos, idx), subpos++, curused, curoffset);
+                _recur_fill1(doc, docsubpos, subpos++, curused, curoffset);
             }
         }
     }
@@ -219,10 +234,26 @@ namespace fjson {
     }
 
     template<typename VALUE_T>uint32_t
+    Document_t<VALUE_T>::GetArraySize(uint32_t pos) const
+    {
+        uint32_t size = 0;
+        for (uint32_t idx = 0; idx < GetArraySpace(pos); ++idx)
+            if (!IsRemoved(GetArray(pos, idx))) ++size;
+        return size;
+    }
+    template<typename VALUE_T>uint32_t
+    Document_t<VALUE_T>::GetObjectSize(uint32_t pos) const
+    {
+        uint32_t size = 0;
+        for (uint32_t idx = 0; idx < GetObjectSpace(pos); ++idx)
+            if (!IsRemoved(GetObject(pos, idx))) ++size;
+        return size;
+    }
+    template<typename VALUE_T>uint32_t
     Document_t<VALUE_T>::SearchObject(uint32_t pos, const char *key) const
     {
         int rc; const char *key1;
-        uint32_t idx0 = 0, idx1 = 0, idx2 = values[pos].object.size;
+        uint32_t idx0 = 0, idx1 = 0, idx2 = values[pos].object.space;
         while (idx0 < idx2) {
             idx1 = (idx0 + idx2) / 2;
             key1 = strings + values[values[pos].object.start + idx1 + idx1].string.offset;
@@ -243,7 +274,7 @@ namespace fjson {
             if (strlen(cur) == strspn(cur, "0123456789")) {
                 if (!IsArray(pos)) return UINT32_MAX;
                 uint32_t idx = atol(cur);
-                if (idx >= GetArraySize(pos)) return UINT32_MAX;
+                if (idx >= GetArraySpace(pos)) return UINT32_MAX;
                 pos = GetArray(pos, idx);
             } else {
                 if (!IsObject(pos)) return UINT32_MAX;
