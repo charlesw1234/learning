@@ -23,6 +23,8 @@ int main(void)
     fjson::Document4_t *tstsub1a = load("tstsub1.json");
     fjson::Document4_t *tstsub2a = load("tstsub2.json");
 
+    printf("tstfull_size = %u\n", tstfull->BodySize());
+
     pos = tstfull->Locate(0, "list.0");
     fjson::Document4_t tstsub0b(tstfull, pos);
     tstfull->Remove(pos);
@@ -36,6 +38,10 @@ int main(void)
            recur_cmp_ff<fjson::Document4_t>(tstsub0a, 0, &tstsub0b, 0) ? "true": "false",
            recur_cmp_ff<fjson::Document4_t>(tstsub1a, 0, &tstsub1b, 0) ? "true": "false",
            recur_cmp_ff<fjson::Document4_t>(tstsub2a, 0, &tstsub2b, 0) ? "true": "false");
+    printf("sub0_size = %u, sub1_size = %u, sub2_size = %u\n",
+           (unsigned)tstsub0b.BodySize(),
+           (unsigned)tstsub1b.BodySize(),
+           (unsigned)tstsub2b.BodySize());
 
     fjson::Document4_t tstfull0b(tstfull, 0);
     pos = tstfull->SearchObject(0, "list");
@@ -44,6 +50,8 @@ int main(void)
     printf("cmp_f4f4(full0) = %s, cmp_f4f4(full1) = %s\n",
            recur_cmp_ff<fjson::Document4_t>(tstfull0a, 0, &tstfull0b, 0) ? "true": "false",
            recur_cmp_ff<fjson::Document4_t>(tstfull1a, 0, &tstfull1b, 0) ? "true": "false");
+    printf("full0_size = %u, full1_size = %u\n",
+           (unsigned)tstfull0b.BodySize(), (unsigned)tstfull1b.BodySize());
 
     delete tstsub0a; delete tstsub1a; delete tstsub2a;
     delete tstfull; delete tstfull0a; delete tstfull1a;

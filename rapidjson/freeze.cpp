@@ -274,7 +274,7 @@ namespace fjson {
             if (strlen(cur) == strspn(cur, "0123456789")) {
                 if (!IsArray(pos)) return UINT32_MAX;
                 uint32_t idx = atol(cur);
-                if (idx >= GetArraySize(pos)) return UINT32_MAX;
+                if (idx >= GetArraySpace(pos)) return UINT32_MAX;
                 pos = GetArray(pos, idx);
             } else {
                 if (!IsObject(pos)) return UINT32_MAX;
