@@ -1,6 +1,7 @@
 #include "com_wl_www_FreezeJson4.h"
 #include "com_wl_www_FreezeJson8.h"
 #include "freeze.hpp"
+#include "freezerender.hpp"
 
 #define JNI4FUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL Java_com_wl_www_FreezeJson4__##FUNC
 #define JNI8FUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL Java_com_wl_www_FreezeJson8__##FUNC
@@ -84,6 +85,13 @@ JNI4FUNC(jint, 1BodySize)(JNIEnv *jenv, jobject jclazz, jlong jself)
 {   JSELF4(jenv, jself); return (jint)self->BodySize(); }
 JNI8FUNC(jint, 1BodySize)(JNIEnv *jenv, jobject jclazz, jlong jself)
 {   JSELF8(jenv, jself); return (jint)self->BodySize(); }
+
+JNI4FUNC(jstring, 1Render)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos)
+{   fjson::Render4_t render((fjson::Document4_t *)jself, (uint32_t)jpos);
+    return jenv->NewStringUTF(render.getc()); }
+JNI8FUNC(jstring, 1Render)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos)
+{   fjson::Render8_t render((fjson::Document8_t *)jself, (uint32_t)jpos);
+    return jenv->NewStringUTF(render.getc()); }
 
 JNI4FUNC(jboolean, 1IsRemoved)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos)
 {   JSELF4(jenv, jself); return (jboolean)self->IsRemoved((uint32_t)jpos); }

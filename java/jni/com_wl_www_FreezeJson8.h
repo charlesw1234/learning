@@ -57,6 +57,14 @@ JNIEXPORT jint JNICALL Java_com_wl_www_FreezeJson8__1BodySize
 
 /*
  * Class:     com_wl_www_FreezeJson8
+ * Method:    _Render
+ * Signature: (JI)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_wl_www_FreezeJson8__1Render
+  (JNIEnv *, jobject, jlong, jint);
+
+/*
+ * Class:     com_wl_www_FreezeJson8
  * Method:    _IsRemoved
  * Signature: (JI)Z
  */

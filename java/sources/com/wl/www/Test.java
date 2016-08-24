@@ -28,7 +28,9 @@ public class Test {
         ois.close();
 
         System.out.printf("BodySize1 = %d, BodySize2 = %d\n", doc0.BodySize(), doc1.BodySize());
+        System.out.printf("doc0(%s)\n", doc0.Render(0));
         recur_show("doc0:", doc0, 0);
+        System.out.printf("doc1(%s)\n", doc1.Render(0));
         recur_show("doc1:", doc1, 0);
     }
     public static void recur_show(String indent, FreezeJson4 doc, int pos)
