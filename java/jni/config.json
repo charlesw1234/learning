@@ -1,0 +1,115 @@
+{
+    "scene.client": {
+        "subscribes": ["tcp://182.140.235.73:6688"]
+    },
+    "scene.tools": {
+        "publish": "tcp://*:6688",
+        "command": "tcp://121.40.214.18:6689"
+    },
+    "scene.testcase": {
+    },
+
+    "login": "http://www.ptrader.cn:8080/oauth2/access_token/",
+    "nrecords": 500,
+
+    "sysdata": "sysdata",
+    "cmdy.core": "sysdata/cmdyjsons/cmdy.core.jlns.gz",
+    "cmdy.xrxd": "sysdata/cmdyjsons/cmdy.xrxd.jlns.gz",
+    "finance": "sysdata/cmdyjsons/finance.jlns.gz",
+    "csvroot": "sysdata/csv.none",
+    "jsons.test": "sysdata/jsons",
+
+    "quote": "quote",
+    "cmdybin": "quote/commodity",
+
+    "cache.zip": "cache/zip",
+    "cache.patch": "cache/patch",
+
+    "markets": ["sh", "sz"],
+    "market.alias": { "SSE": "sh", "SH": "sh", "sh": "sh",
+                      "SZSE": "sz", "SZ": "sz", "sz": "sz" },
+    "codeparts": [{ "sh": null }, { "sz": null }],
+    "rootdirs": { "corelong": "quote", "coreshort": "quote" },
+
+    "rsync.sz": { "batch": 64, "buf": 32768, "pystr": 32768,
+                  "block": 16384, "nsigns": 1024, "signlimit": 256 },
+    "rsync0": { "host": "121.40.214.18", "port": 5186 },
+    "rsync1": { "host": "121.40.214.18", "port": 5187 },
+    "rsync.locs": [{ "rootdir": "win.lite",
+                     "urlbase": "/win.lite",
+                     "excrpathes": ["quote", "sysdata"] },
+                   { "rootdir": "quote",
+                     "urlbase": "/quote",
+                     "gzexpand": ["wsgiapp0", "wsgiapp1"],
+                     "manifest": "manifests/quote.mf.gz",
+                     "history": ["quote.a", "quote.b", "quote.c"] },
+                   { "rootdir": "sysdata",
+                     "urlbase": "/sysdata",
+                     "rpathes": ["cmdyjsons", "csv.none"] }],
+
+    "test.rsync0": { "host": "www.ptrader.cn", "port": 5186 },
+    "test.rsync1": { "host": "www.ptrader.cn", "port": 5187 },
+    "nezip.rsync1": { "host": "tick0.hackos.org", "port": 5187 },
+    "nezip.zmq": { "url": "tcp://180.153.47.91:18013" },
+
+    "styledir": "client/style",
+    "jtstemcodes": ["SSE.600446", "SSE.600555", "SSE.603288", "SSE.603998",
+                    "SZSE.300033", "SZSE.002657"],
+    "indicatordir": "indicators",
+    "verbose": true,
+    "tempdir": "tmp",
+    "syncdata": {
+        "kline": [["/kline/csv.none", "sysdata"]],
+        "other": [["/other/cmdy.core.jlns.gz", "sysdata/cmdyjsons"],
+                  ["/other/cmdy.xrxd.jlns.gz", "sysdata/cmdyjsons"],
+                  ["/other/finance.jlns.gz", "sysdata/cmdyjsons"]],
+        "sclist": [],
+        "logpath": "syncdata.log",
+        "daydelta": 7,
+        "works": "updatekline1 rsynckline"
+    },
+    "updatebins": {
+        "sclist": [],
+        "logpath": "updatebins.log",
+        "cleanafter": true,
+        "works": "updatecommodity updatefinance rsyncother"
+    },
+    "qcoreserver": {
+        "suburl": "tcp://180.153.47.91:18012",
+        "requrl": "tcp://180.153.47.91:18013",
+        "puburl": "tcp://*:6688"
+    },
+    "qcorezmq": {
+        "scene": "scene.server",
+        "routeurl": "tcp://*:6689",
+        "workercnt": 5
+    },
+    "ticksource": {
+        "backend": "nezip",
+        "puburl": "tcp://*:18012",
+        "repurl": "tcp://*:18013"
+    },
+    "ticksourcefake": {
+        "backend": "fake",
+        "puburl": "tcp://*:18014",
+        "repurl": "tcp://*:18015"
+    },
+    "client": {
+        "scene": "scene.client",
+        "page": ""
+    },
+    "source": {
+        "savedata": false,
+        "gta_market": {
+            "sh": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "sz": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        }
+    },
+    "fakesource": {
+        "symbol_starts": "300"
+    },
+    "tradesys": {
+        "stemcode": "sz.300033",
+        "strategies_dir": "client/strategies"
+    }
+}
