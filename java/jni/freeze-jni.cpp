@@ -115,6 +115,11 @@ JNI4FUNC(jboolean, 1IsUint)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos
 JNI8FUNC(jboolean, 1IsUint)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos)
 {   JSELF8(jenv, jself); return (jboolean)self->IsUint((uint32_t)jpos); }
 
+JNI4FUNC(jboolean, 1IsDouble)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos)
+{   JSELF4(jenv, jself); return (jboolean)self->IsDouble((uint32_t)jpos); }
+JNI8FUNC(jboolean, 1IsDouble)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos)
+{   JSELF8(jenv, jself); return (jboolean)self->IsDouble((uint32_t)jpos); }
+
 JNI4FUNC(jboolean, 1IsString)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos)
 {   JSELF4(jenv, jself); return (jboolean)self->IsString((uint32_t)jpos); }
 JNI8FUNC(jboolean, 1IsString)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos)

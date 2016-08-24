@@ -28,5 +28,31 @@ public class Test {
         ois.close();
 
         System.out.printf("BodySize1 = %d, BodySize2 = %d\n", doc0.BodySize(), doc1.BodySize());
+        recur_show("doc0:", doc0, 0);
+        recur_show("doc1:", doc1, 0);
+    }
+    public static void recur_show(String indent, FreezeJson4 doc, int pos)
+    {
+        if (doc.IsRemoved(pos)) System.out.printf("%sremoved\n", indent);
+        if (doc.IsNull(pos)) System.out.printf("%snull\n", indent);
+        else if (doc.IsFalse(pos)) System.out.printf("%sfalse\n", indent);
+        else if (doc.IsTrue(pos)) System.out.printf("%strue\n", indent);
+        else if (doc.IsInt(pos)) System.out.printf("%s%d\n", indent, doc.GetInt(pos));
+        else if (doc.IsUint(pos)) System.out.printf("%s%d\n", indent, doc.GetUint(pos));
+        else if (doc.IsDouble(pos)) System.out.printf("%s%f\n", indent, doc.GetDouble(pos));
+        else if (doc.IsString(pos)) System.out.printf("%s%s\n", indent, doc.GetString(pos));
+        else if (doc.IsArray(pos)) {
+            System.out.printf("%s[\n", indent);
+            for (int idx = 0; idx < doc.GetArraySpace(pos); ++idx)
+                recur_show(indent + "    ", doc, doc.GetArray(pos, idx));
+            System.out.printf("%s]\n", indent);
+        } else if (doc.IsObject(pos)) {
+            System.out.printf("%s{\n", indent);
+            for (int idx = 0; idx < doc.GetObjectSpace(pos); ++idx) {
+                System.out.printf("%s    \"%s\":\n", indent, doc.GetObjectKey(pos, idx));
+                recur_show(indent + "   ", doc, doc.GetObject(pos, idx));
+            }
+            System.out.printf("%s}\n", indent);
+        }
     }
 }
