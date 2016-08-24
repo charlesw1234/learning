@@ -25,6 +25,7 @@ int main(void)
     fjson::Document4_t *doc0 = load("config.json");
     fjson::Render4_t render(doc0, 0);
     char *doc0str = render.get();
+    //printf("doc0str = %s\n", doc0str);
     fjson::Document4_t *doc1 = loadstr(doc0str);
     printf("cmp_f4f4 = %s\n", recur_cmp_ff(doc0, 0, doc1, 0) ? "true": "false");
     free(doc0str);

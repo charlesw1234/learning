@@ -1,6 +1,8 @@
 #pragma once
 
 #include "freeze.hpp"
+#include "rapidjson/internal/itoa.h"
+#include "rapidjson/internal/dtoa.h"
 
 namespace fjson {
     template<class DOC_T>
@@ -10,7 +12,7 @@ namespace fjson {
         bool _extend(size_t size);
         inline void _put_char(char ch)
         {   if (cur < last || _extend(1)) *cur++ = ch; }
-        void _put_string(const char *str, size_t slen)
+        inline void _put_string(const char *str, size_t slen)
         {   if (cur + slen <= last || _extend(slen)) { memcpy(cur, str, slen); cur += slen; } }
 
         void _render_int(int64_t value);
@@ -22,7 +24,8 @@ namespace fjson {
         inline Render_t(const DOC_T *doc, uint32_t pos)
         {   start = cur = (char *)malloc(4096);
             last = start == NULL ? NULL: start + 4096;
-            _render(doc, pos); }
+            _render(doc, pos);
+            _put_char(0); }
         inline ~Render_t() { if (start) free(start); }
 
         inline char *get(void) { char *start = this->start; this->start = NULL; return start; }
@@ -30,24 +33,38 @@ namespace fjson {
 
     template<class DOC_T>bool Render_t<DOC_T>::_extend(size_t nbytes)
     {
-        // FIXME.
+        size_t size = last - start;
+        while ((cur - start) + nbytes > size) size += size;
+        char *newstart = (char *)realloc(start, size);
+        if (newstart == NULL) return false;
+        cur = newstart + (cur - start);
+        last = newstart + size;
+        start = newstart;
+        return true;
     }
     template<class DOC_T>void Render_t<DOC_T>::_render_int(int64_t value)
-    {
-        // FIXME.
-    }
+    {   char buf[128]; _put_string(buf, rapidjson::internal::i64toa(value, buf) - buf); }
     template<class DOC_T>void Render_t<DOC_T>::_render_uint(uint64_t value)
-    {
-        // FIXME.
-    }
+    {   char buf[128]; _put_string(buf, rapidjson::internal::u64toa(value, buf) - buf); }
     template<class DOC_T>void Render_t<DOC_T>::_render_double(double value)
-    {
-        // FIXME.
-    }
+    {   char buf[128]; _put_string(buf, rapidjson::internal::dtoa(value, buf) - buf); }
     template<class DOC_T>void Render_t<DOC_T>::_render_string(const char *value)
     {
         _put_char('"');
-        // FIXME.
+        while (*value) {
+            size_t step = strcspn(value, "\"\\\b\f\r\n\t");
+            _put_string(value, step);
+            value += step;
+            switch (*value) {
+            case '"': _put_string("\\\"", 2); break;
+            case '\\': _put_string("\\\\", 2); break;
+            case '\b': _put_string("\\b", 2); break;
+            case '\f': _put_string("\\f", 2); break;
+            case '\r': _put_string("\\r", 2); break;
+            case '\n': _put_string("\\n", 2); break;
+            case '\t': _put_string("\\t", 2); break;
+            }
+        }
         _put_char('"');
     }
     template<class DOC_T>void Render_t<DOC_T>::_render(const DOC_T *doc, uint32_t pos)
@@ -65,11 +82,12 @@ namespace fjson {
             uint32_t idx, subpos;
             _put_char('[');
             for (idx = 0; idx < doc->GetArraySpace(pos); ++idx) {
+                if (idx > 0) _put_char(',');
                 subpos = doc->GetArray(pos, idx);
                 if (doc->IsRemoved(subpos)) continue;
                 _render(doc, subpos);
-                _put_char(']');
             }
+            _put_char(']');
             break;
         }
         case fjobject: {
