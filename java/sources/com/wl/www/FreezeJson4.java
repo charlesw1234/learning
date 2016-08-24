@@ -15,6 +15,10 @@ public class FreezeJson4 implements Serializable {
     private native void _writeObject(long self, ObjectOutputStream stream);
     private native long _readObject(ObjectInputStream stream);
     private native int _BodySize(long self);
+    private void writeObject(ObjectOutputStream stream) throws IOException
+    {   _writeObject(self, stream);  }
+    private void readObject(ObjectInputStream stream) throws IOException
+    {   if (self != 0) _Free(self); self = _readObject(stream); }
 
     private native boolean _IsRemoved(long self, int pos);
     private native boolean _IsNull(long self, int pos);
@@ -56,10 +60,6 @@ public class FreezeJson4 implements Serializable {
     public FreezeJson4(FreezeJson4 other, int pos) { self = _Init(other, pos); }
     protected void finalize() { if (self != 0) _Free(self); }
     public boolean Ready() { return self != 0; }
-    public void writeObject(ObjectOutputStream stream) throws IOException
-    {   _writeObject(self, stream); }
-    public void readObject(ObjectInputStream stream) throws IOException
-    {   if (self != 0) _Free(self); self = _readObject(stream); }
     public int BodySize() { return _BodySize(self); }
 
     public boolean IsRemoved(int pos) { return _IsRemoved(self, pos); }

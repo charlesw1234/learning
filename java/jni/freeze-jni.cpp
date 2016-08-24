@@ -1,6 +1,6 @@
 #include "com_wl_www_FreezeJson4.h"
 #include "com_wl_www_FreezeJson8.h"
-#include "freeze.cpp"
+#include "freeze.hpp"
 
 #define JNI4FUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL Java_com_wl_www_FreezeJson4__##FUNC
 #define JNI8FUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL Java_com_wl_www_FreezeJson8__##FUNC
@@ -45,6 +45,7 @@ _writeObject(JNIEnv *jenv, jobject jclazz, jlong jself, jobject jstream)
     jclass jstream_class = jenv->GetObjectClass(jstream);
     jmethodID methodid0 = jenv->GetMethodID(jstream_class, "write", "(I)V");
     jmethodID methodid1 = jenv->GetMethodID(jstream_class, "write", "([BII)V");
+
     DOC_T *self = (DOC_T *)jself;
     size_t size = self->BodySize();
     jenv->CallVoidMethod(jstream, methodid0, (jint)size);

@@ -26,7 +26,7 @@ int main(void)
         }
     }
     printf("const unsigned primes[] = {\n");
-    for (idx = 0; idx < primes_last - primes; idx += 16) {
+    for (idx = 0; idx < primes_last - primes; idx += 8) {
         printf("    ");
         for (idx0 = 0; idx0 < 8; ++idx0)
             printf("%4u, ", primes[idx + idx0]);

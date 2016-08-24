@@ -137,7 +137,7 @@ namespace fjson {
     template<typename VALUE_T>void
     Document_t<VALUE_T>::_setup(void)
     {
-        uint8_t *cur = body + sizeof(uint32_t);    
+        uint8_t *cur = body + sizeof(uint32_t);
         types = cur; cur += nnodes;
         if ((cur - body) % 8 > 0) cur += 8 - (cur - body) % 8;
         values = (VALUE_T *)cur; cur += nnodes * sizeof(VALUE_T);
