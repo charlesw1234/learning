@@ -1,4 +1,6 @@
-#include "freeze.cpp"
+#pragma once
+
+#include "freeze.hpp"
 
 template<class DOC_T>static bool
 recur_cmp_rf(const rapidjson::Value *cur0, const DOC_T *doc, uint32_t cur1)

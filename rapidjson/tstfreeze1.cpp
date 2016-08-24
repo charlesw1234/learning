@@ -1,5 +1,5 @@
 #include "rapidjson/filereadstream.h"
-#include "freezecmp.cpp"
+#include "freezecmp.hpp"
 
 fjson::Document4_t *load(const char *fname)
 {
