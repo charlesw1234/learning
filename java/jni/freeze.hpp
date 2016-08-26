@@ -40,6 +40,7 @@ namespace fjson {
         void _recur_fill1(const Document_t<VALUE_T> *doc, uint32_t docpos,
                           uint32_t curpos, uint32_t *curused, uint32_t *curoffset);
         void _sort_object(uint32_t start, int64_t iidx, int64_t jidx);
+        rapidjson::Value *_recur_unfreeze(uint32_t pos) const;
     public:
         Document_t(const rapidjson::Value *root);
         Document_t(const Document_t<VALUE_T> *doc, uint32_t docpos);
@@ -53,6 +54,8 @@ namespace fjson {
             if (size % 8 > 0) size += 8 - size % 8;
             return size + nnodes * sizeof(VALUE_T) + szstrings; }
         inline const uint8_t *Body(void) const { return body; }
+
+        inline rapidjson::Value *Unfreeze(uint32_t pos) const { return _recur_unfreeze(pos); }
 
         inline bool IsRemoved(uint32_t pos) const { return types[pos] == fjremoved; }
         inline bool IsNull(uint32_t pos) const { return types[pos] == fjnull; }
@@ -333,6 +336,35 @@ namespace fjson {
         } while (midx <= nidx);
         if (midx < jidx) _sort_object(start, midx, jidx);
         if (iidx < nidx) _sort_object(start, iidx, nidx);
+    }
+    template<typename VLAUE_T>rapidjson::Value *
+    Document_t<VALUE_T>::_recur_unfreeze(uint32_t pos) const
+    {
+        switch (GetType(pos)) {
+        case fjnull: return new rapidjson::Value(rapidjson::kNullType);
+        case fjfalse: return new rapidjson::Value(rapidjson::kFalseType);
+        case fjtrue: return new rapidjson::Value(rapidjson::kTrueType);
+        case fjint:// return new rapidjson::Value(rapidjson::kIntType);
+        case fjuint: // FIXME.;
+        case fjstring: // FIXME.;
+        case fjarray: {
+            rapidjson::Value *rvalue = new rapidjson::Value(rapidjson::kArrayType);
+            for (uint32_t idx = 0; idx < GetArraySize(pos); ++idx) {
+                uint32_t subpos = GetArray(pos, idx);
+                if (IsRemoved(subpos)) continue;
+                rvalue->PushBack(_recur_unfreeze(subpos));
+            }
+            return rvalule; }
+        case fjobject: {
+            rapidjson::Value *rvalue = new rapidjson::Value(rapidjson::kObjectType);
+            for (uint32_t idx = 0; idx < GetObjectSpace(pos); ++idx) {
+                uint32_t subpos = GetObject(pos, idx);
+                if (IsRemoved(subpos)) continue;
+                rvalue->AddMember(GetObjectKey(pos, idx), _recur_unfreeze(subpos), allocator);
+            }
+            return rvalue; }
+        }
+        return NULL;
     }
 
     template<typename VALUE_T>uint32_t
