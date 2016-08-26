@@ -25,5 +25,12 @@ int main(void)
            recur_cmp_ff<fjson::Document4_t>(&fdoc40, pos4, &fdoc41, 0) ? "true": "false");
     printf("body8_size = %u, %u\n", (uint32_t)fdoc80.BodySize(), (uint32_t)fdoc81.BodySize());
     printf("body4_size = %u, %u\n", (uint32_t)fdoc40.BodySize(), (uint32_t)fdoc41.BodySize());
+
+    rapidjson::Value value80, value40;
+    fdoc80.Unfreeze(value80, 0, doc.GetAllocator());
+    fdoc40.Unfreeze(value40, 0, doc.GetAllocator());
+    printf("cmp_rf8 = %s, cmp_rf4 = %s\n",
+           recur_cmp_rf<fjson::Document8_t>(&value80, &fdoc80, 0) ? "true": "false",
+           recur_cmp_rf<fjson::Document4_t>(&value40, &fdoc40, 0) ? "true": "false");
     return 0;
 }

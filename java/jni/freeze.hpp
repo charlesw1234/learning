@@ -24,6 +24,7 @@ namespace fjson {
         struct { uint16_t start, space; } object;
     };
 
+    typedef rapidjson::Document::AllocatorType Allocator;
     template<typename VALUE_T>
     class Document_t {
     private:
@@ -40,7 +41,7 @@ namespace fjson {
         void _recur_fill1(const Document_t<VALUE_T> *doc, uint32_t docpos,
                           uint32_t curpos, uint32_t *curused, uint32_t *curoffset);
         void _sort_object(uint32_t start, int64_t iidx, int64_t jidx);
-        rapidjson::Value *_recur_unfreeze(uint32_t pos) const;
+        void _recur_unfreeze(rapidjson::Value &value, uint32_t pos, Allocator &allocator) const;
     public:
         Document_t(const rapidjson::Value *root);
         Document_t(const Document_t<VALUE_T> *doc, uint32_t docpos);
@@ -55,7 +56,8 @@ namespace fjson {
             return size + nnodes * sizeof(VALUE_T) + szstrings; }
         inline const uint8_t *Body(void) const { return body; }
 
-        inline rapidjson::Value *Unfreeze(uint32_t pos) const { return _recur_unfreeze(pos); }
+        inline void Unfreeze(rapidjson::Value &value, uint32_t pos, Allocator &allocator) const
+        {   _recur_unfreeze(value, pos, allocator); }
 
         inline bool IsRemoved(uint32_t pos) const { return types[pos] == fjremoved; }
         inline bool IsNull(uint32_t pos) const { return types[pos] == fjnull; }
@@ -337,34 +339,38 @@ namespace fjson {
         if (midx < jidx) _sort_object(start, midx, jidx);
         if (iidx < nidx) _sort_object(start, iidx, nidx);
     }
-    template<typename VLAUE_T>rapidjson::Value *
-    Document_t<VALUE_T>::_recur_unfreeze(uint32_t pos) const
+    template<typename VALUE_T>void
+    Document_t<VALUE_T>::_recur_unfreeze(rapidjson::Value &value,
+                                         uint32_t pos, Allocator &allocator) const
     {
         switch (GetType(pos)) {
-        case fjnull: return new rapidjson::Value(rapidjson::kNullType);
-        case fjfalse: return new rapidjson::Value(rapidjson::kFalseType);
-        case fjtrue: return new rapidjson::Value(rapidjson::kTrueType);
-        case fjint:// return new rapidjson::Value(rapidjson::kIntType);
-        case fjuint: // FIXME.;
-        case fjstring: // FIXME.;
-        case fjarray: {
-            rapidjson::Value *rvalue = new rapidjson::Value(rapidjson::kArrayType);
+        case fjnull: value.SetNull(); break;
+        case fjfalse: value.SetBool(false); break;
+        case fjtrue: value.SetBool(true); break;
+        case fjint: value.SetInt(GetInt(pos)); break;
+        case fjuint: value.SetUint(GetUint(pos)); break;
+        case fjstring: value.SetString(GetString(pos), allocator); break;
+        case fjarray:
+            value.SetArray();
             for (uint32_t idx = 0; idx < GetArraySize(pos); ++idx) {
                 uint32_t subpos = GetArray(pos, idx);
                 if (IsRemoved(subpos)) continue;
-                rvalue->PushBack(_recur_unfreeze(subpos));
+                rapidjson::Value subvalue;
+                _recur_unfreeze(subvalue, subpos, allocator);
+                value.PushBack(subvalue, allocator);
             }
-            return rvalule; }
-        case fjobject: {
-            rapidjson::Value *rvalue = new rapidjson::Value(rapidjson::kObjectType);
+            break;
+        case fjobject:
+            value.SetObject();
             for (uint32_t idx = 0; idx < GetObjectSpace(pos); ++idx) {
                 uint32_t subpos = GetObject(pos, idx);
                 if (IsRemoved(subpos)) continue;
-                rvalue->AddMember(GetObjectKey(pos, idx), _recur_unfreeze(subpos), allocator);
+                rapidjson::Value subvalue, keyvalue(GetObjectKey(pos, idx), allocator);
+                _recur_unfreeze(subvalue, subpos, allocator);
+                value.AddMember(keyvalue, subvalue, allocator);
             }
-            return rvalue; }
+            break;
         }
-        return NULL;
     }
 
     template<typename VALUE_T>uint32_t
