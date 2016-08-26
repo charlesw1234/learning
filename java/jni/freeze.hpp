@@ -347,8 +347,9 @@ namespace fjson {
         case fjnull: value.SetNull(); break;
         case fjfalse: value.SetBool(false); break;
         case fjtrue: value.SetBool(true); break;
-        case fjint: value.SetInt(GetInt(pos)); break;
-        case fjuint: value.SetUint(GetUint(pos)); break;
+        case fjint: value.SetInt64(GetInt(pos)); break;
+        case fjuint: value.SetUint64(GetUint(pos)); break;
+        case fjdouble: value.SetDouble(GetDouble(pos)); break;
         case fjstring: value.SetString(GetString(pos), allocator); break;
         case fjarray:
             value.SetArray();
