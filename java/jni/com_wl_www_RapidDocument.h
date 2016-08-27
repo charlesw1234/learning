@@ -23,6 +23,14 @@ JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1Init
 JNIEXPORT void JNICALL Java_com_wl_www_RapidDocument__1Free
   (JNIEnv *, jobject, jlong);
 
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _GetAllocator
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1GetAllocator
+  (JNIEnv *, jobject, jlong);
+
 #ifdef __cplusplus
 }
 #endif

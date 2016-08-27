@@ -57,7 +57,7 @@ public class FreezeDocument8 implements Serializable {
     private native void _SetUint(long self, int pos, long value);
     private native void _SetDouble(long self, int pos, double value);
 
-    public FreezeDocument8() { self = 0; }
+    public FreezeDocument8(long self) { this.self = self; }
     public FreezeDocument8(String docstr) { self = _Init(docstr); }
     public FreezeDocument8(FreezeDocument8 other, int pos) { self = _Init(other, pos); }
     protected void finalize() { if (self != 0) _Free(self); }
