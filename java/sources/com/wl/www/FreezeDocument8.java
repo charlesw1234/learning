@@ -5,12 +5,12 @@ import java.io.Serializable;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class FreezeJson4 implements Serializable {
+public class FreezeDocument8 implements Serializable {
     static { System.loadLibrary("freeze"); }
 
     private long self;
     private native long _Init(String docstr);
-    private native long _Init(FreezeJson4 other, int pos);
+    private native long _Init(FreezeDocument8 other, int pos);
     private native void _Free(long self);
     private native void _writeObject(long self, ObjectOutputStream stream);
     private native long _readObject(ObjectInputStream stream);
@@ -57,9 +57,9 @@ public class FreezeJson4 implements Serializable {
     private native void _SetUint(long self, int pos, int value);
     private native void _SetDouble(long self, int pos, double value);
 
-    public FreezeJson4() { self = 0; }
-    public FreezeJson4(String docstr) { self = _Init(docstr); }
-    public FreezeJson4(FreezeJson4 other, int pos) { self = _Init(other, pos); }
+    public FreezeDocument8() { self = 0; }
+    public FreezeDocument8(String docstr) { self = _Init(docstr); }
+    public FreezeDocument8(FreezeDocument8 other, int pos) { self = _Init(other, pos); }
     protected void finalize() { if (self != 0) _Free(self); }
     public boolean Ready() { return self != 0; }
     public int BodySize() { return _BodySize(self); }

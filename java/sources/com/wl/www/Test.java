@@ -14,7 +14,7 @@ public class Test {
         fis.close();
 
         String docstr = new String(fbody, 0, fbodylen, "UTF-8");
-        FreezeJson4 doc0 = new FreezeJson4(docstr);
+        FreezeDocument4 doc0 = new FreezeDocument4(docstr);
         ObjectOutputStream oos = new ObjectOutputStream
             (new FileOutputStream(new File("test.bin")));
         oos.writeObject(doc0);
@@ -24,7 +24,7 @@ public class Test {
 
         ObjectInputStream ois = new ObjectInputStream
             (new FileInputStream(new File("test.bin")));
-        FreezeJson4 doc1 = (FreezeJson4)ois.readObject();
+        FreezeDocument4 doc1 = (FreezeDocument4)ois.readObject();
         ois.close();
 
         System.out.printf("BodySize1 = %d, BodySize2 = %d\n", doc0.BodySize(), doc1.BodySize());
@@ -33,7 +33,7 @@ public class Test {
         System.out.printf("doc1(%s)\n", doc1.Render(0));
         recur_show("doc1:", doc1, 0);
     }
-    public static void recur_show(String indent, FreezeJson4 doc, int pos)
+    public static void recur_show(String indent, FreezeDocument4 doc, int pos)
     {
         if (doc.IsRemoved(pos)) System.out.printf("%sremoved\n", indent);
         if (doc.IsNull(pos)) System.out.printf("%snull\n", indent);

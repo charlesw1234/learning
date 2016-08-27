@@ -1,10 +1,12 @@
-#include "com_wl_www_FreezeJson4.h"
-#include "com_wl_www_FreezeJson8.h"
+#include "com_wl_www_FreezeDocument4.h"
+#include "com_wl_www_FreezeDocument8.h"
 #include "freeze.hpp"
 #include "freezerender.hpp"
 
-#define JNI4FUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL Java_com_wl_www_FreezeJson4__##FUNC
-#define JNI8FUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL Java_com_wl_www_FreezeJson8__##FUNC
+#define JNI4FUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL \
+    Java_com_wl_www_FreezeDocument4__##FUNC
+#define JNI8FUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL \
+    Java_com_wl_www_FreezeDocument8__##FUNC
 #define JSELF4(JENV, JSELF) fjson::Document4_t *self = (fjson::Document4_t *)(JSELF)
 #define JSELF8(JENV, JSELF) fjson::Document8_t *self = (fjson::Document8_t *)(JSELF)
 
