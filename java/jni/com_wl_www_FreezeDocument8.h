@@ -57,6 +57,14 @@ JNIEXPORT jint JNICALL Java_com_wl_www_FreezeDocument8__1BodySize
 
 /*
  * Class:     com_wl_www_FreezeDocument8
+ * Method:    _Unfreeze
+ * Signature: (JIJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument8__1Unfreeze
+  (JNIEnv *, jobject, jlong, jint, jlong);
+
+/*
+ * Class:     com_wl_www_FreezeDocument8
  * Method:    _Render
  * Signature: (JI)Ljava/lang/String;
  */

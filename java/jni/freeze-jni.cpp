@@ -96,6 +96,17 @@ JNI4FUNC(jint, 1BodySize)(JNIEnv *jenv, jobject jclazz, jlong jself)
 JNI8FUNC(jint, 1BodySize)(JNIEnv *jenv, jobject jclazz, jlong jself)
 {   JSELF8(jself); return (jint)self->BodySize(); }
 
+JNI4FUNC(jlong, 1Unfreeze)(JNIEnv *jenv, jobject jclazz,
+                           jlong jself, jint pos, jlong jallocator)
+{   JSELF4(jself); rapidjson::Value *value = new rapidjson::Value();
+    self->Unfreeze(*value, (uint32_t)pos, *(fjson::Allocator *)jallocator);
+    return (jlong)value; }
+JNI8FUNC(jlong, 1Unfreeze)(JNIEnv *jenv, jobject jclazz,
+                           jlong jself, jint pos, jlong jallocator)
+{   JSELF8(jself); rapidjson::Value *value = new rapidjson::Value();
+    self->Unfreeze(*value, (uint32_t)pos, *(fjson::Allocator *)jallocator);
+    return (jlong)value; }
+
 JNI4FUNC(jstring, 1Render)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos)
 {   fjson::Render4_t render((fjson::Document4_t *)jself, (uint32_t)jpos);
     return jenv->NewStringUTF(render.getc()); }
@@ -295,6 +306,11 @@ JNIRDFUNC(jlong, 1GetAllocator)(JNIEnv *jenv, jobject jclazz, jlong jself)
 {   JSELFRD(jself); &self->GetAllocator(); }
 
 // RapidJson.
+JNIRJFUNC(jlong, 1Freeze4)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jself); return (jlong)new fjson::Document4_t(self); }
+JNIRJFUNC(jlong, 1Freeze8)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jself); return (jlong)new fjson::Document8_t(self); }
+
 JNIRJFUNC(jboolean, 1IsNull)(JNIEnv *jenv, jobject jclazz, jlong jself)
 {   JSELFRJ(jself); return (jboolean)self->IsNull(); }
 JNIRJFUNC(jboolean, 1IsFalse)(JNIEnv *jenv, jobject jclazz, jlong jself)

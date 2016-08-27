@@ -249,6 +249,22 @@ JNIEXPORT jlong JNICALL Java_com_wl_www_RapidJson__1InitObject
 
 /*
  * Class:     com_wl_www_RapidJson
+ * Method:    _Freeze4
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidJson__1Freeze4
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_wl_www_RapidJson
+ * Method:    _Freeze8
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidJson__1Freeze8
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_wl_www_RapidJson
  * Method:    _SetNull
  * Signature: (JLcom/wl/www/RapidDocument;)V
  */

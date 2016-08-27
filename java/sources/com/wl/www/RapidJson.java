@@ -39,6 +39,9 @@ public class RapidJson {
     private native long _InitString(String value, RapidDocument doc);
     private native long _InitArray(RapidDocument doc);
     private native long _InitObject(RapidDocument doc);
+
+    private native long _Freeze4(long self);
+    private native long _Freeze8(long self);
             
     private native void _SetNull(long self, RapidDocument doc);
     private native void _SetFalse(long self, RapidDocument doc);
@@ -58,6 +61,9 @@ public class RapidJson {
     public RapidJson(RapidDocument doc, String value)
     {   this.self = _InitString(value, doc); this.doc = doc; }
     protected void finalize() {}
+
+    public FreezeDocument4 Freeze4() { return new FreezeDocument4(_Freeze4(self)); }
+    public FreezeDocument8 Freeze8() { return new FreezeDocument8(_Freeze8(self)); }
 
     public boolean IsNull() { return _IsNull(self); }
     public boolean IsFalse() { return _IsFalse(self); }
