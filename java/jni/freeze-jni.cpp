@@ -1,5 +1,7 @@
 #include "com_wl_www_FreezeDocument4.h"
 #include "com_wl_www_FreezeDocument8.h"
+#include "com_wl_www_RapidDocument.h"
+#include "com_wl_www_RapidJson.h"
 #include "freeze.hpp"
 #include "freezerender.hpp"
 
@@ -7,9 +9,17 @@
     Java_com_wl_www_FreezeDocument4__##FUNC
 #define JNI8FUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL \
     Java_com_wl_www_FreezeDocument8__##FUNC
+#define JNIRDFUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL   \
+    Java_com_wl_www_RapidDocument__##FUNC
+#define JNIRJFUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL   \
+    Java_com_wl_www_RapidJson__##FUNC
+
 #define JSELF4(JENV, JSELF) fjson::Document4_t *self = (fjson::Document4_t *)(JSELF)
 #define JSELF8(JENV, JSELF) fjson::Document8_t *self = (fjson::Document8_t *)(JSELF)
+#define JSELFRD(JENV, JSELF) rapidjson::Document *self = (rapidjson::Document *)(JSELF)
+#define JSELFRJ(JENV, JSELF) rapidjson::Value *self = (rapidjson::Value *)(JSELF)
 
+// FreezeDocument?
 template<class DOC_T>static inline jlong _Init1(JNIEnv *jenv, jobject jclazz, jstring jdocstr)
 {
     rapidjson::Document rdoc;
@@ -238,3 +248,85 @@ JNI4FUNC(jint, 1Locate)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos, js
 {   return _Locate<fjson::Document4_t>(jenv, jclazz, jself, jpos, jpath); }
 JNI8FUNC(jint, 1Locate)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jpos, jstring jpath)
 {   return _Locate<fjson::Document8_t>(jenv, jclazz, jself, jpos, jpath); }
+
+JNI4FUNC(void, 1Remove)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos)
+{   JSELF4(jenv, jself); self->Remove((uint32_t)pos); }
+JNI8FUNC(void, 1Remove)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos)
+{   JSELF8(jenv, jself); self->Remove((uint32_t)pos); }
+
+JNI4FUNC(void, 1SetNull)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos)
+{   JSELF4(jenv, jself); self->SetNull((uint32_t)pos); }
+JNI8FUNC(void, 1SetNull)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos)
+{   JSELF8(jenv, jself); self->SetNull((uint32_t)pos); }
+
+JNI4FUNC(void, 1SetFalse)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos)
+{   JSELF4(jenv, jself); self->SetFalse((uint32_t)pos); }
+JNI8FUNC(void, 1SetFalse)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos)
+{   JSELF8(jenv, jself); self->SetFalse((uint32_t)pos); }
+
+JNI4FUNC(void, 1SetTrue)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos)
+{   JSELF4(jenv, jself); self->SetTrue((uint32_t)pos); }
+JNI8FUNC(void, 1SetTrue)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos)
+{   JSELF8(jenv, jself); self->SetTrue((uint32_t)pos); }
+
+JNI4FUNC(void, 1SetInt)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos, jlong jvalue)
+{   JSELF4(jenv, jself); self->SetInt((uint32_t)pos, (int64_t)jvalue); }
+JNI8FUNC(void, 1SetInt)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos, jlong jvalue)
+{   JSELF8(jenv, jself); self->SetInt((uint32_t)pos, (int64_t)jvalue); }
+
+JNI4FUNC(void, 1SetUint)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos, jlong jvalue)
+{   JSELF4(jenv, jself); self->SetUint((uint32_t)pos, (uint64_t)jvalue); }
+JNI8FUNC(void, 1SetUint)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos, jlong jvalue)
+{   JSELF8(jenv, jself); self->SetUint((uint32_t)pos, (uint64_t)jvalue); }
+
+JNI4FUNC(void, 1SetDouble)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos, jdouble jvalue)
+{   JSELF4(jenv, jself); self->SetDouble((uint32_t)pos, (double)jvalue); }
+JNI8FUNC(void, 1SetDouble)(JNIEnv *jenv, jobject jclazz, jlong jself, jint pos, jdouble jvalue)
+{   JSELF8(jenv, jself); self->SetDouble((uint32_t)pos, (double)jvalue); }
+
+// RapidDocument.
+// RapidJson.
+JNIRJFUNC(jboolean, 1IsNull)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jboolean)self->IsNull(); }
+JNIRJFUNC(jboolean, 1IsFalse)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jboolean)self->IsFalse(); }
+JNIRJFUNC(jboolean, 1IsTrue)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jboolean)self->IsTrue(); }
+JNIRJFUNC(jboolean, 1IsInt)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jboolean)self->IsInt(); }
+JNIRJFUNC(jboolean, 1IsUint)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jboolean)self->IsUint(); }
+JNIRJFUNC(jboolean, 1IsDouble)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jboolean)self->IsDouble(); }
+JNIRJFUNC(jboolean, 1IsString)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jboolean)self->IsString(); }
+JNIRJFUNC(jboolean, 1IsArray)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jboolean)self->IsArray(); }
+JNIRJFUNC(jboolean, 1IsObject)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jboolean)self->IsObject(); }
+
+JNIRJFUNC(jlong, 1GetInt)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jlong)self->GetInt(); }
+JNIRJFUNC(jlong, 1GetUint)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jlong)self->GetUint(); }
+JNIRJFUNC(jdouble, 1GetDouble)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jdouble)self->GetDouble(); }
+JNIRJFUNC(jstring, 1GetString)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return jenv->NewStringUTF(self->GetString()); }
+
+JNIRJFUNC(jint, 1GetArraySize)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{   JSELFRJ(jenv, jself); return (jint)self->Size(); }
+JNIRJFUNC(jlong, 1GetArray)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jidx)
+{   JSELFRJ(jenv, jself); return (jlong)(&(*self)[jidx]); }
+
+JNIRJFUNC(jint, 1GetObjectSize)(JNIEnv *jenv, jobject jclazz, jlong jself)
+{  JSELFRJ(jenv, jself); return (jint)self->MemberCount(); }
+JNIRJFUNC(jstring, 1GetObjectKey)(JNIEnv *jenv, jobject jclazz, jlong jself, jint jidx)
+{  JSELFRJ(jenv, jself); /* FIXME. */ }
+JNIRJFUNC(jlong, 1GetObject)(JNIEnv *jenv, jobject jclazz, jlong jself, jint idx)
+{  JSELFRJ(jenv, jself); /* FIXME. */ }
+JNIRJFUNC(jlong, 1SearchObject)(JNIEnv *jenv, jobject jclazz, jlong jself, jstring jkey)
+{  JSELFRJ(jenv, jself); /* FIXME. */ }
+
+JNIRJFUNC(jlong, 1Locate)(JNIEnv *jenv, jobject jclazz, jlong jself, jstring jpath)
+{  JSELFRJ(jenv, jself); /* FIXME. */ }

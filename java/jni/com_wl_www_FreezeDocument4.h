@@ -290,18 +290,18 @@ JNIEXPORT void JNICALL Java_com_wl_www_FreezeDocument4__1SetTrue
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _SetInt
- * Signature: (JII)V
+ * Signature: (JIJ)V
  */
 JNIEXPORT void JNICALL Java_com_wl_www_FreezeDocument4__1SetInt
-  (JNIEnv *, jobject, jlong, jint, jint);
+  (JNIEnv *, jobject, jlong, jint, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _SetUint
- * Signature: (JII)V
+ * Signature: (JIJ)V
  */
 JNIEXPORT void JNICALL Java_com_wl_www_FreezeDocument4__1SetUint
-  (JNIEnv *, jobject, jlong, jint, jint);
+  (JNIEnv *, jobject, jlong, jint, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4

@@ -53,8 +53,8 @@ public class FreezeDocument4 implements Serializable {
     private native void _SetNull(long self, int pos);
     private native void _SetFalse(long self, int pos);
     private native void _SetTrue(long self, int pos);
-    private native void _SetInt(long self, int pos, int value);
-    private native void _SetUint(long self, int pos, int value);
+    private native void _SetInt(long self, int pos, long value);
+    private native void _SetUint(long self, int pos, long value);
     private native void _SetDouble(long self, int pos, double value);
 
     public FreezeDocument4() { self = 0; }
@@ -96,7 +96,9 @@ public class FreezeDocument4 implements Serializable {
     public void SetNull(int pos) { _SetNull(self, pos); }
     public void SetFalse(int pos) { _SetFalse(self, pos); }
     public void SetTrue(int pos) { _SetTrue(self, pos); }
-    public void SetInt(int pos, int value) { _SetInt(self, pos, value); }
-    public void SetUint(int pos, int value) { _SetUint(self, pos, value); }
+    public void SetBoolean(int pos, boolean value)
+    {   if (value) _SetTrue(self, pos); else _SetFalse(self, pos); }
+    public void SetInt(int pos, long value) { _SetInt(self, pos, value); }
+    public void SetUint(int pos, long value) { _SetUint(self, pos, value); }
     public void SetDouble(int pos, double value) { _SetDouble(self, pos, value); }
 }
