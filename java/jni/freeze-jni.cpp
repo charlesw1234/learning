@@ -303,7 +303,7 @@ JNIRDFUNC(jlong, 1Init)(JNIEnv *jenv, jobject jclazz, jstring jdocstr)
 JNIRDFUNC(void, 1Free)(JNIEnv *jenv, jobject jclazz, jlong jself)
 {   JSELFRD(jself); delete self; }
 JNIRDFUNC(jlong, 1GetAllocator)(JNIEnv *jenv, jobject jclazz, jlong jself)
-{   JSELFRD(jself); &self->GetAllocator(); }
+{   JSELFRD(jself); return (jlong)&self->GetAllocator(); }
 
 // RapidJson.
 JNIRJFUNC(jlong, 1Freeze4)(JNIEnv *jenv, jobject jclazz, jlong jself)
