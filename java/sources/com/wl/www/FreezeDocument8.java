@@ -71,6 +71,7 @@ public class FreezeDocument8 implements Serializable {
     public boolean IsNull(long pos) { return _IsNull(self, pos); }
     public boolean IsFalse(long pos) { return _IsFalse(self, pos); }
     public boolean IsTrue(long pos) { return _IsTrue(self, pos); }
+    public boolean IsBoolean(long pos) { return _IsFalse(self, pos) || _IsTrue(self, pos); }
     public boolean IsInt(long pos) { return _IsInt(self, pos); }
     public boolean IsUint(long pos) { return _IsUint(self, pos); }
     public boolean IsDouble(long pos) { return _IsDouble(self, pos); }
@@ -78,7 +79,8 @@ public class FreezeDocument8 implements Serializable {
     public boolean IsArray(long pos) { return _IsArray(self, pos); }
     public boolean IsObject(long pos) { return _IsObject(self, pos); }
 
-    public long GetRoot(long pos) { return 0; }
+    public long GetRoot() { return 0; }
+    public boolean GetBoolean(long pos) { return _IsTrue(self, pos); }
     public long GetInt(long pos) { return _GetInt(self, pos); }
     public long GetUint(long pos) { return _GetUint(self, pos); }
     public double GetDouble(long pos) { return _GetDouble(self, pos); }
