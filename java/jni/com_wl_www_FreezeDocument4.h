@@ -18,10 +18,10 @@ JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1Init__Ljava_lang_Strin
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _Init
- * Signature: (Lcom/wl/www/FreezeDocument4;I)J
+ * Signature: (Lcom/wl/www/FreezeDocument4;J)J
  */
-JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1Init__Lcom_wl_www_FreezeDocument4_2I
-  (JNIEnv *, jobject, jobject, jint);
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1Init__Lcom_wl_www_FreezeDocument4_2J
+  (JNIEnv *, jobject, jobject, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
@@ -50,274 +50,274 @@ JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1readObject
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _BodySize
- * Signature: (J)I
+ * Signature: (J)J
  */
-JNIEXPORT jint JNICALL Java_com_wl_www_FreezeDocument4__1BodySize
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1BodySize
   (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _Unfreeze
- * Signature: (JIJ)J
+ * Signature: (JJJ)J
  */
 JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1Unfreeze
-  (JNIEnv *, jobject, jlong, jint, jlong);
+  (JNIEnv *, jobject, jlong, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _Render
- * Signature: (JI)Ljava/lang/String;
+ * Signature: (JJ)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_wl_www_FreezeDocument4__1Render
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _IsRemoved
- * Signature: (JI)Z
+ * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_wl_www_FreezeDocument4__1IsRemoved
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _IsNull
- * Signature: (JI)Z
+ * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_wl_www_FreezeDocument4__1IsNull
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _IsFalse
- * Signature: (JI)Z
+ * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_wl_www_FreezeDocument4__1IsFalse
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _IsTrue
- * Signature: (JI)Z
+ * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_wl_www_FreezeDocument4__1IsTrue
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _IsInt
- * Signature: (JI)Z
+ * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_wl_www_FreezeDocument4__1IsInt
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _IsUint
- * Signature: (JI)Z
+ * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_wl_www_FreezeDocument4__1IsUint
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _IsDouble
- * Signature: (JI)Z
+ * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_wl_www_FreezeDocument4__1IsDouble
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _IsString
- * Signature: (JI)Z
+ * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_wl_www_FreezeDocument4__1IsString
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _IsArray
- * Signature: (JI)Z
+ * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_wl_www_FreezeDocument4__1IsArray
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _IsObject
- * Signature: (JI)Z
+ * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_wl_www_FreezeDocument4__1IsObject
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetType
- * Signature: (JI)C
+ * Signature: (JJ)C
  */
 JNIEXPORT jchar JNICALL Java_com_wl_www_FreezeDocument4__1GetType
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetInt
- * Signature: (JI)J
+ * Signature: (JJ)J
  */
 JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1GetInt
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetUint
- * Signature: (JI)J
+ * Signature: (JJ)J
  */
 JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1GetUint
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetDouble
- * Signature: (JI)D
+ * Signature: (JJ)D
  */
 JNIEXPORT jdouble JNICALL Java_com_wl_www_FreezeDocument4__1GetDouble
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetString
- * Signature: (JI)Ljava/lang/String;
+ * Signature: (JJ)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_wl_www_FreezeDocument4__1GetString
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetArraySpace
- * Signature: (JI)I
+ * Signature: (JJ)J
  */
-JNIEXPORT jint JNICALL Java_com_wl_www_FreezeDocument4__1GetArraySpace
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1GetArraySpace
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetArraySize
- * Signature: (JI)I
+ * Signature: (JJ)J
  */
-JNIEXPORT jint JNICALL Java_com_wl_www_FreezeDocument4__1GetArraySize
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1GetArraySize
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetArray
- * Signature: (JII)I
+ * Signature: (JJJ)J
  */
-JNIEXPORT jint JNICALL Java_com_wl_www_FreezeDocument4__1GetArray
-  (JNIEnv *, jobject, jlong, jint, jint);
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1GetArray
+  (JNIEnv *, jobject, jlong, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetObjectSpace
- * Signature: (JI)I
+ * Signature: (JJ)J
  */
-JNIEXPORT jint JNICALL Java_com_wl_www_FreezeDocument4__1GetObjectSpace
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1GetObjectSpace
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetObjectSize
- * Signature: (JI)I
+ * Signature: (JJ)J
  */
-JNIEXPORT jint JNICALL Java_com_wl_www_FreezeDocument4__1GetObjectSize
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1GetObjectSize
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetObjectKey
- * Signature: (JII)Ljava/lang/String;
+ * Signature: (JJJ)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_wl_www_FreezeDocument4__1GetObjectKey
-  (JNIEnv *, jobject, jlong, jint, jint);
+  (JNIEnv *, jobject, jlong, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _GetObject
- * Signature: (JII)I
+ * Signature: (JJJ)J
  */
-JNIEXPORT jint JNICALL Java_com_wl_www_FreezeDocument4__1GetObject
-  (JNIEnv *, jobject, jlong, jint, jint);
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1GetObject
+  (JNIEnv *, jobject, jlong, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _SearchObject
- * Signature: (JILjava/lang/String;)I
+ * Signature: (JJLjava/lang/String;)J
  */
-JNIEXPORT jint JNICALL Java_com_wl_www_FreezeDocument4__1SearchObject
-  (JNIEnv *, jobject, jlong, jint, jstring);
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1SearchObject
+  (JNIEnv *, jobject, jlong, jlong, jstring);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _Locate
- * Signature: (JILjava/lang/String;)I
+ * Signature: (JJLjava/lang/String;)J
  */
-JNIEXPORT jint JNICALL Java_com_wl_www_FreezeDocument4__1Locate
-  (JNIEnv *, jobject, jlong, jint, jstring);
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument4__1Locate
+  (JNIEnv *, jobject, jlong, jlong, jstring);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _Remove
- * Signature: (JI)V
+ * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_wl_www_FreezeDocument4__1Remove
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _SetNull
- * Signature: (JI)V
+ * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_wl_www_FreezeDocument4__1SetNull
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _SetFalse
- * Signature: (JI)V
+ * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_wl_www_FreezeDocument4__1SetFalse
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _SetTrue
- * Signature: (JI)V
+ * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_wl_www_FreezeDocument4__1SetTrue
-  (JNIEnv *, jobject, jlong, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _SetInt
- * Signature: (JIJ)V
+ * Signature: (JJJ)V
  */
 JNIEXPORT void JNICALL Java_com_wl_www_FreezeDocument4__1SetInt
-  (JNIEnv *, jobject, jlong, jint, jlong);
+  (JNIEnv *, jobject, jlong, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _SetUint
- * Signature: (JIJ)V
+ * Signature: (JJJ)V
  */
 JNIEXPORT void JNICALL Java_com_wl_www_FreezeDocument4__1SetUint
-  (JNIEnv *, jobject, jlong, jint, jlong);
+  (JNIEnv *, jobject, jlong, jlong, jlong);
 
 /*
  * Class:     com_wl_www_FreezeDocument4
  * Method:    _SetDouble
- * Signature: (JID)V
+ * Signature: (JJD)V
  */
 JNIEXPORT void JNICALL Java_com_wl_www_FreezeDocument4__1SetDouble
-  (JNIEnv *, jobject, jlong, jint, jdouble);
+  (JNIEnv *, jobject, jlong, jlong, jdouble);
 
 #ifdef __cplusplus
 }

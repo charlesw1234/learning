@@ -33,7 +33,7 @@ public class Test {
         System.out.printf("doc1(%s)\n", doc1.Render(0));
         recur_show("doc1:", doc1, 0);
     }
-    public static void recur_show(String indent, FreezeDocument4 doc, int pos)
+    public static void recur_show(String indent, FreezeDocument4 doc, long pos)
     {
         if (doc.IsRemoved(pos)) System.out.printf("%sremoved\n", indent);
         if (doc.IsNull(pos)) System.out.printf("%snull\n", indent);
@@ -45,12 +45,12 @@ public class Test {
         else if (doc.IsString(pos)) System.out.printf("%s%s\n", indent, doc.GetString(pos));
         else if (doc.IsArray(pos)) {
             System.out.printf("%s[\n", indent);
-            for (int idx = 0; idx < doc.GetArraySpace(pos); ++idx)
+            for (long idx = 0; idx < doc.GetArraySpace(pos); ++idx)
                 recur_show(indent + "    ", doc, doc.GetArray(pos, idx));
             System.out.printf("%s]\n", indent);
         } else if (doc.IsObject(pos)) {
             System.out.printf("%s{\n", indent);
-            for (int idx = 0; idx < doc.GetObjectSpace(pos); ++idx) {
+            for (long idx = 0; idx < doc.GetObjectSpace(pos); ++idx) {
                 System.out.printf("%s    \"%s\":\n", indent, doc.GetObjectKey(pos, idx));
                 recur_show(indent + "   ", doc, doc.GetObject(pos, idx));
             }

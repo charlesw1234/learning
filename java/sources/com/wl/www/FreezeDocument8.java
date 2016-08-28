@@ -10,98 +10,98 @@ public class FreezeDocument8 implements Serializable {
 
     private long self;
     private native long _Init(String docstr);
-    private native long _Init(FreezeDocument8 other, int pos);
+    private native long _Init(FreezeDocument8 other, long pos);
     private native void _Free(long self);
     private native void _writeObject(long self, ObjectOutputStream stream);
     private native long _readObject(ObjectInputStream stream);
-    private native int _BodySize(long self);
-    private native long _Unfreeze(long self, int pos, long allocator);
-    private native String _Render(long self, int pos);
+    private native long _BodySize(long self);
+    private native long _Unfreeze(long self, long pos, long allocator);
+    private native String _Render(long self, long pos);
 
     private void writeObject(ObjectOutputStream stream) throws IOException
     {   _writeObject(self, stream); }
     private void readObject(ObjectInputStream stream) throws IOException
     {   if (self != 0) _Free(self); self = _readObject(stream); }
 
-    private native boolean _IsRemoved(long self, int pos);
-    private native boolean _IsNull(long self, int pos);
-    private native boolean _IsFalse(long self, int pos);
-    private native boolean _IsTrue(long self, int pos);
-    private native boolean _IsInt(long self, int pos);
-    private native boolean _IsUint(long self, int pos);
-    private native boolean _IsDouble(long self, int pos);
-    private native boolean _IsString(long self, int pos);
-    private native boolean _IsArray(long self, int pos);
-    private native boolean _IsObject(long self, int pos);
+    private native boolean _IsRemoved(long self, long pos);
+    private native boolean _IsNull(long self, long pos);
+    private native boolean _IsFalse(long self, long pos);
+    private native boolean _IsTrue(long self, long pos);
+    private native boolean _IsInt(long self, long pos);
+    private native boolean _IsUint(long self, long pos);
+    private native boolean _IsDouble(long self, long pos);
+    private native boolean _IsString(long self, long pos);
+    private native boolean _IsArray(long self, long pos);
+    private native boolean _IsObject(long self, long pos);
 
-    private native char _GetType(long self, int pos);
-    private native long _GetInt(long self, int pos);
-    private native long _GetUint(long self, int pos);
-    private native double _GetDouble(long self, int pos);
-    private native String _GetString(long self, int pos);
-    private native int _GetArraySpace(long self, int pos);
-    private native int _GetArraySize(long self, int pos);
-    private native int _GetArray(long self, int pos, int idx);
-    private native int _GetObjectSpace(long self, int pos);
-    private native int _GetObjectSize(long self, int pos);
-    private native String _GetObjectKey(long self, int pos, int idx);
-    private native int _GetObject(long self, int pos, int idx);
-    private native int _SearchObject(long self, int pos, String key);
+    private native char _GetType(long self, long pos);
+    private native long _GetInt(long self, long pos);
+    private native long _GetUint(long self, long pos);
+    private native double _GetDouble(long self, long pos);
+    private native String _GetString(long self, long pos);
+    private native long _GetArraySpace(long self, long pos);
+    private native long _GetArraySize(long self, long pos);
+    private native long _GetArray(long self, long pos, long idx);
+    private native long _GetObjectSpace(long self, long pos);
+    private native long _GetObjectSize(long self, long pos);
+    private native String _GetObjectKey(long self, long pos, long idx);
+    private native long _GetObject(long self, long pos, long idx);
+    private native long _SearchObject(long self, long pos, String key);
 
-    private native int _Locate(long self, int pos, String path);
+    private native long _Locate(long self, long pos, String path);
 
-    private native void _Remove(long self, int pos);
-    private native void _SetNull(long self, int pos);
-    private native void _SetFalse(long self, int pos);
-    private native void _SetTrue(long self, int pos);
-    private native void _SetInt(long self, int pos, long value);
-    private native void _SetUint(long self, int pos, long value);
-    private native void _SetDouble(long self, int pos, double value);
+    private native void _Remove(long self, long pos);
+    private native void _SetNull(long self, long pos);
+    private native void _SetFalse(long self, long pos);
+    private native void _SetTrue(long self, long pos);
+    private native void _SetInt(long self, long pos, long value);
+    private native void _SetUint(long self, long pos, long value);
+    private native void _SetDouble(long self, long pos, double value);
 
     public FreezeDocument8(long self) { this.self = self; }
     public FreezeDocument8(String docstr) { self = _Init(docstr); }
-    public FreezeDocument8(FreezeDocument8 other, int pos) { self = _Init(other, pos); }
+    public FreezeDocument8(FreezeDocument8 other, long pos) { self = _Init(other, pos); }
     protected void finalize() { if (self != 0) _Free(self); }
     public boolean Ready() { return self != 0; }
-    public int BodySize() { return _BodySize(self); }
-    public RapidJson Unfreeze(int pos, RapidDocument doc)
-    {   return new RapidJson(_Unfreeze(self, pos, doc.GetAllocator()), doc); }
-    public String Render(int pos) { return _Render(self, pos); }
+    public long BodySize() { return _BodySize(self); }
+    public RapidDocument Unfreeze(long pos, RapidDocument doc)
+    {   return new RapidDocument(_Unfreeze(self, pos, doc.GetAllocator())); }
+    public String Render(long pos) { return _Render(self, pos); }
 
-    public boolean IsRemoved(int pos) { return _IsRemoved(self, pos); }
-    public boolean IsNull(int pos) { return _IsNull(self, pos); }
-    public boolean IsFalse(int pos) { return _IsFalse(self, pos); }
-    public boolean IsTrue(int pos) { return _IsTrue(self, pos); }
-    public boolean IsInt(int pos) { return _IsInt(self, pos); }
-    public boolean IsUint(int pos) { return _IsUint(self, pos); }
-    public boolean IsDouble(int pos) { return _IsDouble(self, pos); }
-    public boolean IsString(int pos) { return _IsString(self, pos); }
-    public boolean IsArray(int pos) { return _IsArray(self, pos); }
-    public boolean IsObject(int pos) { return _IsObject(self, pos); }
+    public boolean IsRemoved(long pos) { return _IsRemoved(self, pos); }
+    public boolean IsNull(long pos) { return _IsNull(self, pos); }
+    public boolean IsFalse(long pos) { return _IsFalse(self, pos); }
+    public boolean IsTrue(long pos) { return _IsTrue(self, pos); }
+    public boolean IsInt(long pos) { return _IsInt(self, pos); }
+    public boolean IsUint(long pos) { return _IsUint(self, pos); }
+    public boolean IsDouble(long pos) { return _IsDouble(self, pos); }
+    public boolean IsString(long pos) { return _IsString(self, pos); }
+    public boolean IsArray(long pos) { return _IsArray(self, pos); }
+    public boolean IsObject(long pos) { return _IsObject(self, pos); }
 
-    public char GetType(int pos) { return _GetType(self, pos); }
-    public long GetInt(int pos) { return _GetInt(self, pos); }
-    public long GetUint(int pos) { return _GetUint(self, pos); }
-    public double GetDouble(int pos) { return _GetDouble(self, pos); }
-    public String GetString(int pos) { return _GetString(self, pos); }
-    public int GetArraySpace(int pos) { return _GetArraySpace(self, pos); }
-    public int GetArraySize(int pos) { return _GetArraySize(self, pos); }
-    public int GetArray(int pos, int idx) { return _GetArray(self, pos, idx); }
-    public int GetObjectSpace(int pos) { return _GetObjectSpace(self, pos); }
-    public int GetObjectSize(int pos) { return _GetObjectSize(self, pos); }
-    public String GetObjectKey(int pos, int idx) { return _GetObjectKey(self, pos, idx); }
-    public int GetObject(int pos, int idx) { return _GetObject(self, pos, idx); }
-    public int SearchObject(int pos, String key) { return _SearchObject(self, pos, key); }
+    public char GetType(long pos) { return _GetType(self, pos); }
+    public long GetInt(long pos) { return _GetInt(self, pos); }
+    public long GetUint(long pos) { return _GetUint(self, pos); }
+    public double GetDouble(long pos) { return _GetDouble(self, pos); }
+    public String GetString(long pos) { return _GetString(self, pos); }
+    public long GetArraySpace(long pos) { return _GetArraySpace(self, pos); }
+    public long GetArraySize(long pos) { return _GetArraySize(self, pos); }
+    public long GetArray(long pos, long idx) { return _GetArray(self, pos, idx); }
+    public long GetObjectSpace(long pos) { return _GetObjectSpace(self, pos); }
+    public long GetObjectSize(long pos) { return _GetObjectSize(self, pos); }
+    public String GetObjectKey(long pos, long idx) { return _GetObjectKey(self, pos, idx); }
+    public long GetObject(long pos, long idx) { return _GetObject(self, pos, idx); }
+    public long SearchObject(long pos, String key) { return _SearchObject(self, pos, key); }
 
-    public int Locate(int pos, String path) { return _Locate(self, pos, path); }
+    public long Locate(long pos, String path) { return _Locate(self, pos, path); }
 
-    public void Remove(int pos) { _Remove(self, pos); }
-    public void SetNull(int pos) { _SetNull(self, pos); }
-    public void SetFalse(int pos) { _SetFalse(self, pos); }
-    public void SetTrue(int pos) { _SetTrue(self, pos); }
-    public void SetBoolean(int pos, boolean value)
+    public void Remove(long pos) { _Remove(self, pos); }
+    public void SetNull(long pos) { _SetNull(self, pos); }
+    public void SetFalse(long pos) { _SetFalse(self, pos); }
+    public void SetTrue(long pos) { _SetTrue(self, pos); }
+    public void SetBoolean(long pos, boolean value)
     {   if (value) _SetTrue(self, pos); else _SetFalse(self, pos); }
-    public void SetInt(int pos, long value) { _SetInt(self, pos, value); }
-    public void SetUint(int pos, long value) { _SetUint(self, pos, value); }
-    public void SetDouble(int pos, double value) { _SetDouble(self, pos, value); }
+    public void SetInt(long pos, long value) { _SetInt(self, pos, value); }
+    public void SetUint(long pos, long value) { _SetUint(self, pos, value); }
+    public void SetDouble(long pos, double value) { _SetDouble(self, pos, value); }
 }
