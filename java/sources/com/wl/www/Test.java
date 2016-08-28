@@ -58,6 +58,11 @@ public class Test {
         recur_showr("doc42:", doc42, doc42.GetRoot());
         System.out.printf("doc82(%s)\n", doc82.Render(doc82.GetRoot()));
         recur_showr("doc82:", doc82, doc82.GetRoot());
+
+        long pos_array = doc42.ObjectAddArray(doc42.GetRoot(), "modification");
+        doc42.ArrayAppend(pos_array, true);
+        doc42.ArrayAppend(pos_array, 32);
+        System.out.printf("doc42(%s)\n", doc42.Render(doc42.GetRoot()));
     }
     public static void recur_show4(String indent, FreezeDocument4 doc, long pos)
     {
