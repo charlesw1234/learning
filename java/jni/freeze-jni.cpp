@@ -3,6 +3,7 @@
 #include "com_wl_www_RapidDocument.h"
 #include "freeze.hpp"
 #include "freezerender.hpp"
+#include "rapidjson/writer.h"
 
 #define JNI4FUNC(RET, FUNC) extern "C" JNIEXPORT RET JNICALL    \
     Java_com_wl_www_FreezeDocument4__##FUNC
@@ -93,16 +94,14 @@ JNI4FUNC(jlong, 1BodySize)(JNIEnv *jenv, jobject jclazz, jlong jself)
 JNI8FUNC(jlong, 1BodySize)(JNIEnv *jenv, jobject jclazz, jlong jself)
 {   JSELF8(jself); return (jlong)self->BodySize(); }
 
-JNI4FUNC(jlong, 1Unfreeze)(JNIEnv *jenv, jobject jclazz,
-                           jlong jself, jlong jpos, jlong jallocator)
-{   JSELF4(jself); rapidjson::Value *value = new rapidjson::Value();
-    self->Unfreeze(*value, (uint32_t)jpos, *(fjson::Allocator *)jallocator);
-    return (jlong)value; }
-JNI8FUNC(jlong, 1Unfreeze)(JNIEnv *jenv, jobject jclazz,
-                           jlong jself, jlong jpos, jlong jallocator)
-{   JSELF8(jself); rapidjson::Value *value = new rapidjson::Value();
-    self->Unfreeze(*value, (uint32_t)jpos, *(fjson::Allocator *)jallocator);
-    return (jlong)value; }
+JNI4FUNC(jlong, 1Unfreeze)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
+{   JSELF4(jself); rapidjson::Document *doc = new rapidjson::Document();
+    self->Unfreeze(*doc, (uint32_t)jpos, doc->GetAllocator());
+    return (jlong)doc; }
+JNI8FUNC(jlong, 1Unfreeze)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
+{   JSELF8(jself); rapidjson::Document *doc = new rapidjson::Document();
+    self->Unfreeze(*doc, (uint32_t)jpos, doc->GetAllocator());
+    return (jlong)doc; }
 
 JNI4FUNC(jstring, 1Render)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
 {   fjson::Render4_t render((fjson::Document4_t *)jself, (uint32_t)jpos);
@@ -308,6 +307,11 @@ JNIRFUNC(jlong, 1Freeze4)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
 {   JPOSR(jpos); return (jlong)new fjson::Document4_t(pos); }
 JNIRFUNC(jlong, 1Freeze8)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
 {   JPOSR(jpos); return (jlong)new fjson::Document8_t(pos); }
+
+JNIRFUNC(jstring, 1Render)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
+{   JPOSR(jpos); rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    pos->Accept(writer); return jenv->NewStringUTF(buffer.GetString()); }
 
 JNIRFUNC(jboolean, 1IsNull)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
 {   JPOSR(jpos); return (jboolean)pos->IsNull(); }

@@ -15,7 +15,7 @@ public class FreezeDocument8 implements Serializable {
     private native void _writeObject(long self, ObjectOutputStream stream);
     private native long _readObject(ObjectInputStream stream);
     private native long _BodySize(long self);
-    private native long _Unfreeze(long self, long pos, long allocator);
+    private native long _Unfreeze(long self, long pos);
     private native String _Render(long self, long pos);
 
     private void writeObject(ObjectOutputStream stream) throws IOException
@@ -63,8 +63,8 @@ public class FreezeDocument8 implements Serializable {
     protected void finalize() { if (self != 0) _Free(self); }
     public boolean Ready() { return self != 0; }
     public long BodySize() { return _BodySize(self); }
-    public RapidDocument Unfreeze(long pos, RapidDocument doc)
-    {   return new RapidDocument(_Unfreeze(self, pos, doc.GetAllocator())); }
+    public RapidDocument Unfreeze(long pos)
+    {   return new RapidDocument(_Unfreeze(self, pos)); }
     public String Render(long pos) { return _Render(self, pos); }
 
     public boolean IsRemoved(long pos) { return _IsRemoved(self, pos); }
