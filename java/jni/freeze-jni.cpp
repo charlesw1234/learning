@@ -226,20 +226,20 @@ JNI8FUNC(jlong, 1GetObject)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpo
 {   JSELF8(jself); return (jlong)self->GetObject((uint32_t)jpos, (uint32_t)jidx); }
 
 template<class DOC_T>static inline jlong
-_SearchObject(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey)
+_ObjectSearch(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey)
 {
     DOC_T *self = (DOC_T *)jself;
     const char *key = jenv->GetStringUTFChars(jkey, 0);
-    uint32_t result = self->SearchObject((uint32_t)jpos, key);
+    uint32_t result = self->ObjectSearch((uint32_t)jpos, key);
     if (key) jenv->ReleaseStringUTFChars(jkey, key);
     return (jlong)result;
 }
-JNI4FUNC(jlong, 1SearchObject)
+JNI4FUNC(jlong, 1ObjectSearch)
     (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey)
-{   return _SearchObject<fjson::Document4_t>(jenv, jclazz, jself, jpos, jkey); }
-JNI8FUNC(jlong, 1SearchObject)
+{   return _ObjectSearch<fjson::Document4_t>(jenv, jclazz, jself, jpos, jkey); }
+JNI8FUNC(jlong, 1ObjectSearch)
     (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey)
-{   return _SearchObject<fjson::Document8_t>(jenv, jclazz, jself, jpos, jkey); }
+{   return _ObjectSearch<fjson::Document8_t>(jenv, jclazz, jself, jpos, jkey); }
 
 template<class DOC_T>static inline jlong
 _Locate(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jpath)
@@ -351,7 +351,7 @@ JNIRFUNC(jstring, 1GetObjectKey)(JNIEnv *jenv, jobject jclazz,
 JNIRFUNC(jlong, 1GetObject)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jlong jidx)
 {   JPOSR(jpos); rapidjson::Value::MemberIterator iter = pos->MemberBegin() + jidx;
     return (jlong)&iter->value; }
-JNIRFUNC(jlong, 1SearchObject)(JNIEnv *jenv, jobject jclazz,
+JNIRFUNC(jlong, 1ObjectSearch)(JNIEnv *jenv, jobject jclazz,
                                jlong jself, jlong jpos, jstring jkey)
 {   JPOSR(jpos);
     const char *key = jenv->GetStringUTFChars(jkey, 0);
@@ -360,18 +360,118 @@ JNIRFUNC(jlong, 1SearchObject)(JNIEnv *jenv, jobject jclazz,
     return subvalue; }
 
 JNIRFUNC(jlong, 1Locate)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jpath)
-{  JPOSR(jpos); /* FIXME. */ }
+{   JPOSR(jpos); /* FIXME. */ }
 
 JNIRFUNC(void, 1SetNull)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
-{  JPOSR(jpos); pos->SetNull(); }
+{   JPOSR(jpos); pos->SetNull(); }
 JNIRFUNC(void, 1SetFalse)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
-{  JPOSR(jpos); pos->SetBool(false); }
+{   JPOSR(jpos); pos->SetBool(false); }
 JNIRFUNC(void, 1SetTrue)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
-{  JPOSR(jpos); pos->SetBool(true); }
+{   JPOSR(jpos); pos->SetBool(true); }
 JNIRFUNC(void, 1SetInt)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jlong jvalue)
-{  JPOSR(jpos); pos->SetInt((int64_t)jvalue); }
+{   JPOSR(jpos); pos->SetInt((int64_t)jvalue); }
 JNIRFUNC(void, 1SetUint)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jlong jvalue)
-{  JPOSR(jpos); pos->SetUint((uint64_t)jvalue); }
+{   JPOSR(jpos); pos->SetUint((uint64_t)jvalue); }
 JNIRFUNC(void, 1SetDouble)(JNIEnv *jenv, jobject jclazz,
                            jlong jself, jlong jpos, jdouble jvalue)
-{  JPOSR(jpos); pos->SetDouble((double)jvalue); }
+{   JPOSR(jpos); pos->SetDouble((double)jvalue); }
+JNIRFUNC(void, 1SetString)(JNIEnv *jenv, jobject jclazz,
+                           jlong jself, jlong jpos, jstring jvalue)
+{   JSELFR(jself); JPOSR(jpos);
+    const char *value = jenv->GetStringUTFChars(jvalue, 0);
+    pos->SetString(value, self->GetAllocator());
+    if (value) jenv->ReleaseStringUTFChars(jvalue, value); }
+JNIRFUNC(void, 1SetArray)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
+{   JPOSR(jpos); pos->SetArray(); }
+JNIRFUNC(void, 1SetObject)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
+{   JPOSR(jpos); pos->SetObject(); }
+
+// Array operations.
+JNIRFUNC(void, 1ArrayClean)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
+{   JPOSR(jpos); pos->Clear(); }
+JNIRFUNC(jlong, 1ArrayAppendNull)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
+{   JSELFR(jself); JPOSR(jpos); rapidjson::Value value;
+    return (jlong)pos->PushBack(value, self->GetAllocator()).End(); }
+JNIRFUNC(jlong, 1ArrayAppend__JJZ)(JNIEnv *jenv, jobject jclazz,
+                                   jlong jself, jlong jpos, jboolean jvalue)
+{   JSELFR(jself); JPOSR(jpos);
+    return (jlong)pos->PushBack((bool)jvalue, self->GetAllocator()).End(); }
+JNIRFUNC(jlong, 1ArrayAppend__JJJ)(JNIEnv *jenv, jobject jclazz,
+                                   jlong jself, jlong jpos, jlong jvalue)
+{   JSELFR(jself); JPOSR(jpos);
+    return (jlong)pos->PushBack((long)jvalue, self->GetAllocator()).End(); }
+JNIRFUNC(jlong, 1ArrayAppend__JJD)(JNIEnv *jenv, jobject jclazz,
+                                   jlong jself, jlong jpos, jdouble jvalue)
+{   JSELFR(jself); JPOSR(jpos);
+    return (jlong)pos->PushBack((double)jvalue, self->GetAllocator()).End(); }
+JNIRFUNC(jlong, 1ArrayAppend__JJLjava_lang_String2)
+    (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jvalue)
+{   JSELFR(jself); JPOSR(jpos);
+    const char *cxxvalue = jenv->GetStringUTFChars(jvalue, 0);
+    rapidjson::Value value(cxxvalue, strlen(cxxvalue));
+    jlong subvalue = (jlong)pos->PushBack(value, self->GetAllocator()).End();
+    if (cxxvalue) jenv->ReleaseStringUTFChars(jvalue, cxxvalue);
+    return subvalue; }
+JNIRFUNC(jlong, 1ArrayAppendArray)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
+{   JSELFR(jself); JPOSR(jpos); rapidjson::Value value(rapidjson::kArrayType);
+    return (jlong)pos->PushBack(value, self->GetAllocator()).End(); }
+JNIRFUNC(jlong, 1ArrayAppendObject)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
+{   JSELFR(jself); JPOSR(jpos); rapidjson::Value value(rapidjson::kObjectType);
+    return (jlong)pos->PushBack(value, self->GetAllocator()).End(); }
+JNIRFUNC(jlong, 1ArrayRemove)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jlong jidx)
+{   JSELFR(jself); JPOSR(jpos); return (jlong)pos->Erase(pos->Begin() + jidx); }
+
+// Object operations.
+#define JKEYR0(JKEY)                                            \
+    const char *cxxkey = jenv->GetStringUTFChars((JKEY), 0);    \
+    rapidjson::Value key(cxxkey, strlen(cxxkey))
+#define JKEYR1(JKEY)                                            \
+    if (cxxkey) jenv->ReleaseStringUTFChars((JKEY), cxxkey)
+
+JNIRFUNC(void, 1ObjectClean)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
+{   JPOSR(jpos); pos->RemoveAllMembers(); }
+JNIRFUNC(jlong, 1ObjectAddNull)
+    (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey)
+{   JSELFR(jself); JPOSR(jpos); JKEYR0(jkey); rapidjson::Value value;
+    jlong subvalue = (jlong)&pos->AddMember(key, value, self->GetAllocator());
+    JKEYR1(jkey); return subvalue; }
+JNIRFUNC(jlong, 1ObjectAdd__JJLjava_lang_String2Z)
+    (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey, jboolean jvalue)
+{   JSELFR(jself); JPOSR(jpos); JKEYR0(jkey);
+    jlong subvalue = (jlong)&pos->AddMember(key, (bool)jvalue, self->GetAllocator());
+    JKEYR1(jkey); return subvalue; }
+JNIRFUNC(jlong, 1ObjectAdd__JJLjava_lang_String2J)
+    (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey, jlong jvalue)
+{   JSELFR(jself); JPOSR(jpos); JKEYR0(jkey);
+    jlong subvalue = (jlong)&pos->AddMember(key, (long)jvalue, self->GetAllocator());
+    JKEYR1(jkey); return subvalue; }
+JNIRFUNC(jlong, 1ObjectAdd__JJLjava_lang_String2D)
+    (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey, jdouble jvalue)
+{   JSELFR(jself); JPOSR(jpos); JKEYR0(jkey);
+    jlong subvalue = (jlong)&pos->AddMember(key, (double)jvalue, self->GetAllocator());
+    JKEYR1(jkey); return subvalue; }
+JNIRFUNC(jlong, 1ObjectAdd__JJLjava_lang_String2Ljava_lang_String2)
+    (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey, jstring jvalue)
+{   JSELFR(jself); JPOSR(jpos); JKEYR0(jkey);
+    const char *cxxvalue = jenv->GetStringUTFChars(jvalue, 0);
+    rapidjson::Value value(cxxvalue, strlen(cxxvalue));
+    jlong subvalue = (jlong)&pos->AddMember(key, value, self->GetAllocator());
+    if (cxxvalue) jenv->ReleaseStringUTFChars(jvalue, cxxvalue);
+    JKEYR1(jkey); return subvalue; }
+JNIRFUNC(jlong, 1ObjectAddArray)
+    (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey)
+{   JSELFR(jself); JPOSR(jpos); JKEYR0(jkey); rapidjson::Value value(rapidjson::kArrayType);
+    jlong subvalue = (jlong)&pos->AddMember(key, value, self->GetAllocator());
+    JKEYR1(jkey); return subvalue; }
+JNIRFUNC(jlong, 1ObjectAddObject)
+    (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey)
+{   JSELFR(jself); JPOSR(jpos); JKEYR0(jkey); rapidjson::Value value(rapidjson::kObjectType);
+    jlong subvalue = (jlong)&pos->AddMember(key, value, self->GetAllocator());
+    JKEYR1(jkey); return subvalue; }
+JNIRFUNC(jboolean, 1ObjectRemove)
+    (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey)
+{   JSELFR(jself); JPOSR(jpos);
+    const char *key = jenv->GetStringUTFChars(jkey, 0);
+    jboolean result = pos->RemoveMember(key);
+    if (key) jenv->ReleaseStringUTFChars(jkey, key);
+    return result; }

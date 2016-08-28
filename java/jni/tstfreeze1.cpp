@@ -44,7 +44,7 @@ int main(void)
            (unsigned)tstsub2b.BodySize());
 
     fjson::Document4_t tstfull0b(tstfull, 0);
-    pos = tstfull->SearchObject(0, "list");
+    pos = tstfull->ObjectSearch(0, "list");
     tstfull->Remove(pos);
     fjson::Document4_t tstfull1b(tstfull, 0);
     printf("cmp_f4f4(full0) = %s, cmp_f4f4(full1) = %s\n",

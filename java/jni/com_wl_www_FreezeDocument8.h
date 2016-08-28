@@ -153,14 +153,6 @@ JNIEXPORT jboolean JNICALL Java_com_wl_www_FreezeDocument8__1IsObject
 
 /*
  * Class:     com_wl_www_FreezeDocument8
- * Method:    _GetType
- * Signature: (JJ)C
- */
-JNIEXPORT jchar JNICALL Java_com_wl_www_FreezeDocument8__1GetType
-  (JNIEnv *, jobject, jlong, jlong);
-
-/*
- * Class:     com_wl_www_FreezeDocument8
  * Method:    _GetInt
  * Signature: (JJ)J
  */
@@ -249,10 +241,10 @@ JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument8__1GetObject
 
 /*
  * Class:     com_wl_www_FreezeDocument8
- * Method:    _SearchObject
+ * Method:    _ObjectSearch
  * Signature: (JJLjava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument8__1SearchObject
+JNIEXPORT jlong JNICALL Java_com_wl_www_FreezeDocument8__1ObjectSearch
   (JNIEnv *, jobject, jlong, jlong, jstring);
 
 /*

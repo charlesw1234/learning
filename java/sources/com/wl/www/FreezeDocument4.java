@@ -34,7 +34,6 @@ public class FreezeDocument4 implements Serializable {
     private native boolean _IsArray(long self, long pos);
     private native boolean _IsObject(long self, long pos);
 
-    private native char _GetType(long self, long pos);
     private native long _GetInt(long self, long pos);
     private native long _GetUint(long self, long pos);
     private native double _GetDouble(long self, long pos);
@@ -46,7 +45,7 @@ public class FreezeDocument4 implements Serializable {
     private native long _GetObjectSize(long self, long pos);
     private native String _GetObjectKey(long self, long pos, long idx);
     private native long _GetObject(long self, long pos, long idx);
-    private native long _SearchObject(long self, long pos, String key);
+    private native long _ObjectSearch(long self, long pos, String key);
 
     private native long _Locate(long self, long pos, String path);
 
@@ -79,7 +78,7 @@ public class FreezeDocument4 implements Serializable {
     public boolean IsArray(long pos) { return _IsArray(self, pos); }
     public boolean IsObject(long pos) { return _IsObject(self, pos); }
 
-    public char GetType(long pos) { return _GetType(self, pos); }
+    public long GetRoot() { return 0; }
     public long GetInt(long pos) { return _GetInt(self, pos); }
     public long GetUint(long pos) { return _GetUint(self, pos); }
     public double GetDouble(long pos) { return _GetDouble(self, pos); }
@@ -91,7 +90,8 @@ public class FreezeDocument4 implements Serializable {
     public long GetObjectSize(long pos) { return _GetObjectSize(self, pos); }
     public String GetObjectKey(long pos, long idx) { return _GetObjectKey(self, pos, idx); }
     public long GetObject(long pos, long idx) { return _GetObject(self, pos, idx); }
-    public long SearchObject(long pos, String key) { return _SearchObject(self, pos, key); }
+    public boolean Found(long pos) { return pos != 4294967295L; }
+    public long ObjectSearch(long pos, String key) { return _ObjectSearch(self, pos, key); }
 
     public long Locate(long pos, String path) { return _Locate(self, pos, path); }
 
@@ -104,4 +104,21 @@ public class FreezeDocument4 implements Serializable {
     public void SetInt(long pos, long value) { _SetInt(self, pos, value); }
     public void SetUint(long pos, long value) { _SetUint(self, pos, value); }
     public void SetDouble(long pos, double value) { _SetDouble(self, pos, value); }
+
+    public void ArrayClean(long pos)
+    {   for (long idx = 0; idx < GetArraySpace(pos); ++idx) {
+            long subpos = GetArray(pos, idx);
+            if (!IsRemoved(subpos)) Remove(subpos);
+        } }
+    public void ArrayRemove(long pos, long idx) { Remove(GetArray(pos, idx)); }
+
+    public void ObjectClean(long pos)
+    {   for (long idx = 0; idx < GetObjectSpace(pos); ++idx) {
+            long subpos = GetObject(pos, idx);
+            if (!IsRemoved(subpos)) Remove(subpos);
+        } }
+    public boolean ObjectRemove(long pos, String key)
+    {   long subpos = ObjectSearch(pos, key);
+        if (!Found(subpos)) return false;
+        Remove(subpos); return true; }
 }

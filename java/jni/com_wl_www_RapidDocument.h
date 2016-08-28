@@ -129,14 +129,6 @@ JNIEXPORT jboolean JNICALL Java_com_wl_www_RapidDocument__1IsObject
 
 /*
  * Class:     com_wl_www_RapidDocument
- * Method:    _GetType
- * Signature: (JJ)C
- */
-JNIEXPORT jchar JNICALL Java_com_wl_www_RapidDocument__1GetType
-  (JNIEnv *, jobject, jlong, jlong);
-
-/*
- * Class:     com_wl_www_RapidDocument
  * Method:    _GetInt
  * Signature: (JJ)J
  */
@@ -209,10 +201,10 @@ JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1GetObject
 
 /*
  * Class:     com_wl_www_RapidDocument
- * Method:    _SearchObject
+ * Method:    _ObjectSearch
  * Signature: (JJLjava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1SearchObject
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ObjectSearch
   (JNIEnv *, jobject, jlong, jlong, jstring);
 
 /*
@@ -222,14 +214,6 @@ JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1SearchObject
  */
 JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1Locate
   (JNIEnv *, jobject, jlong, jlong, jstring);
-
-/*
- * Class:     com_wl_www_RapidDocument
- * Method:    _Remove
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_com_wl_www_RapidDocument__1Remove
-  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_wl_www_RapidDocument
@@ -278,6 +262,174 @@ JNIEXPORT void JNICALL Java_com_wl_www_RapidDocument__1SetUint
  */
 JNIEXPORT void JNICALL Java_com_wl_www_RapidDocument__1SetDouble
   (JNIEnv *, jobject, jlong, jlong, jdouble);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _SetString
+ * Signature: (JJLjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_com_wl_www_RapidDocument__1SetString
+  (JNIEnv *, jobject, jlong, jlong, jstring);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _SetArray
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_wl_www_RapidDocument__1SetArray
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _SetObject
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_wl_www_RapidDocument__1SetObject
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ArrayClean
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_wl_www_RapidDocument__1ArrayClean
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ArrayAppendNull
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ArrayAppendNull
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ArrayAppend
+ * Signature: (JJZ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ArrayAppend__JJZ
+  (JNIEnv *, jobject, jlong, jlong, jboolean);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ArrayAppend
+ * Signature: (JJJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ArrayAppend__JJJ
+  (JNIEnv *, jobject, jlong, jlong, jlong);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ArrayAppend
+ * Signature: (JJD)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ArrayAppend__JJD
+  (JNIEnv *, jobject, jlong, jlong, jdouble);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ArrayAppend
+ * Signature: (JJLjava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ArrayAppend__JJLjava_lang_String_2
+  (JNIEnv *, jobject, jlong, jlong, jstring);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ArrayAppendArray
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ArrayAppendArray
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ArrayAppendObject
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ArrayAppendObject
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ArrayRemove
+ * Signature: (JJJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ArrayRemove
+  (JNIEnv *, jobject, jlong, jlong, jlong);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ObjectClean
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_wl_www_RapidDocument__1ObjectClean
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ObjectAddNull
+ * Signature: (JJLjava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ObjectAddNull
+  (JNIEnv *, jobject, jlong, jlong, jstring);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ObjectAdd
+ * Signature: (JJLjava/lang/String;Z)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ObjectAdd__JJLjava_lang_String_2Z
+  (JNIEnv *, jobject, jlong, jlong, jstring, jboolean);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ObjectAdd
+ * Signature: (JJLjava/lang/String;J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ObjectAdd__JJLjava_lang_String_2J
+  (JNIEnv *, jobject, jlong, jlong, jstring, jlong);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ObjectAdd
+ * Signature: (JJLjava/lang/String;D)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ObjectAdd__JJLjava_lang_String_2D
+  (JNIEnv *, jobject, jlong, jlong, jstring, jdouble);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ObjectAdd
+ * Signature: (JJLjava/lang/String;Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ObjectAdd__JJLjava_lang_String_2Ljava_lang_String_2
+  (JNIEnv *, jobject, jlong, jlong, jstring, jstring);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ObjectAddArray
+ * Signature: (JJLjava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ObjectAddArray
+  (JNIEnv *, jobject, jlong, jlong, jstring);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ObjectAddObject
+ * Signature: (JJLjava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_wl_www_RapidDocument__1ObjectAddObject
+  (JNIEnv *, jobject, jlong, jlong, jstring);
+
+/*
+ * Class:     com_wl_www_RapidDocument
+ * Method:    _ObjectRemove
+ * Signature: (JJLjava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_wl_www_RapidDocument__1ObjectRemove
+  (JNIEnv *, jobject, jlong, jlong, jstring);
 
 #ifdef __cplusplus
 }

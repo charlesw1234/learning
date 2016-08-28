@@ -91,7 +91,7 @@ namespace fjson {
         {   return values[values[pos].object.start + idx + idx].string.len; }
         inline uint32_t GetObject(uint32_t pos, uint32_t idx) const
         {   return values[pos].object.start + idx + idx + 1; }
-        uint32_t SearchObject(uint32_t pos, const char *key) const;
+        uint32_t ObjectSearch(uint32_t pos, const char *key) const;
 
         uint32_t Locate(uint32_t pos, const char *path) const;
 
@@ -391,7 +391,7 @@ namespace fjson {
         return size;
     }
     template<typename VALUE_T>uint32_t
-    Document_t<VALUE_T>::SearchObject(uint32_t pos, const char *key) const
+    Document_t<VALUE_T>::ObjectSearch(uint32_t pos, const char *key) const
     {
         int rc; const char *key1;
         uint32_t idx0 = 0, idx1 = 0, idx2 = values[pos].object.space;
@@ -419,7 +419,7 @@ namespace fjson {
                 pos = GetArray(pos, idx);
             } else {
                 if (!IsObject(pos)) return UINT32_MAX;
-                if ((pos = SearchObject(pos, cur)) == UINT32_MAX) return UINT32_MAX;
+                if ((pos = ObjectSearch(pos, cur)) == UINT32_MAX) return UINT32_MAX;
             }
         }
         return pos;
