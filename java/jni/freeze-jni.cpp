@@ -428,7 +428,7 @@ JNIRFUNC(jlong, 1ArrayRemove)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong j
 // Object operations.
 #define JKEYR0(JKEY)                                            \
     const char *cxxkey = jenv->GetStringUTFChars((JKEY), 0);    \
-    rapidjson::Value key(cxxkey, strlen(cxxkey))
+    rapidjson::Value key(cxxkey, strlen(cxxkey), self->GetAllocator())
 #define JKEYR1(JKEY)                                            \
     if (cxxkey) jenv->ReleaseStringUTFChars((JKEY), cxxkey)
 
