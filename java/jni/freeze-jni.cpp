@@ -364,7 +364,7 @@ JNIRFUNC(jlong, 1ObjectSearch)(JNIEnv *jenv, jobject jclazz,
     return subvalue; }
 
 JNIRFUNC(jlong, 1Locate)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jpath)
-{   JPOSR(jpos); /* FIXME. */ }
+{   /*JPOSR(jpos);*/ /* FIXME. */ }
 
 JNIRFUNC(void, 1SetNull)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
 {   JPOSR(jpos); pos->SetNull(); }
@@ -423,7 +423,7 @@ JNIRFUNC(jlong, 1ArrayAppendObject)(JNIEnv *jenv, jobject jclazz, jlong jself, j
 {   JSELFR(jself); JPOSR(jpos); rapidjson::Value value(rapidjson::kObjectType);
     return (jlong)pos->PushBack(value, self->GetAllocator()).End(); }
 JNIRFUNC(jlong, 1ArrayRemove)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jlong jidx)
-{   JSELFR(jself); JPOSR(jpos); return (jlong)pos->Erase(pos->Begin() + jidx); }
+{   /*JSELFR(jself);*/ JPOSR(jpos); return (jlong)pos->Erase(pos->Begin() + jidx); }
 
 // Object operations.
 #define JKEYR0(JKEY)                                            \
@@ -474,7 +474,7 @@ JNIRFUNC(jlong, 1ObjectAddObject)
     JKEYR1(jkey); return subvalue; }
 JNIRFUNC(jboolean, 1ObjectRemove)
     (JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos, jstring jkey)
-{   JSELFR(jself); JPOSR(jpos);
+{   /*JSELFR(jself);*/ JPOSR(jpos);
     const char *key = jenv->GetStringUTFChars(jkey, 0);
     jboolean result = pos->RemoveMember(key);
     if (key) jenv->ReleaseStringUTFChars(jkey, key);

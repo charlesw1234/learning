@@ -344,6 +344,7 @@ namespace fjson {
                                          uint32_t pos, Allocator &allocator) const
     {
         switch (GetType(pos)) {
+        case fjremoved: break;
         case fjnull: value.SetNull(); break;
         case fjfalse: value.SetBool(false); break;
         case fjtrue: value.SetBool(true); break;

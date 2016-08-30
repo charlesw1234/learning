@@ -57,13 +57,13 @@ namespace fjson {
             _put_string(value, step);
             value += step;
             switch (*value) {
-            case '"': _put_string("\\\"", 2); break;
-            case '\\': _put_string("\\\\", 2); break;
-            case '\b': _put_string("\\b", 2); break;
-            case '\f': _put_string("\\f", 2); break;
-            case '\r': _put_string("\\r", 2); break;
-            case '\n': _put_string("\\n", 2); break;
-            case '\t': _put_string("\\t", 2); break;
+            case '"': _put_string("\\\"", 2); ++value; break;
+            case '\\': _put_string("\\\\", 2); ++value; break;
+            case '\b': _put_string("\\b", 2); ++value; break;
+            case '\f': _put_string("\\f", 2); ++value; break;
+            case '\r': _put_string("\\r", 2); ++value; break;
+            case '\n': _put_string("\\n", 2); ++value; break;
+            case '\t': _put_string("\\t", 2); ++value; break;
             }
         }
         _put_char('"');
