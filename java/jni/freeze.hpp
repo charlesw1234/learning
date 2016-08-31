@@ -542,19 +542,29 @@ namespace fjson {
     template<typename VALUE_T>uint32_t
     Document_t<VALUE_T>::Locate(uint32_t pos, const char *path) const
     {
-        char *cur, *next, *_path = strdupa(path);
+        char *cur, *next, *_path = strdup(path);
         for (cur = _path; cur != NULL; cur = next) {
             if ((next = strchr(cur, '.')) != NULL) *next++ = 0;
             if (strlen(cur) == strspn(cur, "0123456789")) {
-                if (!IsArray(pos)) return UINT32_MAX;
+                if (!IsArray(pos)) {
+                    pos = UINT32_MAX; goto quit0;
+                }
                 uint32_t idx = atol(cur);
-                if (idx >= GetArraySpace(pos)) return UINT32_MAX;
+                if (idx >= GetArraySpace(pos)) {
+                    pos = UINT32_MAX; goto quit0;
+                }
                 pos = GetArray(pos, idx);
             } else {
-                if (!IsObject(pos)) return UINT32_MAX;
-                if ((pos = ObjectSearch(pos, cur)) == UINT32_MAX) return UINT32_MAX;
+                if (!IsObject(pos)) {
+                    pos = UINT32_MAX; goto quit0;
+                }
+                if ((pos = ObjectSearch(pos, cur)) == UINT32_MAX) {
+                    pos = UINT32_MAX; goto quit0;
+                }
             }
         }
+    quit0:
+        free(_path);
         return pos;
     }
 
