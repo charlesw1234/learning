@@ -27,10 +27,27 @@ typedef struct { PyObject_HEAD; fjson::Document8_t *freeze; } PyFreeze8_t;
 PY_DECL_TEMP static int
 PyFreeze_Init(PyObject_t *self, PyObject_t *args, PyObject_t *kwargs)
 {
+    PyObject_t *pydoc; unsigned pos;
     PyFreeze_t *pyself = (PyFreeze_t *)self;
-    if (!PyArg_ParseTuple(args, "")) return -1;
-    // FIXME: convert python data to freezedoc.
-    pyself->freeze = NULL;
+    if (PyTuple_Size(args) == 1 && PyBytes_Check(PyTuple_GetItem(args, 0))) {
+        char *pybody; Py_ssize_t size;
+        PyBytes_AsStringAndSize(PyTuple_GetItem(args, 0), &pybody, &size);
+        uint8_t *body = (uint8_t *)malloc(size);
+        memcpy(body, pybody, size);
+        pyself->freeze = new DOC_T(body, (uint32_t)size);
+    } else if (PyTuple_Size(args) == 1) {
+        pyself->freeze = new DOC_T(PyTuple_GetItem(args, 0));
+    } else if (PyArg_ParseTuple(args, "OI", &pydoc, &pos)) {
+        if (!PyObject_IsInstance(pydoc, (PyObject_t *)pyself->ob_base.ob_type)) {
+            PyErr_Format(PyExc_TypeError, "Must be same type.");
+            return -1;
+        }
+        pyself->freeze = new DOC_T(((PyFreeze_t *)pydoc)->freeze, pos);
+    } else {
+        pyself->freeze = NULL;
+        PyErr_Format(PyExc_ValueError, "Unsupport constructor.");
+        return -1;
+    }
     return 0;
 }
 PY_DECL_TEMP static void
@@ -81,9 +98,9 @@ PY_DECL_FREEZE_NOARGS(PyFreeze_Body);
 
 PY_PROTOTYPE_VARARGS(Unfreeze)
 {
-    //PyFreeze_t *pyself = (PyFreeze_t *)self;
-    // FIXME.
-    return NULL;
+    unsigned pos; PyFreeze_t *pyself = (PyFreeze_t *)self;
+    if (!PyArg_ParseTuple(args, "I", &pos)) return NULL;
+    return pyself->freeze->PythonUnfreeze(pos);
 }
 PY_DECL_FREEZE_VARARGS(PyFreeze_Unfreeze);
 

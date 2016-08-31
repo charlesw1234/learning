@@ -133,7 +133,7 @@ namespace fjson {
             case fjuint: return PyLong_FromUnsignedLongLong(doc->GetUint(pos));
             case fjdouble: return PyFloat_FromDouble(doc->GetDouble(pos));
             case fjstring: return PyUnicode_DecodeUTF8(doc->GetString(pos),
-                                                       doc->GetStringLen(pos));
+                                                       doc->GetStringLen(pos), "");
             case fjarray: {
                 Py_ssize_t pyidx = 0;
                 PyObject_t *result = PyList_New(doc->GetArraySize(pos));

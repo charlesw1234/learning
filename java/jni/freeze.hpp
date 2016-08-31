@@ -24,7 +24,6 @@ namespace fjson {
         struct { uint16_t start, space; } object;
     };
 
-    typedef rapidjson::Document::AllocatorType Allocator;
     template<typename VALUE_T>
     class Document_t {
     private:
@@ -34,7 +33,6 @@ namespace fjson {
         VALUE_T *values;
         char *strings;
         void _setup(void);
-        void _recur_unfreeze(rapidjson::Value &value, uint32_t pos, Allocator &allocator) const;
     public:
         Document_t(const rapidjson::Value *root);
         Document_t(const Document_t<VALUE_T> *doc, uint32_t docpos);
