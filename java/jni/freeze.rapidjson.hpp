@@ -86,4 +86,47 @@ namespace fjson {
             }
         }
     };
+    template<typename VALUE_T>class RapidJsonUnfreeze_t {
+        const Document_t<VALUE_T> *doc;
+    public:
+        rapidjson::Document *document;
+        RapidJsonUnfreeze_t(const Document_t<VALUE_T> *doc): doc(doc)
+        {   document = new rapidjson::Document(); }
+        void recur_unfreeze(rapidjson::Value &value, uint32_t pos)
+        {
+            switch (doc->GetType(pos)) {
+            case fjremoved: break;
+            case fjnull: value.SetNull(); break;
+            case fjfalse: value.SetBool(false); break;
+            case fjtrue: value.SetBool(true); break;
+            case fjint: value.SetInt64(doc->GetInt(pos)); break;
+            case fjuint: value.SetUint64(doc->GetUint(pos)); break;
+            case fjdouble: value.SetDouble(doc->GetDouble(pos)); break;
+            case fjstring:
+                value.SetString(doc->GetString(pos), document->GetAllocator()); break;
+            case fjarray:
+                value.SetArray();
+                for (uint32_t idx = 0; idx < doc->GetArraySpace(pos); ++idx) {
+                    uint32_t subpos = doc->GetArray(pos, idx);
+                    if (doc->IsRemoved(subpos)) continue;
+                    rapidjson::Value subvalue;
+                    recur_unfreeze(subvalue, subpos);
+                    value.PushBack(subvalue, document->GetAllocator());
+                }
+                break;
+            case fjobject:
+                value.SetObject();
+                for (uint32_t idx = 0; idx < doc->GetObjectSpace(pos); ++idx) {
+                    uint32_t subpos = doc->GetObject(pos, idx);
+                    if (doc->IsRemoved(subpos)) continue;
+                    rapidjson::Value subvalue;
+                    rapidjson::Value keyvalue(doc->GetObjectKey(pos, idx),
+                                              document->GetAllocator());
+                    recur_unfreeze(subvalue, subpos);
+                    value.AddMember(keyvalue, subvalue, document->GetAllocator());
+                }
+                break;
+            }
+        }
+    };
 }

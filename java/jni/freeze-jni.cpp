@@ -95,13 +95,9 @@ JNI8FUNC(jlong, 1BodySize)(JNIEnv *jenv, jobject jclazz, jlong jself)
 {   JSELF8(jself); return (jlong)self->BodySize(); }
 
 JNI4FUNC(jlong, 1Unfreeze)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
-{   JSELF4(jself); rapidjson::Document *doc = new rapidjson::Document();
-    self->Unfreeze(*doc, (uint32_t)jpos, doc->GetAllocator());
-    return (jlong)doc; }
+{   JSELF4(jself); return (jlong)self->RapidJsonUnfreeze((uint32_t)jpos); }
 JNI8FUNC(jlong, 1Unfreeze)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
-{   JSELF8(jself); rapidjson::Document *doc = new rapidjson::Document();
-    self->Unfreeze(*doc, (uint32_t)jpos, doc->GetAllocator());
-    return (jlong)doc; }
+{   JSELF8(jself); return (jlong)self->RapidJsonUnfreeze((uint32_t)jpos); }
 
 JNI4FUNC(jstring, 1Render)(JNIEnv *jenv, jobject jclazz, jlong jself, jlong jpos)
 {   fjson::Render4_t render((fjson::Document4_t *)jself, (uint32_t)jpos);

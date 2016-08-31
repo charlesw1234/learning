@@ -52,8 +52,10 @@ namespace fjson {
             return size + nnodes * sizeof(VALUE_T) + szstrings; }
         inline const uint8_t *Body(void) const { return body; }
 
-        inline void Unfreeze(rapidjson::Value &value, uint32_t pos, Allocator &allocator) const
-        {   _recur_unfreeze(value, pos, allocator); }
+        rapidjson::Document *RapidJsonUnfreeze(uint32_t pos) const;
+#ifdef WITH_PYTHON
+        PyObject_t *PythonUnfreeze(uint32_t pos) const;
+#endif
 
         inline bool IsRemoved(uint32_t pos) const { return types[pos] == fjremoved; }
         inline bool IsNull(uint32_t pos) const { return types[pos] == fjnull; }
@@ -113,42 +115,6 @@ namespace fjson {
         values = (VALUE_T *)cur; cur += nnodes * sizeof(VALUE_T);
         strings = (char *)cur;
     }
-    template<typename VALUE_T>void
-    Document_t<VALUE_T>::_recur_unfreeze(rapidjson::Value &value,
-                                         uint32_t pos, Allocator &allocator) const
-    {
-        switch (GetType(pos)) {
-        case fjremoved: break;
-        case fjnull: value.SetNull(); break;
-        case fjfalse: value.SetBool(false); break;
-        case fjtrue: value.SetBool(true); break;
-        case fjint: value.SetInt64(GetInt(pos)); break;
-        case fjuint: value.SetUint64(GetUint(pos)); break;
-        case fjdouble: value.SetDouble(GetDouble(pos)); break;
-        case fjstring: value.SetString(GetString(pos), allocator); break;
-        case fjarray:
-            value.SetArray();
-            for (uint32_t idx = 0; idx < GetArraySize(pos); ++idx) {
-                uint32_t subpos = GetArray(pos, idx);
-                if (IsRemoved(subpos)) continue;
-                rapidjson::Value subvalue;
-                _recur_unfreeze(subvalue, subpos, allocator);
-                value.PushBack(subvalue, allocator);
-            }
-            break;
-        case fjobject:
-            value.SetObject();
-            for (uint32_t idx = 0; idx < GetObjectSpace(pos); ++idx) {
-                uint32_t subpos = GetObject(pos, idx);
-                if (IsRemoved(subpos)) continue;
-                rapidjson::Value subvalue, keyvalue(GetObjectKey(pos, idx), allocator);
-                _recur_unfreeze(subvalue, subpos, allocator);
-                value.AddMember(keyvalue, subvalue, allocator);
-            }
-            break;
-        }
-    }
-
     template<typename VALUE_T>uint32_t
     Document_t<VALUE_T>::GetArraySize(uint32_t pos) const
     {
@@ -282,6 +248,14 @@ namespace fjson {
         RapidJsonFill_t<VALUE_T> fillobj(types, values, strings);
         fillobj.recur_fill(root, 0);
     }
+    template<typename VALUE_T>rapidjson::Document *
+    Document_t<VALUE_T>::RapidJsonUnfreeze(uint32_t pos) const
+    {
+        RapidJsonUnfreeze_t<VALUE_T> unfreezeobj(this);
+        unfreezeobj.recur_unfreeze(*unfreezeobj.document, pos);
+        return unfreezeobj.document;
+    }
+
     template<typename VALUE_T>
     Document_t<VALUE_T>::Document_t(const Document_t<VALUE_T> *doc, uint32_t pos)
     {
@@ -300,6 +274,7 @@ namespace fjson {
             fillobj.recur_fill(doc, pos, 0);
         }
     }
+
 #ifdef WITH_PYTHON
     template<typename VALUE_T>
     Document_t<VALUE_T>::Document_t(PyObject_t *doc)
@@ -315,6 +290,12 @@ namespace fjson {
         *(uint32_t *)body = nnodes; _setup();
         PythonFill_t<VALUE_T> fillobj(types, values, strings);
         fillobj.recur_fill(doc, 0);
+    }
+    template<typename VALUE_T> PyObject_t *
+    Document_t<VALUE_T>::PythonUnfreeze(uint32_t pos) const
+    {
+        PythonUnfreeze_t<VALUE_T> unfreezeobj(this);
+        return unfreezeobj.recur_unfreeze(pos);
     }
 #endif
 

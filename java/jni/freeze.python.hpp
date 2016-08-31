@@ -118,4 +118,42 @@ namespace fjson {
             }
         }
     };
+    template<typename VALUE_T>class PythonUnfreeze_t {
+        const Document_t<VALUE_T> *doc;
+    public:
+        PythonUnfreeze_t(const Document_t<VALUE_T> *doc): doc(doc) {}
+        PyObject_t *recur_unfreeze(uint32_t pos)
+        {
+            switch (doc->GetType(pos)) {
+            case fjremoved: break;
+            case fjnull: Py_INCREF(Py_None); return Py_None;
+            case fjfalse: Py_INCREF(Py_False); return Py_False;
+            case fjtrue: Py_INCREF(Py_True); return Py_True;
+            case fjint: return PyLong_FromLongLong(doc->GetInt(pos));
+            case fjuint: return PyLong_FromUnsignedLongLong(doc->GetUint(pos));
+            case fjdouble: return PyFloat_FromDouble(doc->GetDouble(pos));
+            case fjstring: return PyUnicode_DecodeUTF8(doc->GetString(pos),
+                                                       doc->GetStringLen(pos));
+            case fjarray: {
+                Py_ssize_t pyidx = 0;
+                PyObject_t *result = PyList_New(doc->GetArraySize(pos));
+                for (uint32_t idx = 0; idx < doc->GetArraySpace(pos); ++idx) {
+                    uint32_t subpos = doc->GetArray(pos, idx);
+                    if (doc->IsRemoved(subpos)) continue;
+                    PyList_SetItem(result, pyidx++, recur_unfreeze(subpos));
+                }
+                return result; }
+            case fjobject: {
+                PyObject_t *result = PyDict_New();
+                for (uint32_t idx = 0; idx < doc->GetObjectSpace(pos); ++idx) {
+                    uint32_t subpos = doc->GetObject(pos, idx);
+                    if (doc->IsRemoved(subpos)) continue;
+                    const char *key = doc->GetObjectKey(pos, idx);
+                    PyDict_SetItemString(result, key, recur_unfreeze(subpos));
+                }
+                return result; }
+            }
+            return NULL;
+        }
+    };
 }
