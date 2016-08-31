@@ -84,7 +84,7 @@ namespace fjson {
                 types[curpos] = fjarray;
                 uint32_t subpos = values[curpos].array.start = curused;
                 curused += values[curpos].array.space = PyList_Size(cur);
-                for (Py_ssize_t idx = 0; idx < PyTuple_Size(cur); ++idx)
+                for (Py_ssize_t idx = 0; idx < PyList_Size(cur); ++idx)
                     recur_fill(PyList_GetItem(cur, idx), subpos++);
             } else if (PyDict_Check(cur)) {
                 types[curpos] = fjobject;
