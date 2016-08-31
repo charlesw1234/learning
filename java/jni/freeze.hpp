@@ -40,11 +40,19 @@ namespace fjson {
         void _recur_count1(const Document_t<VALUE_T> *doc, uint32_t pos);
         void _recur_fill1(const Document_t<VALUE_T> *doc, uint32_t docpos,
                           uint32_t curpos, uint32_t *curused, uint32_t *curoffset);
+#ifdef WITH_PYTHON
+        void _recur_count2(const PyObject_t *cur);
+        void _recur_fill2(const PyObject_t *cur, uint32_t curpos,
+                          uint32_t *curused, uint32_t *curoffset);
+#endif
         void _sort_object(uint32_t start, int64_t iidx, int64_t jidx);
         void _recur_unfreeze(rapidjson::Value &value, uint32_t pos, Allocator &allocator) const;
     public:
         Document_t(const rapidjson::Value *root);
         Document_t(const Document_t<VALUE_T> *doc, uint32_t docpos);
+#ifdef WITH_PYTHON
+        Document_t(const PyObject_t *doc);
+#endif
         inline Document_t(uint8_t *body, uint32_t body_size)
         {   this->body = body; nnodes = *(uint32_t *)body; _setup();
             szstrings = body + body_size - (uint8_t *)strings; }
@@ -139,6 +147,22 @@ namespace fjson {
             _recur_fill1(doc, pos, 0, &curused, &curoffset);
         }
     }
+#ifdef WITH_PYTHON
+    template<typename VALUE_T>
+    Document_t<VALUE_T>::Document_t(const PyObject_t *doc)
+    {
+        nnodes = szstrings = 0;
+        _recur_count2(doc);
+        uint32_t total_size = sizeof(uint32_t) + nnodes;
+        if (total_size % 8 > 0) total_size += 8 - total_size % 8;
+        total_size += nnodes * sizeof(VALUE_T) + szstrings;
+        body = (uint8_t *)malloc(total_size);
+        if (body == NULL) return;
+        *(uint32_t *)body = nnodes; _setup();
+        uint32_t curused = 1, curoffset = 0;
+        _recur_fill2(doc, 0, &curused, &curoffset);
+    }
+#endif
     template<typename VALUE_T>void
     Document_t<VALUE_T>::_setup(void)
     {
@@ -297,6 +321,114 @@ namespace fjson {
             }
         }
     }
+#ifdef WITH_PYTHON
+    template<typename VALUE_T>void
+    Document_t<VALUE_T>::_recur_count2(const PyObject_t *cur)
+    {
+        ++nnodes;
+        if (PyBytes_Check(cur)) {
+            szstrings += PyBytes_Size(cur);
+        } else if (PyUnicode_Check(cur)) {
+            Py_ssize_t len;
+            PyUnicode_AsUTF8AndSize(cur, &len);
+            szstrings += len + 1;
+        } else if (PyTuple_Check(cur)) {
+            for (Py_ssize_t idx = 0; idx < PyTuple_Size(cur); ++idx)
+                _recur_count2(PyTuple_GetItem(cur, idx));
+        } else if (PyList_Check(cur)) {
+            for (Py_ssize_t idx = 0; idx < PyList_Size(cur); ++idx)
+                _recur_count2(PyList_GetItem(cur, idx));
+        } else if (PyDict_Check(cur)) {
+            nnodes += PyDict_Size(cur);
+            PyObject_t *pykey, *pyvalue; Py_ssize_t pos = 0;
+            while (PyDict_Next(cur, &pos, &pykey, &pyvalue)) {
+                if (PyBytes_Check(pykey)) {
+                    szstrings += PyBytes_Size(pykey);
+                } else if (PyUnicode_Check(pykey)) {
+                    Py_ssize_t sz;
+                    PyUnicode_AsUTF8AndSize(pykey, &sz);
+                    szstrings += sz;
+                }
+                _recur_count2(pyvalue);
+            }
+        }
+    }
+    template<typename VALUE_T>void
+    Document_t<VALUE_T>::_recur_fill2(const PyObject_t *cur, uint32_t curpos,
+                                      uint32_t *curused, uint32_t *curoffset)
+    {
+        if (cur == Py_None) {
+            types[curpos] = fjnull; values[curpos].uint_v = 0;
+        } else if (cur == Py_False) {
+            types[curpos] = fjfalse; values[curpos].uint_v = 0;
+        } else if (cur == Py_True) {
+            types[curpos] = fjtrue; values[curpos].uint_v = 0;
+        } else if (PyLong_Check(cur)) {
+            int overflow;
+            types[curpos] = fjint;
+            values[curpos].int_v = (int64_t)PyLong_AsLongLongAndOverflow(cur, &overflow);
+            if (overflow != 0) {
+                types[curpos] = fjuint;
+                values[curpos].uint_v = (uint64_t)PyLong_AsUnsignedLongLong(cur);
+            }
+        } else if (PyFloat_Check(cur)) {
+            types[curpos] = fjdouble; values[curpos].double_v = PyFloat_AsDouble(cur);
+        } else if (PyBytes_Check(cur)) {
+            uint32_t sz = (uint32_t)PyBytes_Size(cur);
+            types[curpos] = fjstring;
+            values[curpos].string.offset = *curoffset;
+            values[curpos].string.len = sz;
+            memcpy(strings + *curoffset, PyBytes_AsString(cur), sz);
+            *curoffset += sz;
+        } else if (PyUnicode_Check(cur)) {
+            Py_ssize_t len; const char *body = PyUnicode_AsUTF8AndSize(cur, &len);
+            types[curpos] = fjstring;
+            values[curpos].string.offset = *curoffset;
+            values[curpos].string.len = (uint32_t)len;
+            strcpy(strings + *curoffset, body);
+            *curoffset += len + 1;
+        } else if (PyTuple_Check(cur)) {
+            types[curpos] = fjarray;
+            uint32_t subpos = values[curpos].array.start = *curused;
+            *curused += values[curpos].array.space = PyTuple_Size(cur);
+            for (Py_ssize_t idx = 0; idx < PyTuple_Size(cur); ++idx)
+                _recur_fill2(PyTuple_GetItem(cur, idx), subpos++, curused, curoffset);
+        } else if (PyList_Check(cur)) {
+            types[curpos] = fjarray;
+            uint32_t subpos = values[curpos].array.start = *curused;
+            *curused += values[curpos].array.space = PyList_Size(cur);
+            for (Py_ssize_t idx = 0; idx < PyTuple_Size(cur); ++idx)
+                _recur_fill2(PyList_GetItem(cur, idx), subpos++, curused, curoffset);
+        } else if (PyDict_Check(cur)) {
+            types[curpos] = fjobject;
+            uint32_t subpos = values[curpos].object.start = *curused;
+            values[curpos].object.space = PyDict_Size(cur);
+            *curused += values[curpos].object.space + values[curpos].object.space;
+            PyObject_t *pykey, *pyvalue; Py_ssize_t pos = 0;
+            while (PyDict_Next(cur, &pos, &pykey, &pyvalue)) {
+                if (PyBytes_Check(pykey)) {
+                    uint32_t sz = (uint32_t)PyBytes_Size(cur);
+                    types[subpos] = fjstring;
+                    values[subpos].string.offset = *curoffset;
+                    values[subpos++].string.len = sz;
+                    memcpy(strings + *curoffset, PyBytes_AsString(cur), sz);
+                    *curoffset += sz;
+                } else if (PyUnicode_Check(pykey)) {
+                    Py_ssize_t len; const char *key = PyUnicode_AsUTF8AndSize(pykey, &len);
+                    types[subpos] = fjstring;
+                    values[subpos].string.offset = *curoffset;
+                    values[subpos++].string.len = (uint32_t)len;
+                    strcpy(strings + *curoffset, key);
+                    *curoffset += len + 1;
+                }
+                _recur_fill2(pyvalue, subpos++, curused, curoffset);
+            }
+            if (values[curpos].object.space > 1)
+                _sort_object(values[curpos].object.start, 0,
+                             (int64_t)(values[curpos].object.space - 1));
+        }
+    }
+#endif
     template<typename VALUE_T>void
     Document_t<VALUE_T>::_sort_object(uint32_t start, int64_t iidx, int64_t jidx)
     {

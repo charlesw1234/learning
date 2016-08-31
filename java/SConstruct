@@ -17,3 +17,9 @@ env.Program(os.path.join('jni', 'tstfreeze0'), [os.path.join('jni', 'tstfreeze0.
 env.Program(os.path.join('jni', 'tstfreeze1'), [os.path.join('jni', 'tstfreeze1.cpp')])
 env.Program(os.path.join('jni', 'tstfreeze2'), [os.path.join('jni', 'tstfreeze2.cpp')])
 #env.Program(os.path.join('jni', 'tstfreeze3'), [os.path.join('jni', 'tstfreeze3.cpp')])
+
+pyenv = env.Clone()
+pyenv['SHLIBPREFIX'] = ''
+pyenv.ParseConfig('/data/python-3.5.2/bin/python3-config --cflags --ldflags')
+pyenv['CCFLAGS'].remove('-Wstrict-prototypes')
+pyenv.SharedLibrary(os.path.join('jni', '_freeze'), [os.path.join('jni', 'pyfreeze.cpp')])
