@@ -8,6 +8,7 @@ namespace fjson {
     enum type_t { fjremoved, fjnull, fjfalse, fjtrue, fjint, fjuint, fjdouble,
                   fjstring, fjarray, fjobject };
     union value8_t {
+        inline const uint32_t magic(void) const { return 0x464A0008; }
         int64_t int_v;
         uint64_t uint_v;
         double double_v;
@@ -16,6 +17,7 @@ namespace fjson {
         struct { uint32_t start, space; } object;
     };
     union value4_t {
+        inline const uint32_t magic(void) const { return 0x464A0004; }
         int32_t int_v;
         uint32_t uint_v;
         float double_v;
@@ -24,10 +26,17 @@ namespace fjson {
         struct { uint16_t start, space; } object;
     };
 
-    template<typename VALUE_T>
-    class Document_t {
+    struct header_t {
+        uint32_t magic;
+        uint32_t nnodes;
+
+        inline void setup(uint32_t magic, uint32_t nnodes)
+        {   this->magic = magic; this->nnodes = nnodes; }
+    };
+
+    template<typename VALUE_T>class Document_t {
     private:
-        uint8_t *body;
+        header_t *body;
         uint32_t nnodes, szstrings;
         uint8_t *types;
         VALUE_T *values;
@@ -40,15 +49,15 @@ namespace fjson {
         Document_t(PyObject_t *doc);
 #endif
         inline Document_t(uint8_t *body, uint32_t body_size)
-        {   this->body = body; nnodes = *(uint32_t *)body; _setup();
-            szstrings = body + body_size - (uint8_t *)strings; }
+        {   this->body = (header_t *)body; nnodes = this->body->nnodes; _setup();
+            szstrings = ((uint8_t *)body) + body_size - (uint8_t *)strings; }
         inline ~Document_t() { if (body) free(body); }
 
         inline uint32_t BodySize(void) const
-        {   size_t size = sizeof(uint32_t) + nnodes;
+        {   size_t size = sizeof(header_t) + nnodes;
             if (size % 8 > 0) size += 8 - size % 8;
             return size + nnodes * sizeof(VALUE_T) + szstrings; }
-        inline const uint8_t *Body(void) const { return body; }
+        inline const uint8_t *Body(void) const { return (uint8_t *)body; }
 
         rapidjson::Document *RapidJsonUnfreeze(uint32_t pos) const;
 #ifdef WITH_PYTHON
@@ -107,9 +116,9 @@ namespace fjson {
     template<typename VALUE_T>void
     Document_t<VALUE_T>::_setup(void)
     {
-        uint8_t *cur = body + sizeof(uint32_t);
+        uint8_t *cur = ((uint8_t *)body) + sizeof(header_t);
         types = cur; cur += nnodes;
-        if ((cur - body) % 8 > 0) cur += 8 - (cur - body) % 8;
+        if ((cur - (uint8_t *)body) % 8 > 0) cur += 8 - (cur - (uint8_t *)body) % 8;
         values = (VALUE_T *)cur; cur += nnodes * sizeof(VALUE_T);
         strings = (char *)cur;
     }
@@ -237,12 +246,12 @@ namespace fjson {
         RapidJsonCount_t countobj;
         countobj.recur_count(root);
         nnodes = countobj.nnodes; szstrings = countobj.szstrings;
-        uint32_t total_size = sizeof(uint32_t) + nnodes;
+        uint32_t total_size = sizeof(header_t) + nnodes;
         if (total_size % 8 > 0) total_size += 8 - total_size % 8;
         total_size += nnodes * sizeof(VALUE_T) + szstrings;
-        body = (uint8_t *)malloc(total_size);
+        body = (header_t *)malloc(total_size);
         if (body == NULL) return;
-        *(uint32_t *)body = nnodes; _setup();
+        body->setup(VALUE_T().magic(), nnodes); _setup();
         RapidJsonFill_t<VALUE_T> fillobj(types, values, strings);
         fillobj.recur_fill(root, 0);
     }
@@ -262,12 +271,12 @@ namespace fjson {
             FreezeCount_t<VALUE_T> countobj;
             countobj.recur_count(doc, pos);
             nnodes = countobj.nnodes; szstrings = countobj.szstrings;
-            uint32_t total_size = sizeof(uint32_t) + nnodes;
+            uint32_t total_size = sizeof(header_t) + nnodes;
             if (total_size % 8 > 0) total_size += 8 - total_size % 8;
             total_size += nnodes * sizeof(VALUE_T) + szstrings;
-            body = (uint8_t *)malloc(total_size);
+            body = (header_t *)malloc(total_size);
             if (body == NULL) return;
-            *(uint32_t *)body = nnodes; _setup();
+            body->setup(VALUE_T().magic(), nnodes); _setup();
             FreezeFill_t<VALUE_T> fillobj(types, values, strings);
             fillobj.recur_fill(doc, pos, 0);
         }
@@ -280,16 +289,16 @@ namespace fjson {
         PythonCount_t countobj;
         countobj.recur_count(doc);
         nnodes = countobj.nnodes; szstrings = countobj.szstrings;
-        uint32_t total_size = sizeof(uint32_t) + nnodes;
+        uint32_t total_size = sizeof(header_t) + nnodes;
         if (total_size % 8 > 0) total_size += 8 - total_size % 8;
         total_size += nnodes * sizeof(VALUE_T) + szstrings;
-        body = (uint8_t *)malloc(total_size);
+        body = (header_t *)malloc(total_size);
         if (body == NULL) return;
-        *(uint32_t *)body = nnodes; _setup();
+        body->setup(VALUE_T().magic(), nnodes); _setup();
         PythonFill_t<VALUE_T> fillobj(types, values, strings);
         fillobj.recur_fill(doc, 0);
     }
-    template<typename VALUE_T> PyObject_t *
+    template<typename VALUE_T>PyObject_t *
     Document_t<VALUE_T>::PythonUnfreeze(uint32_t pos) const
     {
         PythonUnfreeze_t<VALUE_T> unfreezeobj(this);
