@@ -110,4 +110,33 @@ namespace fjson {
 
     typedef Render_t<Document4_t> Render4_t;
     typedef Render_t<Document8_t> Render8_t;
+
+    static const size_t MaxRenderSpace =
+        sizeof(Render4_t) > sizeof(Render8_t) ? sizeof(Render4_t): sizeof(Render8_t);
+
+    class RenderAuto_t {
+    private:
+        Render4_t *render4;
+        Render8_t *render8;
+        uint8_t space[MaxRenderSpace];
+    public:
+        inline RenderAuto_t(const DocumentAuto_t *doc, uint32_t pos)
+        {   const Document4_t *doc4 = doc->getdoc4c();
+            const Document8_t *doc8 = doc->getdoc8c();
+            if (render4) { render8 = NULL; render4 = new(space)Render4_t(doc4, pos); }
+            else if (render8) { render4 = NULL; render8 = new(space)Render8_t(doc8, pos); }
+            else { render4 = NULL; render8 = NULL; } }
+        inline ~RenderAuto_t()
+        {   if (render4) render4->~Render4_t();
+            else if (render8) render8->~Render8_t(); }
+
+        inline const char *getc(void) const
+        {   if (render4) return render4->getc();
+            else if (render8) return render8->getc();
+            else return NULL; }
+        inline char *get(void)
+        {   if (render4) return render4->get();
+            else if (render8) return render8->get();
+            else return NULL; }
+    };
 }

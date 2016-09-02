@@ -3,14 +3,16 @@
 #include "freeze.hpp"
 #include "freezerender.hpp"
 
-static PyTypeObject_t PyFreeze4Type, PyFreeze8Type;
+static PyTypeObject_t PyFreeze4Type, PyFreeze8Type, PyFreezeAutoType;
 
 typedef struct { PyObject_HEAD; fjson::Document4_t *freeze; } PyFreeze4_t;
 typedef struct { PyObject_HEAD; fjson::Document8_t *freeze; } PyFreeze8_t;
+typedef struct { PyObject_HEAD; fjson::DocumentAuto_t *freeze; } PyFreezeAuto_t;
 
 #define PY_DECL_TEMP template<typename PyFreeze_t, class DOC_T>
 #define PY_FREEZE4_TEMP <PyFreeze4_t, fjson::Document4_t>
 #define PY_FREEZE8_TEMP <PyFreeze8_t, fjson::Document8_t>
+#define PY_FREEZE_AUTO_TEMP <PyFreezeAuto_t, fjson::DocumentAuto_t>
 
 #define PY_PROTOTYPE_NOARGS(FUNC)                                       \
     PY_DECL_TEMP static PyObject_t *PyFreeze_##FUNC(PyObject_t *self)
@@ -19,10 +21,12 @@ typedef struct { PyObject_HEAD; fjson::Document8_t *freeze; } PyFreeze8_t;
 
 #define PY_DECL_FREEZE_NOARGS(FUNC)                                     \
     static PyMemberNoArgs_t FUNC##_Freeze4_NoArgs = FUNC PY_FREEZE4_TEMP; \
-    static PyMemberNoArgs_t FUNC##_Freeze8_NoArgs = FUNC PY_FREEZE8_TEMP
+    static PyMemberNoArgs_t FUNC##_Freeze8_NoArgs = FUNC PY_FREEZE8_TEMP; \
+    static PyMemberNoArgs_t FUNC##_FreezeAuto_NoArgs = FUNC PY_FREEZE_AUTO_TEMP
 #define PY_DECL_FREEZE_VARARGS(FUNC)                                    \
     static PyMemberVarArgs_t FUNC##_Freeze4_VarArgs = FUNC PY_FREEZE4_TEMP; \
-    static PyMemberVarArgs_t FUNC##_Freeze8_VarArgs = FUNC PY_FREEZE8_TEMP
+    static PyMemberVarArgs_t FUNC##_Freeze8_VarArgs = FUNC PY_FREEZE8_TEMP; \
+    static PyMemberVarArgs_t FUNC##_FreezeAuto_VarArgs = FUNC PY_FREEZE_AUTO_TEMP
 
 PY_DECL_TEMP static int
 PyFreeze_Init(PyObject_t *self, PyObject_t *args, PyObject_t *kwargs)
@@ -43,6 +47,37 @@ PyFreeze_Init(PyObject_t *self, PyObject_t *args, PyObject_t *kwargs)
             return -1;
         }
         pyself->freeze = new DOC_T(((PyFreeze_t *)pydoc)->freeze, pos);
+    } else {
+        pyself->freeze = NULL;
+        PyErr_Format(PyExc_ValueError, "Unsupport constructor.");
+        return -1;
+    }
+    return 0;
+}
+static int
+PyFreezeAuto_Init(PyObject_t *self, PyObject_t *args, PyObject_t *kwargs)
+{
+    PyObject_t *pydoc; unsigned pos;
+    PyFreezeAuto_t *pyself = (PyFreezeAuto_t *)self;
+    if (PyTuple_Size(args) == 1 && PyBytes_Check(PyTuple_GetItem(args, 0))) {
+        char *pybody; Py_ssize_t size;
+        PyBytes_AsStringAndSize(PyTuple_GetItem(args, 0), &pybody, &size);
+        uint8_t *body = (uint8_t *)malloc(size);
+        memcpy(body, pybody, size);
+        pyself->freeze = new fjson::DocumentAuto_t(body, (uint32_t)size);
+    } else if (PyTuple_Size(args) == 1) {
+        pyself->freeze = new fjson::DocumentAuto_t(PyTuple_GetItem(args, 0));
+    } else if (PyArg_ParseTuple(args, "OI", &pydoc, &pos)) {
+        if (PyObject_IsInstance(pydoc, (PyObject_t *)&PyFreezeAutoType)) {
+            pyself->freeze = new fjson::DocumentAuto_t(((PyFreezeAuto_t *)pydoc)->freeze, pos);
+        } else if (PyObject_IsInstance(pydoc, (PyObject_t *)&PyFreeze4Type)) {
+            pyself->freeze = new fjson::DocumentAuto_t(((PyFreeze4_t *)pydoc)->freeze, pos);
+        } else if (PyObject_IsInstance(pydoc, (PyObject_t *)&PyFreeze8Type)) {
+            pyself->freeze = new fjson::DocumentAuto_t(((PyFreeze8_t *)pydoc)->freeze, pos);
+        } else {
+            PyErr_Format(PyExc_TypeError, "Must be same type.");
+            return -1;
+        }
     } else {
         pyself->freeze = NULL;
         PyErr_Format(PyExc_ValueError, "Unsupport constructor.");
@@ -111,7 +146,16 @@ PY_PROTOTYPE_VARARGS(Render)
     fjson::Render_t<DOC_T> render(pyself->freeze, pos);
     return PyUnicode_FromString(render.getc());
 }
-PY_DECL_FREEZE_VARARGS(PyFreeze_Render);
+static PyMemberVarArgs_t PyFreeze_Render_Freeze4_VarArgs = PyFreeze_Render PY_FREEZE4_TEMP;
+static PyMemberVarArgs_t PyFreeze_Render_Freeze8_VarArgs = PyFreeze_Render PY_FREEZE8_TEMP;
+PyObject_t *
+PyFreeze_Render_FreezeAuto_VarArgs(PyObject_t *self, PyObject_t *args)
+{
+    unsigned pos; PyFreezeAuto_t *pyself = (PyFreezeAuto_t *)self;
+    if (!PyArg_ParseTuple(args, "I", &pos)) return NULL;
+    fjson::RenderAuto_t render(pyself->freeze, pos);
+    return PyUnicode_FromString(render.getc());
+}
 
 PY_IS_FUNC(IsRemoved);
 PY_IS_FUNC(IsNull);
@@ -293,6 +337,7 @@ PY_DECL_FREEZE_VARARGS(PyFreeze_SetDouble);
 
 FREEZE_METHODS(Freeze4);
 FREEZE_METHODS(Freeze8);
+FREEZE_METHODS(FreezeAuto);
 
 static PyMethodDef_t methods[] = {
     { NULL, NULL, 0, NULL }
@@ -317,5 +362,10 @@ PyInit__freeze(void)
                             PyFreeze_Init PY_FREEZE8_TEMP,
                             PyFreeze_Dealloc PY_FREEZE8_TEMP,
                             PyFreeze8_Methods)) return NULL;
+    if (!pytypeobject_setup(mod, &PyFreezeAutoType, sizeof(PyFreezeAuto_t),
+                            "_freeze_auto", "_freeze._freeze_auto",
+                            PyFreezeAuto_Init,
+                            PyFreeze_Dealloc PY_FREEZE_AUTO_TEMP,
+                            PyFreezeAuto_Methods)) return NULL;
     return mod;
 }

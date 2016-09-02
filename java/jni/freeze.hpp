@@ -35,13 +35,16 @@ namespace fjson {
     };
 
     template<typename VALUE_T>class Document_t {
+        friend class DocumentAuto_t;
     private:
         header_t *body;
         uint32_t nnodes, szstrings;
         uint8_t *types;
         VALUE_T *values;
         char *strings;
+        bool _new(uint32_t nnodes, uint32_t szstrings);
         void _setup(void);
+        inline Document_t(void) {};
     public:
         Document_t(const rapidjson::Value *root);
         Document_t(const Document_t<VALUE_T> *doc, uint32_t docpos);
@@ -113,6 +116,18 @@ namespace fjson {
         {   types[pos] = fjdouble; values[pos].double_v = value; }
     };
 
+    template<typename VALUE_T>bool
+    Document_t<VALUE_T>::_new(uint32_t nnodes, uint32_t szstrings)
+    {
+        this->nnodes = nnodes; this->szstrings = szstrings;
+        uint32_t total_size = sizeof(header_t) + nnodes;
+        if (total_size % 8 > 0) total_size += 8 - total_size % 8;
+        total_size += nnodes * sizeof(VALUE_T) + szstrings;
+        body = (header_t *)malloc(total_size);
+        if (body == NULL) return false;
+        body->setup(VALUE_T().magic(), nnodes); _setup();
+        return true;
+    }
     template<typename VALUE_T>void
     Document_t<VALUE_T>::_setup(void)
     {
@@ -245,13 +260,7 @@ namespace fjson {
     {
         RapidJsonCount_t countobj;
         countobj.recur_count(root);
-        nnodes = countobj.nnodes; szstrings = countobj.szstrings;
-        uint32_t total_size = sizeof(header_t) + nnodes;
-        if (total_size % 8 > 0) total_size += 8 - total_size % 8;
-        total_size += nnodes * sizeof(VALUE_T) + szstrings;
-        body = (header_t *)malloc(total_size);
-        if (body == NULL) return;
-        body->setup(VALUE_T().magic(), nnodes); _setup();
+        if (!_new(countobj.nnodes, szstrings)) return;
         RapidJsonFill_t<VALUE_T> fillobj(types, values, strings);
         fillobj.recur_fill(root, 0);
     }
@@ -270,13 +279,7 @@ namespace fjson {
         else {
             FreezeCount_t<VALUE_T> countobj;
             countobj.recur_count(doc, pos);
-            nnodes = countobj.nnodes; szstrings = countobj.szstrings;
-            uint32_t total_size = sizeof(header_t) + nnodes;
-            if (total_size % 8 > 0) total_size += 8 - total_size % 8;
-            total_size += nnodes * sizeof(VALUE_T) + szstrings;
-            body = (header_t *)malloc(total_size);
-            if (body == NULL) return;
-            body->setup(VALUE_T().magic(), nnodes); _setup();
+            if (!_new(countobj.nnodes, countobj.szstrings)) return;
             FreezeFill_t<VALUE_T> fillobj(types, values, strings);
             fillobj.recur_fill(doc, pos, 0);
         }
@@ -288,13 +291,7 @@ namespace fjson {
     {
         PythonCount_t countobj;
         countobj.recur_count(doc);
-        nnodes = countobj.nnodes; szstrings = countobj.szstrings;
-        uint32_t total_size = sizeof(header_t) + nnodes;
-        if (total_size % 8 > 0) total_size += 8 - total_size % 8;
-        total_size += nnodes * sizeof(VALUE_T) + szstrings;
-        body = (header_t *)malloc(total_size);
-        if (body == NULL) return;
-        body->setup(VALUE_T().magic(), nnodes); _setup();
+        if (!_new(countobj.nnodes, countobj.szstrings)) return;
         PythonFill_t<VALUE_T> fillobj(types, values, strings);
         fillobj.recur_fill(doc, 0);
     }
@@ -308,4 +305,164 @@ namespace fjson {
 
     typedef Document_t<value4_t> Document4_t;
     typedef Document_t<value8_t> Document8_t;
+
+    static const size_t MaxDocumentSpace =
+        sizeof(Document4_t) > sizeof(Document8_t) ? sizeof(Document4_t): sizeof(Document8_t);
+
+#define FJSON_FILL_DOC4(TYPE)                                           \
+    TYPE<value4_t> fillobj(this->doc4->types, this->doc4->values, this->doc4->strings)
+#define FJSON_FILL_DOC8(TYPE)                                           \
+    TYPE<value8_t> fillobj(this->doc8->types, this->doc8->values, this->doc8->strings)
+
+    class DocumentAuto_t {
+    private:
+        Document_t<value4_t> *doc4;
+        Document_t<value8_t> *doc8;
+        uint8_t space[MaxDocumentSpace];
+        bool _new(uint32_t nnodes, uint32_t szstrings)
+        {   if ((nnodes & UINT16_MAX) == nnodes && (szstrings & UINT16_MAX) == szstrings) {
+                doc8 = NULL;
+                if (!(doc4 = new(space)Document4_t())) return false;
+                return doc4->_new(nnodes, szstrings);
+            } else {
+                doc4 = NULL;
+                if (!(doc8 = new(space)Document8_t())) return false;
+                return doc8->_new(nnodes, szstrings);
+            }
+            return false; }
+    public:
+        inline DocumentAuto_t(const rapidjson::Value *root)
+        {   RapidJsonCount_t countobj;
+            countobj.recur_count(root);
+            if (!_new(countobj.nnodes, countobj.szstrings)) return;
+            if (this->doc4) {
+                FJSON_FILL_DOC4(RapidJsonFill_t); fillobj.recur_fill(root, 0);
+            } else if (this->doc8) {
+                FJSON_FILL_DOC8(RapidJsonFill_t); fillobj.recur_fill(root, 0); } }
+        inline DocumentAuto_t(const Document4_t *doc4, uint32_t docpos)
+        {   FreezeCount_t<value4_t> countobj;
+            countobj.recur_count(doc4, docpos);
+            if (!_new(countobj.nnodes, countobj.szstrings)) return;
+            if (this->doc4) {
+                FJSON_FILL_DOC4(FreezeFill_t); fillobj.recur_fill(this->doc4, docpos, 0); } }
+        inline DocumentAuto_t(const Document8_t *doc8, uint32_t docpos)
+        {   FreezeCount_t<value8_t> countobj;
+            countobj.recur_count(doc8, docpos);
+            if (!_new(countobj.nnodes, countobj.szstrings)) return;
+            if (this->doc4) {
+                FJSON_FILL_DOC4(FreezeFill_t); fillobj.recur_fill(this->doc4, docpos, 0);
+            } else if(this->doc8) {
+                FJSON_FILL_DOC8(FreezeFill_t); fillobj.recur_fill(this->doc8, docpos, 0); } }
+        inline DocumentAuto_t(const DocumentAuto_t *doc, uint32_t docpos)
+        {   if (doc4) DocumentAuto_t(doc4, docpos);
+            else if (doc8) DocumentAuto_t(doc8, docpos); }
+#ifdef WITH_PYTHON
+        inline DocumentAuto_t(PyObject_t *doc)
+        {   PythonCount_t countobj;
+            countobj.recur_count(doc);
+            if (!_new(countobj.nnodes, countobj.szstrings)) return;
+            if (this->doc4) {
+                FJSON_FILL_DOC4(PythonFill_t); fillobj.recur_fill(doc, 0);
+            } else if (this->doc8) {
+                FJSON_FILL_DOC8(PythonFill_t); fillobj.recur_fill(doc, 0); } }
+#endif
+        inline DocumentAuto_t(uint8_t *body, uint32_t body_size)
+        {   if (((header_t *)body)->magic == value4_t().magic()) {
+                doc8 = NULL; doc4 = new(space)Document4_t(body, body_size);
+            } else if (((header_t *)body)->magic == value8_t().magic()) {
+                doc4 = NULL; doc8 = new(space)Document8_t(body, body_size);
+            } else { doc4 = NULL; doc8 = NULL; } }
+        inline ~DocumentAuto_t()
+        {   if (doc4) doc4->~Document4_t();
+            else if (doc8) doc8->~Document8_t(); }
+
+        inline const Document4_t *getdoc4c(void) const { return doc4; }
+        inline Document4_t *getdoc4(void) { return doc4; }
+        inline const Document8_t *getdoc8c(void) const { return doc8; }
+        inline Document8_t *getdoc8(void) { return doc8; }
+
+        inline uint32_t BodySize(void) const
+        {   if (doc4) return doc4->BodySize();
+            else if (doc8) return doc8->BodySize();
+            else return 0; }
+        inline const uint8_t *Body(void) const
+        {   if (doc4) return doc4->Body();
+            else if (doc8) return doc8->Body();
+            return NULL; }
+
+        inline rapidjson::Document *RapidJsonUnfreeze(uint32_t pos) const
+        {   if (doc4) return doc4->RapidJsonUnfreeze(pos);
+            else if (doc8) return doc8->RapidJsonUnfreeze(pos);
+            return NULL; }
+#ifdef WITH_PYTHON
+        inline PyObject_t *PythonUnfreeze(uint32_t pos) const
+        {   if (doc4) return doc4->PythonUnfreeze(pos);
+            else if (doc8) return doc8->PythonUnfreeze(pos);
+            return NULL; }
+#endif
+
+#define FJSON_AUTO_IS(FUNC) inline bool FUNC(uint32_t pos) const \
+        {   if (doc4) return doc4->FUNC(pos);                    \
+            else if (doc8) return doc8->FUNC(pos);               \
+            else return false; }
+        FJSON_AUTO_IS(IsRemoved);
+        FJSON_AUTO_IS(IsNull);
+        FJSON_AUTO_IS(IsFalse);
+        FJSON_AUTO_IS(IsTrue);
+        FJSON_AUTO_IS(IsInt);
+        FJSON_AUTO_IS(IsUint);
+        FJSON_AUTO_IS(IsDouble);
+        FJSON_AUTO_IS(IsString);
+        FJSON_AUTO_IS(IsArray);
+        FJSON_AUTO_IS(IsObject);
+
+#define FJSON_AUTO_GET(TYPE, FUNC, VALUE) inline TYPE FUNC(uint32_t pos) \
+        {   if (doc4) return doc4->FUNC(pos);                           \
+            else if (doc8) return doc8->FUNC(pos);                      \
+            else return VALUE; }
+#define FJSON_AUTO_GET2(TYPE, FUNC, VALUE) inline TYPE FUNC(uint32_t pos, uint32_t idx) \
+        {   if (doc4) return doc4->FUNC(pos, idx);                      \
+            else if (doc8) return doc8->FUNC(pos, idx);                 \
+            else return VALUE; }
+        FJSON_AUTO_GET(type_t, GetType, fjremoved);
+        FJSON_AUTO_GET(int64_t, GetInt, 0);
+        FJSON_AUTO_GET(uint64_t, GetUint, 0);
+        FJSON_AUTO_GET(double, GetDouble, 0);
+        FJSON_AUTO_GET(const char *, GetString, NULL);
+        FJSON_AUTO_GET(uint32_t, GetStringLen, 0);
+
+        FJSON_AUTO_GET(uint32_t, GetArraySpace, 0);
+        FJSON_AUTO_GET(uint32_t, GetArraySize, 0);
+        FJSON_AUTO_GET2(uint32_t, GetArray, 0);
+
+        FJSON_AUTO_GET(uint32_t, GetObjectSpace, 0);
+        FJSON_AUTO_GET(uint32_t, GetObjectSize, 0);
+        FJSON_AUTO_GET2(const char *, GetObjectKey, NULL);
+        FJSON_AUTO_GET2(uint32_t, GetObjectKeyLen, 0);
+        FJSON_AUTO_GET2(uint32_t, GetObject, 0);
+        inline uint32_t ObjectSearch(uint32_t pos, const char *key) const
+        {   if (doc4) return doc4->ObjectSearch(pos, key);
+            else if (doc8) return doc8->ObjectSearch(pos, key);
+            else return 0; }
+
+        inline uint32_t Locate(uint32_t pos, const char *path) const
+        {   if (doc4) return doc4->Locate(pos, path);
+            else if (doc8) return doc8->Locate(pos, path);
+            else return 0; }
+
+#define FJSON_AUTO_SET(FUNC) inline void FUNC(uint32_t pos) \
+        {   if (doc4) doc4->FUNC(pos);                      \
+            else if (doc8) doc8->FUNC(pos); }
+#define FJSON_AUTO_SET2(FUNC, TYPE) inline void FUNC(uint32_t pos, TYPE value) \
+        {   if (doc4) doc4->FUNC(pos, value);                           \
+            else if (doc8) doc8->FUNC(pos, value); }
+        FJSON_AUTO_SET2(SetType, type_t);
+        FJSON_AUTO_SET(Remove);
+        FJSON_AUTO_SET(SetNull);
+        FJSON_AUTO_SET(SetFalse);
+        FJSON_AUTO_SET(SetTrue);
+        FJSON_AUTO_SET2(SetInt, int64_t);
+        FJSON_AUTO_SET2(SetUint, uint64_t);
+        FJSON_AUTO_SET2(SetDouble, double);
+    };
 }
