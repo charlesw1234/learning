@@ -61,6 +61,7 @@ namespace fjson {
             if (size % 8 > 0) size += 8 - size % 8;
             return size + nnodes * sizeof(VALUE_T) + szstrings; }
         inline const uint8_t *Body(void) const { return (uint8_t *)body; }
+        inline uint32_t ValueSize(void) const { return sizeof(VALUE_T); }
 
         rapidjson::Document *RapidJsonUnfreeze(uint32_t pos) const;
 #ifdef WITH_PYTHON
@@ -389,6 +390,10 @@ namespace fjson {
         {   if (doc4) return doc4->Body();
             else if (doc8) return doc8->Body();
             return NULL; }
+        inline uint32_t ValueSize(void) const
+        {   if (doc4) return doc4->ValueSize();
+            else if (doc8) return doc8->ValueSize();
+            else return 0; }
 
         inline rapidjson::Document *RapidJsonUnfreeze(uint32_t pos) const
         {   if (doc4) return doc4->RapidJsonUnfreeze(pos);

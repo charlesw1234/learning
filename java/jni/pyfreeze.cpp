@@ -131,6 +131,13 @@ PY_PROTOTYPE_NOARGS(Body)
 }
 PY_DECL_FREEZE_NOARGS(PyFreeze_Body);
 
+PY_PROTOTYPE_NOARGS(ValueSize)
+{
+    PyFreeze_t *pyself = (PyFreeze_t *)self;
+    return PyLong_FromUnsignedLong((unsigned long)pyself->freeze->ValueSize());
+}
+PY_DECL_FREEZE_NOARGS(PyFreeze_ValueSize);
+
 PY_PROTOTYPE_VARARGS(Unfreeze)
 {
     unsigned pos; PyFreeze_t *pyself = (PyFreeze_t *)self;
@@ -298,6 +305,7 @@ PY_DECL_FREEZE_VARARGS(PyFreeze_SetDouble);
     static PyMethodDef_t Py##STEM##_Methods[] = {                       \
         FREEZE_METHOD_NOARGS("BodySize", PyFreeze_BodySize, STEM),      \
         FREEZE_METHOD_NOARGS("Body", PyFreeze_Body, STEM),              \
+        FREEZE_METHOD_NOARGS("ValueSize", PyFreeze_ValueSize, STEM),    \
         FREEZE_METHOD_VARARGS("Unfreeze", PyFreeze_Unfreeze, STEM),     \
         FREEZE_METHOD_VARARGS("Render", PyFreeze_Render, STEM),         \
         FREEZE_METHOD_VARARGS("IsRemoved", PyFreeze_IsRemoved, STEM),   \
