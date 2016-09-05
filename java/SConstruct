@@ -17,7 +17,7 @@ env.Program(os.path.join('jni', 'showsz'), [os.path.join('jni', 'showsz.cpp')])
 env.Program(os.path.join('jni', 'tstfreeze0'), [os.path.join('jni', 'tstfreeze0.cpp')])
 env.Program(os.path.join('jni', 'tstfreeze1'), [os.path.join('jni', 'tstfreeze1.cpp')])
 env.Program(os.path.join('jni', 'tstfreeze2'), [os.path.join('jni', 'tstfreeze2.cpp')])
-#env.Program(os.path.join('jni', 'tstfreeze3'), [os.path.join('jni', 'tstfreeze3.cpp')])
+env.Program(os.path.join('jni', 'tstfreeze3'), [os.path.join('jni', 'tstfreeze3.cpp')])
 
 pyenv = env.Clone()
 pyenv['SHLIBPREFIX'] = ''

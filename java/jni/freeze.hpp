@@ -58,7 +58,7 @@ namespace fjson {
 
         inline uint32_t BodySize(void) const
         {   size_t size = sizeof(header_t) + nnodes;
-            if (size % 8 > 0) size += 8 - size % 8;
+            if (size % sizeof(VALUE_T) > 0) size += sizeof(VALUE_T) - size % sizeof(VALUE_T);
             return size + nnodes * sizeof(VALUE_T) + szstrings; }
         inline const uint8_t *Body(void) const { return (uint8_t *)body; }
         inline uint32_t ValueSize(void) const { return sizeof(VALUE_T); }
@@ -122,7 +122,8 @@ namespace fjson {
     {
         this->nnodes = nnodes; this->szstrings = szstrings;
         uint32_t total_size = sizeof(header_t) + nnodes;
-        if (total_size % 8 > 0) total_size += 8 - total_size % 8;
+        if (total_size % sizeof(VALUE_T) > 0)
+            total_size += sizeof(VALUE_T) - total_size % sizeof(VALUE_T);
         total_size += nnodes * sizeof(VALUE_T) + szstrings;
         body = (header_t *)malloc(total_size);
         if (body == NULL) return false;
@@ -132,9 +133,14 @@ namespace fjson {
     template<typename VALUE_T>void
     Document_t<VALUE_T>::_setup(void)
     {
-        uint8_t *cur = ((uint8_t *)body) + sizeof(header_t);
+        uint8_t *start = (uint8_t *)body;
+        uint8_t *cur = start + sizeof(header_t);
         types = cur; cur += nnodes;
-        if ((cur - (uint8_t *)body) % 8 > 0) cur += 8 - (cur - (uint8_t *)body) % 8;
+        unsigned remains = (cur - start) % sizeof(VALUE_T);
+        if (remains > 0) {
+            memset(cur, 0, sizeof(VALUE_T) - remains);
+            cur += sizeof(VALUE_T) - remains;
+        }
         values = (VALUE_T *)cur; cur += nnodes * sizeof(VALUE_T);
         strings = (char *)cur;
     }
@@ -261,7 +267,7 @@ namespace fjson {
     {
         RapidJsonCount_t countobj;
         countobj.recur_count(root);
-        if (!_new(countobj.nnodes, szstrings)) return;
+        if (!_new(countobj.nnodes, countobj.szstrings)) return;
         RapidJsonFill_t<VALUE_T> fillobj(types, values, strings);
         fillobj.recur_fill(root, 0);
     }

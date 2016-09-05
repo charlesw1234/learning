@@ -9,7 +9,7 @@ namespace fjson {
         {
             ++nnodes;
             if (PyBytes_Check(cur)) {
-                szstrings += PyBytes_Size(cur);
+                szstrings += PyBytes_Size(cur) + 1;
             } else if (PyUnicode_Check(cur)) {
                 Py_ssize_t len;
                 PyUnicode_AsUTF8AndSize(cur, &len);
@@ -24,13 +24,11 @@ namespace fjson {
                 nnodes += PyDict_Size(cur);
                 PyObject_t *pykey, *pyvalue; Py_ssize_t pos = 0;
                 while (PyDict_Next(cur, &pos, &pykey, &pyvalue)) {
-                    if (PyBytes_Check(pykey)) {
-                        szstrings += PyBytes_Size(pykey);
-                    } else if (PyUnicode_Check(pykey)) {
-                        Py_ssize_t sz;
-                        PyUnicode_AsUTF8AndSize(pykey, &sz);
-                        szstrings += sz;
-                    }
+                    Py_ssize_t len;
+                    if (PyBytes_Check(pykey)) len = PyBytes_Size(pykey);
+                    else if (PyUnicode_Check(pykey)) PyUnicode_AsUTF8AndSize(pykey, &len);
+                    else len = 0;
+                    szstrings += len + 1;
                     recur_count(pyvalue);
                 }
             }
@@ -61,12 +59,13 @@ namespace fjson {
             } else if (PyFloat_Check(cur)) {
                 types[curpos] = fjdouble; values[curpos].double_v = PyFloat_AsDouble(cur);
             } else if (PyBytes_Check(cur)) {
-                uint32_t sz = (uint32_t)PyBytes_Size(cur);
+                Py_ssize_t len = PyBytes_Size(cur);
                 types[curpos] = fjstring;
                 values[curpos].string.offset = curoffset;
-                values[curpos].string.len = sz;
-                memcpy(strings + curoffset, PyBytes_AsString(cur), sz);
-                curoffset += sz;
+                values[curpos].string.len = (uint32_t)len;
+                memcpy(strings + curoffset, PyBytes_AsString(cur), len);
+                strings[curoffset + len] = 0;
+                curoffset += len + 1;
             } else if (PyUnicode_Check(cur)) {
                 Py_ssize_t len; const char *body = PyUnicode_AsUTF8AndSize(cur, &len);
                 types[curpos] = fjstring;
@@ -93,21 +92,22 @@ namespace fjson {
                 curused += values[curpos].object.space + values[curpos].object.space;
                 PyObject_t *pykey, *pyvalue; Py_ssize_t pos = 0;
                 while (PyDict_Next(cur, &pos, &pykey, &pyvalue)) {
+                    Py_ssize_t len;
                     if (PyBytes_Check(pykey)) {
-                        uint32_t sz = (uint32_t)PyBytes_Size(cur);
-                        types[subpos] = fjstring;
-                        values[subpos].string.offset = curoffset;
-                        values[subpos++].string.len = sz;
-                        memcpy(strings + curoffset, PyBytes_AsString(cur), sz);
-                        curoffset += sz;
+                        len = PyBytes_Size(cur);
+                        memcpy(strings + curoffset, PyBytes_AsString(cur), len);
+                        strings[curoffset + len] = 0;
                     } else if (PyUnicode_Check(pykey)) {
-                        Py_ssize_t len; const char *key = PyUnicode_AsUTF8AndSize(pykey, &len);
-                        types[subpos] = fjstring;
-                        values[subpos].string.offset = curoffset;
-                        values[subpos++].string.len = (uint32_t)len;
+                        const char *key = PyUnicode_AsUTF8AndSize(pykey, &len);
                         strcpy(strings + curoffset, key);
-                        curoffset += len + 1;
+                    } else {
+                        len = 0;
+                        strings[curoffset] = 0;
                     }
+                    types[subpos] = fjstring;
+                    values[subpos].string.offset = curoffset;
+                    values[subpos++].string.len = (uint32_t)len;
+                    curoffset += len + 1;
                     recur_fill(pyvalue, subpos++);
                 }
                 if (values[curpos].object.space > 1) {
