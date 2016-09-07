@@ -4,12 +4,17 @@ namespace fjson {
     class PythonCount_t {
     public:
         uint32_t nnodes, szstrings;
+        uint64_t imax; int64_t imin;
         PythonCount_t(void): nnodes(0), szstrings(0) {}
         void recur_count(PyObject_t *cur)
         {
             ++nnodes;
             if (PyBytes_Check(cur)) {
                 szstrings += PyBytes_Size(cur) + 1;
+            } else if (PyLong_Check(cur)) {
+                int64_t value = PyLong_AsLongLong(cur);
+                if (value < 0) { if (value < imin) imin = value;
+                } else { if ((uint64_t)value > imax) imax = (uint64_t)value; }
             } else if (PyUnicode_Check(cur)) {
                 Py_ssize_t len;
                 PyUnicode_AsUTF8AndSize(cur, &len);

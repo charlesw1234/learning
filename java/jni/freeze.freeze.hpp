@@ -4,11 +4,19 @@ namespace fjson {
     template<typename VALUE_T>class FreezeCount_t {
     public:
         uint32_t nnodes, szstrings;
+        uint64_t imax; int64_t imin;
         FreezeCount_t(void): nnodes(0), szstrings(0) {}
         void recur_count(const Document_t<VALUE_T> *doc, uint32_t docpos)
         {
             ++nnodes;
-            if (doc->IsString(docpos)) {
+            if (doc->IsInt(docpos)) {
+                int64_t value = doc->GetInt(docpos);
+                if (value < 0) { if (value < imin) imin = value;
+                } else { if ((uint64_t)value > imax) imax = (uint64_t)value; }
+            } else if (doc->IsUint(docpos)) {
+                uint64_t value = doc->GetUint(docpos);
+                if (value > imax) imax = value;
+            } else if (doc->IsString(docpos)) {
                 szstrings += doc->GetStringLen(docpos) + 1;
             } else if (doc->IsArray(docpos)) {
                 uint32_t space = doc->GetArraySpace(docpos);

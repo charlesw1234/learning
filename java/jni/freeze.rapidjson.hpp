@@ -6,10 +6,18 @@ namespace fjson {
     class RapidJsonCount_t {
     public:
         uint32_t nnodes, szstrings;
+        uint64_t imax; int64_t imin;
         RapidJsonCount_t(void): nnodes(0), szstrings(0) {}
         void recur_count(const rapidjson::Value *cur) {
             ++nnodes;
-            if (cur->IsString()) {
+            if (cur->IsInt() || cur->IsInt64()) {
+                int64_t value = cur->GetInt();
+                if (value < 0) { if (value < imin) imin = value;
+                } else { if ((uint64_t)value > imax) imax = (uint64_t)value; }
+            } else if (cur->IsUint() || cur->IsUint64()) {
+                uint64_t value = cur->GetUint();
+                if (value > imax) imax = value;
+            } else if (cur->IsString()) {
                 szstrings += cur->GetStringLength() + 1;
             } else if (cur->IsArray()) {
                 rapidjson::Value::ConstValueIterator iter;

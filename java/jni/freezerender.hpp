@@ -123,8 +123,8 @@ namespace fjson {
         inline RenderAuto_t(const DocumentAuto_t *doc, uint32_t pos)
         {   const Document4_t *doc4 = doc->getdoc4c();
             const Document8_t *doc8 = doc->getdoc8c();
-            if (render4) { render8 = NULL; render4 = new(space)Render4_t(doc4, pos); }
-            else if (render8) { render4 = NULL; render8 = new(space)Render8_t(doc8, pos); }
+            if (doc4) { render8 = NULL; render4 = new(space)Render4_t(doc4, pos); }
+            else if (doc8) { render4 = NULL; render8 = new(space)Render8_t(doc8, pos); }
             else { render4 = NULL; render8 = NULL; } }
         inline ~RenderAuto_t()
         {   if (render4) render4->~Render4_t();
