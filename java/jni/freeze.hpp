@@ -323,8 +323,8 @@ namespace fjson {
 
     class DocumentAuto_t {
     private:
-        Document_t<value4_t> *doc4;
-        Document_t<value8_t> *doc8;
+        Document4_t *doc4;
+        Document8_t *doc8;
         uint8_t space[MaxDocumentSpace];
         bool _new(uint32_t nnodes, uint32_t szstrings, uint64_t imax, int64_t imin)
         {   if ((nnodes & UINT16_MAX) == nnodes && (szstrings & UINT16_MAX) == szstrings &&
