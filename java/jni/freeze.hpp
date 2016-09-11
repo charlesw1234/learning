@@ -27,22 +27,22 @@ namespace fjson {
     };
 
     struct header_t {
-        uint32_t magic;
-        uint32_t nnodes;
-
+        uint32_t magic, nnodes;
         inline void setup(uint32_t magic, uint32_t nnodes)
         {   this->magic = magic; this->nnodes = nnodes; }
+    };
+    struct countbase_t {
+        uint32_t nnodes, szstrings;
+        uint64_t imax; int64_t imin;
+        inline countbase_t(void): nnodes(0), szstrings(0), imax(0), imin(0) {}
     };
 
     template<typename VALUE_T>class Document_t {
         friend class DocumentAuto_t;
     private:
-        header_t *body;
         uint32_t nnodes, szstrings;
-        uint8_t *types;
-        VALUE_T *values;
-        char *strings;
-        bool _new(uint32_t nnodes, uint32_t szstrings);
+        header_t *body; uint8_t *types; VALUE_T *values; char *strings;
+        bool _new(const countbase_t *cbase);
         void _setup(void);
         inline Document_t(void) {};
     public:
@@ -118,9 +118,9 @@ namespace fjson {
     };
 
     template<typename VALUE_T>bool
-    Document_t<VALUE_T>::_new(uint32_t nnodes, uint32_t szstrings)
+    Document_t<VALUE_T>::_new(const countbase_t *cbase)
     {
-        this->nnodes = nnodes; this->szstrings = szstrings;
+        nnodes = cbase->nnodes; szstrings = cbase->szstrings;
         uint32_t total_size = sizeof(header_t) + nnodes;
         if (total_size % sizeof(VALUE_T) > 0)
             total_size += sizeof(VALUE_T) - total_size % sizeof(VALUE_T);
@@ -267,7 +267,7 @@ namespace fjson {
     {
         RapidJsonCount_t countobj;
         countobj.recur_count(root);
-        if (!_new(countobj.nnodes, countobj.szstrings)) return;
+        if (!_new(&countobj)) return;
         RapidJsonFill_t<VALUE_T> fillobj(types, values, strings);
         fillobj.recur_fill(root, 0);
     }
@@ -286,7 +286,7 @@ namespace fjson {
         else {
             FreezeCount_t<VALUE_T> countobj;
             countobj.recur_count(doc, pos);
-            if (!_new(countobj.nnodes, countobj.szstrings)) return;
+            if (!_new(&countobj)) return;
             FreezeFill_t<VALUE_T> fillobj(types, values, strings);
             fillobj.recur_fill(doc, pos, 0);
         }
@@ -298,7 +298,7 @@ namespace fjson {
     {
         PythonCount_t countobj;
         countobj.recur_count(doc);
-        if (!_new(countobj.nnodes, countobj.szstrings)) return;
+        if (!_new(&countobj)) return;
         PythonFill_t<VALUE_T> fillobj(types, values, strings);
         fillobj.recur_fill(doc, 0);
     }
@@ -326,37 +326,39 @@ namespace fjson {
         Document4_t *doc4;
         Document8_t *doc8;
         uint8_t space[MaxDocumentSpace];
-        bool _new(uint32_t nnodes, uint32_t szstrings, uint64_t imax, int64_t imin)
-        {   if ((nnodes & UINT16_MAX) == nnodes && (szstrings & UINT16_MAX) == szstrings &&
-                (imax & UINT32_MAX) == imax && (imin & UINT32_MAX) == imin) {
+        bool _new(const countbase_t *cbase)
+        {   if ((cbase->nnodes & UINT16_MAX) == cbase->nnodes &&
+                (cbase->szstrings & UINT16_MAX) == cbase->szstrings &&
+                (cbase->imax & UINT32_MAX) == cbase->imax &&
+                (cbase->imin & UINT32_MAX) == cbase->imin) {
                 doc8 = NULL;
                 if (!(doc4 = new(space)Document4_t())) return false;
-                return doc4->_new(nnodes, szstrings);
+                return doc4->_new(cbase);
             } else {
                 doc4 = NULL;
                 if (!(doc8 = new(space)Document8_t())) return false;
-                return doc8->_new(nnodes, szstrings);
+                return doc8->_new(cbase);
             }
             return false; }
     public:
         inline DocumentAuto_t(const rapidjson::Value *root)
-        {   RapidJsonCount_t cobj;
-            cobj.recur_count(root);
-            if (!_new(cobj.nnodes, cobj.szstrings, cobj.imax, cobj.imin)) return;
+        {   RapidJsonCount_t countobj;
+            countobj.recur_count(root);
+            if (!_new(&countobj)) return;
             if (this->doc4) {
                 FJSON_FILL_DOC4(RapidJsonFill_t); fillobj.recur_fill(root, 0);
             } else if (this->doc8) {
                 FJSON_FILL_DOC8(RapidJsonFill_t); fillobj.recur_fill(root, 0); } }
         inline DocumentAuto_t(const Document4_t *doc4, uint32_t docpos)
-        {   FreezeCount_t<value4_t> cobj;
-            cobj.recur_count(doc4, docpos);
-            if (!_new(cobj.nnodes, cobj.szstrings, cobj.imax, cobj.imin)) return;
+        {   FreezeCount_t<value4_t> countobj;
+            countobj.recur_count(doc4, docpos);
+            if (!_new(&countobj)) return;
             if (this->doc4) {
                 FJSON_FILL_DOC4(FreezeFill_t); fillobj.recur_fill(this->doc4, docpos, 0); } }
         inline DocumentAuto_t(const Document8_t *doc8, uint32_t docpos)
-        {   FreezeCount_t<value8_t> cobj;
-            cobj.recur_count(doc8, docpos);
-            if (!_new(cobj.nnodes, cobj.szstrings, cobj.imax, cobj.imin)) return;
+        {   FreezeCount_t<value8_t> countobj;
+            countobj.recur_count(doc8, docpos);
+            if (!_new(&countobj)) return;
             if (this->doc4) {
                 FJSON_FILL_DOC4(FreezeFill_t); fillobj.recur_fill(this->doc4, docpos, 0);
             } else if(this->doc8) {
@@ -366,9 +368,9 @@ namespace fjson {
             else if (doc8) DocumentAuto_t(doc8, docpos); }
 #ifdef WITH_PYTHON
         inline DocumentAuto_t(PyObject_t *doc)
-        {   PythonCount_t cobj;
-            cobj.recur_count(doc);
-            if (!_new(cobj.nnodes, cobj.szstrings, cobj.imax, cobj.imin)) return;
+        {   PythonCount_t countobj;
+            countobj.recur_count(doc);
+            if (!_new(&countobj)) return;
             if (this->doc4) {
                 FJSON_FILL_DOC4(PythonFill_t); fillobj.recur_fill(doc, 0);
             } else if (this->doc8) {

@@ -3,11 +3,9 @@
 #include "rapidjson/document.h"
 
 namespace fjson {
-    class RapidJsonCount_t {
+    class RapidJsonCount_t: public countbase_t {
     public:
-        uint32_t nnodes, szstrings;
-        uint64_t imax; int64_t imin;
-        RapidJsonCount_t(void): nnodes(0), szstrings(0) {}
+        inline RapidJsonCount_t(void): countbase_t() {}
         void recur_count(const rapidjson::Value *cur) {
             ++nnodes;
             if (cur->IsInt() || cur->IsInt64()) {

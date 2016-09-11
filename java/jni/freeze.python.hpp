@@ -1,11 +1,9 @@
 #pragma once
 
 namespace fjson {
-    class PythonCount_t {
+    class PythonCount_t: public countbase_t {
     public:
-        uint32_t nnodes, szstrings;
-        uint64_t imax; int64_t imin;
-        PythonCount_t(void): nnodes(0), szstrings(0) {}
+        inline PythonCount_t(void): countbase_t() {}
         void recur_count(PyObject_t *cur)
         {
             ++nnodes;

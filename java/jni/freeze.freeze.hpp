@@ -1,11 +1,9 @@
 #pragma once
 
 namespace fjson {
-    template<typename VALUE_T>class FreezeCount_t {
+    template<typename VALUE_T>class FreezeCount_t: public countbase_t {
     public:
-        uint32_t nnodes, szstrings;
-        uint64_t imax; int64_t imin;
-        FreezeCount_t(void): nnodes(0), szstrings(0) {}
+        inline FreezeCount_t(void): countbase_t() {}
         void recur_count(const Document_t<VALUE_T> *doc, uint32_t docpos)
         {
             ++nnodes;
