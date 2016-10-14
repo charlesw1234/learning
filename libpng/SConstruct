@@ -1,0 +1,8 @@
+# -*- python -*-
+from glob import glob
+from os.path import join as pathjoin
+
+env = Environment(CCFLAGS = ['-g', '-Wall'], CPPPATH = ['srcs'],
+                  PROGSUFFIX = '.exe', LIBS = ['z', 'm'])
+libsrcs = glob(pathjoin('srcs', '*.c'))
+env.Program('main', ['main.c'] + libsrcs)
