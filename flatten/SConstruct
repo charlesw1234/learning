@@ -8,4 +8,4 @@ env = Environment(CXXFLAGS = ['-g', '-O', '-Wall'],
 
 libobj = env.Library(pathjoin('srcs', 'flatten'), glob(pathjoin('srcs', '*.cpp')))
 for tstfpath in glob(pathjoin('tests', '*.cpp')):
-    env.Program(splitext(tstfpath), [tstfpath] + libobj)
+    env.Program(splitext(tstfpath)[0], [tstfpath] + libobj)
