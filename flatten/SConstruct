@@ -3,9 +3,9 @@ from glob import glob
 from os.path import join as pathjoin, splitext
 
 env = Environment(CXXFLAGS = ['-g', '-O', '-Wall'],
-                  CPPPATH = ['srcs'],
+                  CPPPATH = ['includes'],
                   PROGSUFFIX = '.exe')
 
-libobj = env.Library(pathjoin('srcs', 'flatten'), glob(pathjoin('srcs', '*.cpp')))
+libobj = env.Library(pathjoin('sources', 'flatten'), glob(pathjoin('sources', '*.cpp')))
 for tstfpath in glob(pathjoin('tests', '*.cpp')):
     env.Program(splitext(tstfpath)[0], [tstfpath] + libobj)
