@@ -1,4 +1,4 @@
-#include "xml.hpp"
+#include "flatten/xml.hpp"
 
 namespace flatten {
 }

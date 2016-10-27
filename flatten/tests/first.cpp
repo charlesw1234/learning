@@ -1,7 +1,7 @@
-#include "core.hpp"
+#include "flatten/nodes.hpp"
 
 int main(void)
 {
-    flatten::block_t block;
+    flatten::nodes_t<sizeof(uint64_t)> nodes;
     return 0;
 }
