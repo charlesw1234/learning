@@ -1,13 +1,12 @@
 #pragma once
 
-#include "flatten/defs.hpp"
+#include "flatten/storage.hpp"
 
 namespace flatten {
-    template<int NODESIZE>class nodes_t {
+    template<unsigned NODESIZE, typename SIZE_T>
+    class nodes_t: public segment_t<SIZE_T> {
     public:
-        nodes_t(void) { head = tail = NULL; }
-        inline size_t numnodes(void) const { return (tail - head) / NODESIZE; }
-    private:
-        uint8_t *head, *tail;
+        nodes_t(void) {}
+        inline SIZE_T numnodes(void) const { return size() / NODESIZE; }
     };
 }
