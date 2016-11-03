@@ -4,6 +4,7 @@ from os.path import join as pathjoin, splitext
 
 env = Environment(CXXFLAGS = ['-g', '-O', '-Wall'],
                   CPPPATH = ['includes'],
+                  CPPDEFINES = ['FLATTEN_MULTI_SIZE'],
                   PROGSUFFIX = '.exe')
 
 libobj = env.Library(pathjoin('sources', 'flatten'), glob(pathjoin('sources', '*.cpp')))

@@ -1,58 +1,38 @@
 #pragma once
 
-#include "flatten/file.hpp"
+#include "flatten/space.hpp"
 
 namespace flatten {
-    template<typename SIZE_T>
-    class segment_t {
+    class storage_t: public std::vector<space_t> {
     public:
-	inline segment_t(void): _base(0), _size(0) {}
-	inline ~segment_t() {}
+	inline storage_t(void): std::vector<space_t>() {}
+	inline ~storage_t() {}
 
-	inline bool operator == (const segment_t<SIZE_T> &other) const
-	{   return _base == other._base; }
-	inline bool operator != (const segment_t<SIZE_T> &other) const
-	{   return _base != other._base; }
-	inline bool operator < （const segment_t<SIZE_T> &other) const
-	{   return _base < other._base; }
-	inline bool operator > (const segment<SIZE_T> &other) const
-	{   return _base > other._base; }
+#define FLATTEN_STORAGE_REBASE(SIZE, SIZE_T)                            \
+	inline void rebase##SIZE(SIZE_T curbase = 0)                    \
+	{   for (size_t idx = 0; idx < size(); ++idx) {                 \
+                at(idx).setbase##SIZE(curbase); curbase += at(idx).size(); } }
 
+        FLATTEN_STORAGE_REBASE(8, uint8_t);
+        FLATTEN_STORAGE_REBASE(16, uint16_t);
+        FLATTEN_STORAGE_REBASE(32, uint32_t);
+        FLATTEN_STORAGE_REBASE(64, uint64_t);
+#ifdef FLATTEN_MULTI_SIZE
+        FLATTEN_STORAGE_REBASE(, FLATTEN_MAXSIZE_T);
+#endif
 
-	inline SIZE_T base(void) const { return _base; }
-	inline SIZE_T size(void) const { return _size; }
+#define FLATTEN_STORAGE_SAVE(SIZE)                                      \
+        inline void save##SIZE(file_t *file)                            \
+        {   for (size_t idx = 0; idx < size(); ++idx) at(idx).save##SIZE(file); } \
+        inline void save##SIZE(memfile_t *file)                         \
+        {   for (size_t idx = 0; idx < size(); ++idx) at(idx).save##SIZE(file); }
 
-	inline void setbase(SIZE_T _base) { this->_base = _base; }
-	inline void setsize(SIZE_T _size) { this->_size = _size; }
-
-	inline void load(file_t *file, uint8_t *space) const
-	{   return file->read(space, _base, _size); }
-	inline void save(file_t *file, const uint8_t *space) const
-	{   return file->write(space, _base, _size); }
-    private:
-	SIZE_T _base, _size;
-    };
-
-    // how to combine segment_t with space_t?
-    class space_t {
-    public:
-	inline space_t(void): _space(NULL), _free(NULL) {}
-	inline ~space_t() { if (_free) free(_free); }
-    private:
-	uint8_t *_space, *_free;
-    };
-
-    template<typename SIZE_T>
-    class storage_t: public std::vector<segment_t<SIZE_T> *> {
-    public:
-	inline storage_t(void): std::vector<segment_t<SIZE_T> *>() {}
-	inline ~storage_t()
-	{   for (size_t idx = 0; idx < size(); ++idx) delete at(idx); }
-
-	inline void rebase(SIZE_T curbase = 0)
-	{   for (size_t idx = 0; idx < size(); ++idx) {
-		at(idx)->setbase(curbase); curbase += at(idx)->size(); } }
-	inline void resave(file_t *file)
-	{   for (size_t idx = 0; idx < size(); ++idx) at(idx)->save(file); }
+        FLATTEN_STORAGE_SAVE(8);
+        FLATTEN_STORAGE_SAVE(16);
+        FLATTEN_STORAGE_SAVE(32);
+        FLATTEN_STORAGE_SAVE(64);
+#ifdef FLATTEN_MULTI_SIZE
+        FLATTEN_STORAGE_SAVE();
+#endif
     };
 }

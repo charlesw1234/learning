@@ -1,7 +1,8 @@
-#include "flatten/nodes.hpp"
+#include "flatten.hpp"
 
 int main(void)
 {
-    flatten::nodes_t<sizeof(uint64_t)> nodes;
+    flatten::storage_t storage;
+    storage.push_back(flatten::space_t());
     return 0;
 }

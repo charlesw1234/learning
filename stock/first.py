@@ -37,14 +37,21 @@ for jrow in open('stock.flow.jsons', 'rt').readlines():
 
 def soscmp(sosobj0, sosobj1): return cmp(sosobj0[-1].date, sosobj1[-1].date)
 
+total = 0
 sosobjs = stockdict.values()
 sosobjs.sort(cmp = soscmp)
 for sosobj in sosobjs:
     summary = sosobj.summary()
     if summary[2] == 0: cost = 0
     else: cost = - summary[3] / summary[2]
+    if summary[3] == 0.0: continue
     desc = '%s(%s): [%u/%u: %s~%s], %d, %.2f, %.2f' %\
            (sosobj[0].name, sosobj[0].code, (summary[1] - summary[0]).days, len(sosobj),
             summary[0].strftime('%Y%m%d'), summary[1].strftime('%Y%m%d'),
             summary[2], summary[3], cost)
-    print(desc.encode('utf-8'))
+    if summary[2] > 0: print(desc.encode('utf-8'))
+    else:
+        total += summary[3]
+        if summary[3] > 0: print(b'\033[01;31m%s\033[0m' % desc.encode('utf-8'))
+        else: print(b'\033[01;32m%s\033[0m' % desc.encode('utf-8'))
+print('total =', total)

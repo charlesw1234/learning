@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SHOWSZ(TYPE) printf("sizeof(%s) = %u\n", #TYPE, sizeof(TYPE))
+#define SHOWSZ(TYPE) printf("sizeof(%s) = %u\n", #TYPE, (unsigned)sizeof(TYPE))
 #define SHOWSZ2(TYPE0, TYPE1)						\
     printf("sizeof(%s) = %u, sizeof(%s) = %u\n",			\
-	   #TYPE0, sizeof(TYPE0), #TYPE1, sizeof(TYPE1))
+	   #TYPE0, (unsigned)sizeof(TYPE0), #TYPE1, (unsigned)sizeof(TYPE1))
 
 int main(void)
 {
