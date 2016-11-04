@@ -7,6 +7,5 @@ env = Environment(CXXFLAGS = ['-g', '-O', '-Wall'],
                   CPPDEFINES = [('FLATTEN_SIZE', 4), 'FLATTEN_MULTI_SIZE'],
                   PROGSUFFIX = '.exe')
 
-libobj = env.Library(pathjoin('sources', 'flatten'), glob(pathjoin('sources', '*.cpp')))
 for tstfpath in glob(pathjoin('tests', '*.cpp')):
-    env.Program(splitext(tstfpath)[0], [tstfpath] + libobj)
+    env.Program(splitext(tstfpath)[0], [tstfpath])
