@@ -8,7 +8,7 @@ namespace flatten {
 	inline storage_t(void): std::vector<space_t>() {}
 	inline ~storage_t() {}
 
-        inline void rebase(flatten_size_t curbase = 0)
+        inline void rebase(f_size_t curbase = 0)
         {   for (size_t idx = 0; idx < size(); ++idx) {
                 at(idx).setbase(curbase); curbase += at(idx).size(); } }
 

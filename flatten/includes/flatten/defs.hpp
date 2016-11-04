@@ -9,15 +9,15 @@
 namespace flatten {
 #if FLATTEN_SIZE == 1
     static const size_t size_bits = 8;
-    typedef uint8_t flatten_size_t;
+    typedef uint8_t f_size_t;
 #elif FLATTEN_SIZE == 2
     static const size_t size_bits = 16;
-    typedef uint16_t flatten_size_t;
+    typedef uint16_t f_size_t;
 #elif FLATTEN_SIZE == 4
     static const size_t size_bits = 32;
-    typedef uint32_t flatten_size_t;
+    typedef uint32_t f_size_t;
 #elif FLATTEN_SIZE == 8
     static const size_t size_bits = 64;
-    typedef uint64_t flatten_size_t;
+    typedef uint64_t f_size_t;
 #endif
 }
