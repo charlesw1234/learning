@@ -8,19 +8,6 @@ namespace flatten {
 	inline segment_t(void): _base(0), _size(0) {}
 	inline ~segment_t() {}
 
-	inline bool operator == (const segment_t<SIZE_T> &other) const
-	{   return _base == other._base; }
-	inline bool operator != (const segment_t<SIZE_T> &other) const
-	{   return _base != other._base; }
-	inline bool operator < (const segment_t<SIZE_T> &other) const
-	{   return _base < other._base; }
-	inline bool operator > (const segment_t<SIZE_T> &other) const
-	{   return _base > other._base; }
-        inline bool operator <= (const segment_t<SIZE_T> &other) const
-        {   return _base <= other._base; }
-        inline bool operator >= (const segment_t<SIZE_T> &other) const
-        {   return _base >= other._base; }
-
 	inline SIZE_T base(void) const { return _base; }
 	inline SIZE_T size(void) const { return _size; }
 
