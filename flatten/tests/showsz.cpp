@@ -25,6 +25,7 @@ int main(void)
     SHOWSZ4(unsigned short, unsigned, unsigned long, unsigned long long);
     SHOWSZ4(char, unsigned char, float, double);
     SHOWSZ2(void *, size_t);
+    SHOWSZ2(flatten::file_t, flatten::memfile_t);
     SHOWSZ4(flatten::segment_t<uint8_t>,
             flatten::segment_t<uint16_t>,
             flatten::segment_t<uint32_t>,
