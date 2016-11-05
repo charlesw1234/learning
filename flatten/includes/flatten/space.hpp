@@ -39,7 +39,7 @@ namespace flatten {
         inline bool msave(file_t *file) const { FLATTEN_SWITCH(save(file, _space), false); }
         inline bool save(memfile_t *file) const { return _segment.u0->save(file, _space); }
         inline bool msave(memfile_t *file) const { FLATTEN_SWITCH(save(file, _space), false); }
-    private:
+    protected:
         bool _dirty;
         uint8_t _size;
         uint8_t *_space, *_free;

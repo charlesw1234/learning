@@ -5,6 +5,8 @@
 namespace flatten {
     template<typename SIZE_T>class segment_t {
     public:
+        static inline size_t sizeof_size(void) { return sizeof(SIZE_T); }
+
 	inline segment_t(void): _base(0), _size(0) {}
 	inline ~segment_t() {}
 
