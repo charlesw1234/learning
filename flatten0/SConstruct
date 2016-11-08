@@ -1,0 +1,10 @@
+# -*- python -*-
+from glob import glob
+from os.path import join as pathjoin, splitext
+
+env = Environment(CXXFLAGS = ['-g', '-O', '-Wall'],
+                  CPPPATH = ['includes'],
+                  PROGSUFFIX = '.exe')
+
+for tstfpath in glob(pathjoin('tests', '*.cpp')):
+    env.Program(splitext(tstfpath)[0], [tstfpath])
